@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stacked clock: hours above minutes, minutes in the accent color. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center" android:background="@drawable/widget_bg" android:padding="12dp">
+  <TextClock android:id="@+id/stack_hours" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:includeFontPadding="false"
+      android:fontFamily="sans-serif-medium" android:textSize="40sp" android:textColor="@color/w_text" android:format12Hour="hh" android:format24Hour="HH"/>
+  <TextClock android:id="@+id/stack_minutes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:includeFontPadding="false"
+      android:fontFamily="sans-serif-medium" android:textSize="40sp" android:textColor="@color/w_accent" android:format12Hour="mm" android:format24Hour="mm"/>
+  <TextView android:id="@+id/stack_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:maxLines="1"
+      android:textSize="13sp" android:textColor="@color/w_muted" android:text="Wed, Oct 21"/>
+</LinearLayout>

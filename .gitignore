@@ -1,0 +1,9 @@
+.gradle/
+local.properties
+**/build/
+.idea/
+*.iml
+*.jks
+*.keystore
+captures/
+smoke-tests.txt

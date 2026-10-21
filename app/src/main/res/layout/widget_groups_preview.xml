@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picker preview for the Alarm groups widget: header and sample rows. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText,NestedWeights,UselessParent,UseCompoundDrawables,RtlSymmetry" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/widget_bg" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingTop="12dp">
+  <LinearLayout android:id="@+id/list_header" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingStart="4dp" android:paddingBottom="6dp">
+    <ImageView android:id="@+id/list_icon" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_widget_group" android:importantForAccessibility="no"/>
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:orientation="vertical">
+      <TextView android:id="@+id/list_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textSize="15sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_text" android:text="@string/widget_groups_name"/>
+      <TextView android:id="@+id/list_summary" android:visibility="gone" android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textSize="12sp" android:textColor="@color/w_muted" android:text=""/>
+    </LinearLayout>
+    <ImageView android:id="@+id/list_add" android:visibility="gone" android:layout_width="32dp" android:layout_height="32dp" android:padding="7dp" android:src="@drawable/ic_widget_add" android:background="@drawable/widget_chip_accent" android:contentDescription="@string/add_alarm"/>
+  </LinearLayout>
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/widget_row" android:paddingStart="12dp" android:paddingEnd="6dp" android:paddingTop="4dp" android:paddingBottom="4dp">
+      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:fontFamily="sans-serif-medium" android:textSize="16sp" android:textColor="@color/w_text" android:text="Work"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_muted" android:text="5 alarms · 5 on · Tomorrow 07:30"/>
+      </LinearLayout>
+      <Switch android:checked="true" android:layout_width="wrap_content" android:layout_height="48dp" android:thumbTint="@color/w_switch_thumb" android:trackTint="@color/w_switch_track"/>
+    </LinearLayout>
+  </LinearLayout>
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="4dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/widget_row" android:paddingStart="12dp" android:paddingEnd="6dp" android:paddingTop="4dp" android:paddingBottom="4dp">
+      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:fontFamily="sans-serif-medium" android:textSize="16sp" android:textColor="@color/w_text" android:text="Weekend"/>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:maxLines="1" android:ellipsize="end" android:textSize="11sp" android:textColor="@color/w_muted" android:text="2 alarms · 0 on"/>
+      </LinearLayout>
+      <Switch android:checked="false" android:layout_width="wrap_content" android:layout_height="48dp" android:thumbTint="@color/w_switch_thumb" android:trackTint="@color/w_switch_track"/>
+    </LinearLayout>
+  </LinearLayout>
+</LinearLayout>

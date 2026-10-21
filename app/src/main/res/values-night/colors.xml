@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="w_bg_top">#1C2A42</color>
+  <color name="w_bg_bottom">#131B29</color>
+  <color name="w_line">#2B3950</color>
+  <color name="w_card">#192334</color>
+  <color name="w_soft">#253652</color>
+  <color name="w_text">#EEF3FF</color>
+  <color name="w_muted">#A0ADC3</color>
+  <color name="w_accent">#9CBCFF</color>
+  <color name="w_gold">#F5CE8D</color>
+  <color name="w_on_accent">#132342</color>
+</resources>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Next alarm widget: countdown, label and Skip / Turn off; an empty state with Add alarm. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText,NestedWeights,UselessParent,UseCompoundDrawables,RtlSymmetry" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/widget_bg" android:padding="16dp">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+    <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_widget_alarm" android:importantForAccessibility="no"/>
+    <TextView android:id="@+id/next_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:maxLines="1" android:ellipsize="end"
+        android:textSize="13sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_gold" android:text="@string/widget_next_name"/>
+    <TextView android:id="@+id/next_in" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textSize="13sp" android:textColor="@color/w_muted" android:text="in 8 h 12 min"/>
+  </LinearLayout>
+  <LinearLayout android:id="@+id/next_body" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:gravity="bottom">
+      <TextView android:id="@+id/next_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:includeFontPadding="false"
+          android:fontFamily="sans-serif-light" android:textSize="32sp" android:textColor="@color/w_text" android:text="07:30"/>
+      <TextView android:id="@+id/next_day" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="8dp" android:layout_marginBottom="4dp" android:maxLines="1" android:ellipsize="end"
+          android:textSize="15sp" android:textColor="@color/w_muted" android:text="Tomorrow"/>
+    </LinearLayout>
+    <TextView android:id="@+id/next_label" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:maxLines="1" android:ellipsize="end"
+        android:textSize="14sp" android:textColor="@color/w_text" android:text="Wake up · Work"/>
+  </LinearLayout>
+  <LinearLayout android:id="@+id/next_actions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+    <TextView android:id="@+id/next_skip" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:layout_marginEnd="8dp" android:gravity="center" android:maxLines="1" android:ellipsize="end"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="@string/skip_once"/>
+    <TextView android:id="@+id/next_off" android:layout_width="0dp" android:layout_height="36dp" android:layout_weight="1" android:gravity="center" android:maxLines="1" android:ellipsize="end"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="@string/turn_off"/>
+  </LinearLayout>
+  <LinearLayout android:id="@+id/next_empty" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="vertical" android:gravity="center_vertical" android:visibility="gone">
+    <TextView android:id="@+id/next_empty_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="17sp" android:textColor="@color/w_text" android:text="@string/widget_no_alarms"/>
+    <TextView android:id="@+id/next_add" android:layout_width="wrap_content" android:layout_height="36dp" android:layout_marginTop="10dp" android:paddingStart="16dp" android:paddingEnd="16dp" android:gravity="center"
+        android:background="@drawable/widget_chip_accent" android:textSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_on_accent" android:text="@string/add_alarm"/>
+  </LinearLayout>
+</LinearLayout>

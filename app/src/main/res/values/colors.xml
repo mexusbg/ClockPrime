@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget palette; matches the in-app light theme (values-night: dark). -->
+<resources>
+  <color name="w_bg_top">#FFFFFF</color>
+  <color name="w_bg_bottom">#EEF3FC</color>
+  <color name="w_line">#E1E7F0</color>
+  <color name="w_card">#F3F6FC</color>
+  <color name="w_soft">#E8F0FC</color>
+  <color name="w_text">#17253C</color>
+  <color name="w_muted">#617189</color>
+  <color name="w_accent">#386BC0</color>
+  <color name="w_gold">#996319</color>
+  <color name="w_on_accent">#FFFFFF</color>
+</resources>

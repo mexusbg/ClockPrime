@@ -1,0 +1,43 @@
+<resources>
+    <style name="AppTheme" parent="AppTheme.Light"/>
+    <style name="AppTheme.Light" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#386BC0</item>
+        <item name="android:alertDialogTheme">@style/ClockDialog.Light</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowBackground">#F2F6FC</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="android:navigationBarColor">#F2F6FC</item>
+        <item name="android:statusBarColor">#F2F6FC</item>
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+    </style>
+    <style name="AppTheme.Dark" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#9CBCFF</item>
+        <item name="android:alertDialogTheme">@style/ClockDialog.Dark</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">#101722</item>
+        <item name="android:colorBackground">#192334</item>
+        <item name="android:navigationBarColor">#101722</item>
+        <item name="android:statusBarColor">#101722</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    <style name="ClockDialog.Light" parent="android:style/Theme.Material.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_light</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="android:textColorPrimary">#17253C</item>
+        <item name="android:textColorSecondary">#617189</item>
+        <item name="android:colorAccent">#386BC0</item>
+    </style>
+    <style name="ClockDialog.Dark" parent="android:style/Theme.Material.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/dialog_dark</item>
+        <item name="android:colorBackground">#192334</item>
+        <item name="android:textColorPrimary">#EEF3FF</item>
+        <item name="android:textColorSecondary">#A0ADC3</item>
+        <item name="android:colorAccent">#9CBCFF</item>
+    </style>
+</resources>

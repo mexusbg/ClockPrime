@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Stopwatch widget: same ids as widget_counter, with stopwatch sample content for the picker preview. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText,NestedWeights,UseCompoundDrawables" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/widget_bg" android:padding="12dp">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+    <ImageView android:id="@+id/counter_icon" android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_widget_stopwatch" android:importantForAccessibility="no"/>
+    <TextView android:id="@+id/counter_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="6dp" android:maxLines="1" android:ellipsize="end"
+        android:textSize="13sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_gold" android:text="Stopwatch"/>
+    <TextView android:id="@+id/counter_note" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:textSize="12sp" android:textColor="@color/w_muted" android:text="2 laps"/>
+  </LinearLayout>
+  <Chronometer android:id="@+id/counter_time" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:maxLines="1"
+      android:includeFontPadding="false" android:fontFamily="sans-serif-light" android:textSize="32sp" android:textColor="@color/w_text"/>
+  <TextView android:id="@+id/counter_text" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:maxLines="1" android:visibility="gone"
+      android:fontFamily="sans-serif-light" android:textSize="28sp" android:textColor="@color/w_text" android:text="Finished"/>
+  <LinearLayout android:id="@+id/counter_actions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal">
+    <TextView android:id="@+id/counter_primary" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1" android:layout_marginEnd="8dp" android:gravity="center" android:maxLines="1" android:ellipsize="end"
+        android:background="@drawable/widget_chip_accent" android:textSize="14sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_on_accent" android:text="Pause"/>
+    <TextView android:id="@+id/counter_secondary" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1" android:gravity="center" android:maxLines="1" android:ellipsize="end"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="Lap"/>
+  </LinearLayout>
+  <LinearLayout android:id="@+id/counter_presets" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal" android:visibility="gone">
+    <TextView android:id="@+id/preset_1" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:gravity="center" android:maxLines="1"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="1 min"/>
+    <TextView android:id="@+id/preset_2" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1" android:layout_marginEnd="4dp" android:gravity="center" android:maxLines="1"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="5 min"/>
+    <TextView android:id="@+id/preset_3" android:layout_width="0dp" android:layout_height="34dp" android:layout_weight="1" android:gravity="center" android:maxLines="1"
+        android:background="@drawable/widget_chip" android:textSize="14sp" android:autoSizeTextType="uniform" android:autoSizeMinTextSize="10sp" android:autoSizeMaxTextSize="14sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_accent" android:text="10 min"/>
+  </LinearLayout>
+</LinearLayout>

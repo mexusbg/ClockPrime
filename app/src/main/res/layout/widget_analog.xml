@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Analog clock: our dial and hands; AnalogClock scales the 200dp drawables down to fit. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center_horizontal" android:background="@drawable/widget_bg" android:padding="12dp">
+  <AnalogClock android:id="@+id/analog_clock" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+      android:dial="@drawable/widget_dial" android:hand_hour="@drawable/widget_hand_hour" android:hand_minute="@drawable/widget_hand_minute"/>
+  <TextView android:id="@+id/analog_date" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:maxLines="1"
+      android:textSize="13sp" android:fontFamily="sans-serif-medium" android:textColor="@color/w_muted" android:text="Wed, Oct 21"/>
+</LinearLayout>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Clock-only widget: time and date. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText,NestedWeights,UselessParent,UseCompoundDrawables,RtlSymmetry" android:id="@android:id/background" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:gravity="center_vertical" android:background="@drawable/widget_bg" android:padding="16dp">
+  <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:orientation="horizontal" android:gravity="bottom">
+    <TextClock android:id="@+id/clock_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:maxLines="1" android:includeFontPadding="false"
+        android:fontFamily="sans-serif-light" android:textSize="44sp" android:textColor="@color/w_text" android:format12Hour="h:mm" android:format24Hour="HH:mm"/>
+    <TextClock android:id="@+id/clock_ampm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"
+        android:textSize="16sp" android:textColor="@color/w_muted" android:format12Hour="a" android:format24Hour=""/>
+  </LinearLayout>
+  <TextView android:id="@+id/clock_date" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:maxLines="1" android:ellipsize="end"
+      android:textSize="15sp" android:textColor="@color/w_muted" android:text="Wednesday, 21 October"/>
+</LinearLayout>
