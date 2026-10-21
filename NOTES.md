@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.11.4
+- Selection bar: Skip day is greyed out unless a selected alarm repeats and is on. Skipping a one-time alarm is the same as turning it off.
+
 ## 0.11.3
 - Alarm cards no longer show the yellow "Automatically silenced" / "Previous alarm missed" lines.
 - Switching an alarm on, or saving one that is on, shows when it rings, for example "Alarm set for Tomorrow 07:30 · in 8 h 12 min".

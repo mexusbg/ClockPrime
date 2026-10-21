@@ -100,10 +100,11 @@ public class MainActivity extends Activity {
     void updateBottomBar(){
         bottomBar.removeAllViews();
         if(tab.equals("Alarms")&&selection.group!=null){
-            boolean anyOn=false,anyOff=false;for(int id:selection.ids){JSONObject a=store.find("alarms",id);if(a!=null){anyOn|=a.optBoolean("enabled");anyOff|=!a.optBoolean("enabled");}}
+            // Skipping a one-time alarm is the same as turning it off, so Skip day needs a repeating alarm that is on.
+            boolean anyOn=false,anyOff=false,anyRepeatOn=false;for(int id:selection.ids){JSONObject a=store.find("alarms",id);if(a!=null){anyOn|=a.optBoolean("enabled");anyOff|=!a.optBoolean("enabled");anyRepeatOn|=a.optBoolean("enabled")&&a.optInt("days")!=0;}}
             weighted(bottomBar,labeledIcon("on",tr(R.string.turn_on),anyOff,false,()->selectionAction("ON")));
             weighted(bottomBar,labeledIcon("off",tr(R.string.turn_off),anyOn,false,()->selectionAction("OFF")));
-            weighted(bottomBar,labeledIcon("skip",tr(R.string.skip_day),anyOn,false,()->selectionAction("SKIP")));
+            weighted(bottomBar,labeledIcon("skip",tr(R.string.skip_day),anyRepeatOn,false,()->selectionAction("SKIP")));
             weighted(bottomBar,labeledIcon("delete",tr(R.string.delete),!selection.ids.isEmpty(),false,()->new AlertDialog.Builder(this).setTitle(quantity(R.plurals.delete_count,selection.ids.size())).setMessage(tr(R.string.delete_selection,groupLabel(selection.group))).setNegativeButton(tr(R.string.cancel),null).setPositiveButton(tr(R.string.delete),(d,w)->selectionAction("DELETE")).show()));
         } else for(String name:List.of("Alarms","World","Stopwatch","Timers"))weighted(bottomBar,labeledIcon(name,tabLabel(name),true,name.equals(tab),()->{if(tab.equals(name))return;captureTimer();selection.clear();tab=name;render();}));
     }
