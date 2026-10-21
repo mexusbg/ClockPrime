@@ -51,7 +51,7 @@ final class FixChecks {
                 JSONObject frozen=FocusIsland.timerParam(t.context,"QA",System.currentTimeMillis()+120000,600000L,false).optJSONObject("param_v2");
                 t.check(frozen.optJSONObject("highlightInfo").optJSONObject("timerInfo").optInt("timerType")==-2&&frozen.optJSONArray("actions").toString().contains(FocusIsland.RESUME),"Paused island freezes the countdown and offers Resume");
                 try{paused.actions[0].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}
-            });SystemClock.sleep(1500);t.waitForIdleSync();
+            });t.waitFor(()->new ClockStore(t.context).find("timers",timer[0]).optBoolean("running"));
             t.main(()->{JSONObject q=new ClockStore(t.context).find("timers",timer[0]);t.check(q.optBoolean("running")&&!q.optBoolean("paused")&&ClockStore.remaining(q)<600000L,"Resume continues the paused timer");
                 for(String id:new String[]{RingService.TIMER_CHANNEL,RingService.UPCOMING_CHANNEL}){NotificationChannel ch=nm.getNotificationChannel(id);t.check(ch!=null&&ch.getImportance()>=NotificationManager.IMPORTANCE_DEFAULT&&ch.getSound()==null,"Channel "+id+" is quiet but shown on the lock screen");}
                 t.check(nm.getNotificationChannel("upcoming")==null&&nm.getNotificationChannel("timers")==null,"Old silent channels are removed");});

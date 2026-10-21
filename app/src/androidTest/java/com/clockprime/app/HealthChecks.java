@@ -40,15 +40,15 @@ final class HealthChecks {
                 JSONObject paused=FocusIsland.stopwatchParam(t.context,"QA",65000,false).optJSONObject("param_v2");
                 t.check(paused.optJSONObject("highlightInfo").optJSONObject("timerInfo").optInt("timerType")==2&&paused.optJSONArray("actions").toString().contains(FocusIsland.RESET),"Paused stopwatch island freezes with Resume and Reset");
                 try{n.actions[1].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
-            SystemClock.sleep(800);
+            t.waitFor(()->{JSONArray l=new ClockStore(t.context).data.optJSONArray("laps");return l!=null&&l.length()==1;});
             t.main(()->{t.check(new ClockStore(t.context).data.optJSONArray("laps").length()==1,"Lap from the notification is recorded");
                 Notification n=Arrays.stream(nm.getActiveNotifications()).filter(x->x.getId()==ClockStore.STOPWATCH_ID).map(x->x.getNotification()).findFirst().orElseThrow();
                 try{n.actions[0].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
-            SystemClock.sleep(800);
+            t.waitFor(()->!new ClockStore(t.context).data.optBoolean("swRunning")&&Arrays.stream(nm.getActiveNotifications()).anyMatch(x->x.getId()==ClockStore.STOPWATCH_ID&&t.context.getString(R.string.resume).contentEquals(x.getNotification().actions[0].title)));
             t.main(()->{Notification n=Arrays.stream(nm.getActiveNotifications()).filter(x->x.getId()==ClockStore.STOPWATCH_ID).map(x->x.getNotification()).findFirst().orElse(null);
                 t.check(!new ClockStore(t.context).data.optBoolean("swRunning")&&n!=null&&t.context.getString(R.string.resume).contentEquals(n.actions[0].title),"Pause from the notification keeps a paused stopwatch notification");
                 try{n.actions[1].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
-            SystemClock.sleep(800);
+            t.waitFor(()->Arrays.stream(nm.getActiveNotifications()).noneMatch(x->x.getId()==ClockStore.STOPWATCH_ID));
             t.main(()->t.check(Arrays.stream(nm.getActiveNotifications()).noneMatch(x->x.getId()==ClockStore.STOPWATCH_ID)&&new ClockStore(t.context).stopwatchTime()==0,"Reset from the notification clears the stopwatch and its notification"));
         }finally{t.main(()->{ClockStore s=new ClockStore(t.context);try{JSONObject keep=new JSONObject(saved[0]);s.stopwatchReset();for(java.util.Iterator<String> k=keep.keys();k.hasNext();){String key=k.next();ClockStore.put(s.data,key,keep.opt(key));}}catch(JSONException e){throw new AssertionError(e);}s.save();s.syncStopwatch();});}
 
@@ -137,7 +137,7 @@ final class HealthChecks {
                 t.check(AlarmHealth.problems(t.context).contains(AlarmHealth.DND)==silentMedia,"Ring during Do Not Disturb clears the warning unless media volume is silent");
                 ClockStore s=new ClockStore(t.context);JSONObject a=t.testAlarm(s,"","dnd ring");dnd[0]=a.optInt("id");ClockStore.put(a,"days",0);ClockStore.put(a,"enabled",true);ClockStore.put(a,"next",System.currentTimeMillis());ClockStore.put(a,"sound",true);ClockStore.put(a,"vibrate",false);s.save(false);
                 t.check(ClockReceiver.fire(t.context,new android.content.Intent("FIRE").putExtra("kind","alarms").putExtra("id",dnd[0])),"Alarm fires during Do Not Disturb");
-            });SystemClock.sleep(2500);
+            });t.waitFor(()->audio.getActivePlaybackConfigurations().stream().map(c->c.getAudioAttributes()).anyMatch(x->x.getUsage()==android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY));
             t.main(()->t.check(audio.getActivePlaybackConfigurations().stream().map(c->c.getAudioAttributes()).anyMatch(x->x.getUsage()==android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY&&x.getContentType()==android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION),"Alarm blocked by Do Not Disturb plays on the unmuted accessibility channel"));
         }finally{
             shell(t,"cmd notification set_dnd "+switch(filter){case NotificationManager.INTERRUPTION_FILTER_PRIORITY->"priority";case NotificationManager.INTERRUPTION_FILTER_NONE->"none";case NotificationManager.INTERRUPTION_FILTER_ALARMS->"alarms";default->"off";});
