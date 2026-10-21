@@ -23,7 +23,6 @@
   <string name="empty_title">Make room for your morning</string>
   <string name="empty_description">Add your first alarm with +.</string>
   <string name="alarm">Alarm</string>
-  <string name="previous_missed">Previous alarm missed</string>
   <string name="new_group">New group</string>
   <string name="once">Once</string>
   <string name="every_day">Every day</string>
@@ -290,4 +289,5 @@
   <string name="widget_quick_start">Quick start</string>
   <string name="widget_paused">Paused</string>
   <plurals name="widget_laps"><item quantity="one">%d lap</item><item quantity="other">%d laps</item></plurals>
+  <string name="alarm_set_for">Alarm set for %1$s · %2$s</string>
 </resources>

@@ -124,6 +124,11 @@ final class WidgetChecks {
             });
             MainActivity main=(MainActivity)t.startActivitySync(new Intent(t.context,MainActivity.class).putExtra("tab","Alarms").putExtra("add","alarm").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK));t.waitForIdleSync();
             try{t.main(()->{t.check(main.alarmDialog!=null&&main.alarmDialog.isShowing()&&main.editingOptions!=null,"Widget + opens a new alarm in the editor");main.alarmDialog.dismiss();
+                    // Alarm cards carry no status lines; switching an alarm on says when it rings.
+                    ClockStore s=new ClockStore(t.context);JSONObject x=s.find("alarms",ids[1]);ClockStore.put(x,"autoSilenced",true);ClockStore.put(x,"missed",true);s.save(false);main.render();
+                    t.check(!HealthChecks.texts(main.body).contains(t.context.getString(R.string.auto_silenced)),"Alarm cards show no auto-silenced or missed line");
+                    String set=main.alarmSet(new ClockStore(t.context).find("alarms",ids[1]));long at=new ClockStore(t.context).find("alarms",ids[1]).optLong("next");
+                    t.check(set.contains(Widgets.time(t.context,at))&&set.contains(Widgets.relative(t.context,at,System.currentTimeMillis())),"Turning an alarm on reports when it rings: "+set);
                     main.onNewIntent(new Intent(t.context,MainActivity.class).putExtra("tab","World"));t.check("World".equals(main.tab),"Widget opens the World tab");});
             }finally{t.main(main::finish);}
         }finally{t.main(()->{ClockStore s=new ClockStore(t.context);for(int id:timers){JSONObject x=s.find("timers",id);if(x!=null)s.remove("timers",x);}if(stopwatchKeep.length()>0){s.stopwatchReset();for(Iterator<String> k=stopwatchKeep.keys();k.hasNext();){String key=k.next();ClockStore.put(s.data,key,stopwatchKeep.opt(key));}}else s.stopwatchReset();s.syncStopwatch();for(int id:ids){JSONObject a=s.find("alarms",id);if(a!=null)s.remove("alarms",a);}JSONArray g=s.list("groups");for(int i=g.length()-1;i>=0;i--)if("QA widget".equals(g.optString(i)))g.remove(i);s.save(false);});SystemClock.sleep(300);}

@@ -22,7 +22,6 @@
   <string name="empty_title">Започнете деня навреме</string>
   <string name="empty_description">Добавете първата си аларма с +.</string>
   <string name="alarm">Аларма</string>
-  <string name="previous_missed">Предишната аларма е пропусната</string>
   <string name="new_group">Нова група</string>
   <string name="once">Еднократно</string>
   <string name="every_day">Всеки ден</string>
@@ -289,4 +288,5 @@
   <string name="widget_quick_start">Бърз старт</string>
   <string name="widget_paused">На пауза</string>
   <plurals name="widget_laps"><item quantity="one">%d обиколка</item><item quantity="other">%d обиколки</item></plurals>
+  <string name="alarm_set_for">Алармата е за %1$s · %2$s</string>
 </resources>

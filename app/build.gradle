@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'com.clockprime.app'
     compileSdk 35
-    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 27; versionName '0.11.2-test'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
+    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 28; versionName '0.11.3-test'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     buildTypes { debug { debuggable true } }
 }

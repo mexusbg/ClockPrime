@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.11.3
+- Alarm cards no longer show the yellow "Automatically silenced" / "Previous alarm missed" lines.
+- Switching an alarm on, or saving one that is on, shows when it rings, for example "Alarm set for Tomorrow 07:30 · in 8 h 12 min".
+
 ## 0.11.2
 - The Timer widget preview shows the idle Timer state.
 
