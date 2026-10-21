@@ -72,7 +72,8 @@ public class SmokeTests extends Instrumentation {
             ClockSettings lead=new ClockSettings(context);leadBackup=lead.number("upcoming_minutes",-1);lead.put("upcoming_minutes",1);
             s.enable(a,false);long now=System.currentTimeMillis();ClockStore.put(a,"enabled",true);ClockStore.put(a,"next",now+60000+6500);s.schedule("alarms",a);s.save();check(upcoming()==null,"No upcoming notification outside the lead time");
         });
-        SystemClock.sleep(8200);
+        // The boundary alarm is due in ~6.5 s; slow emulators (CI) deliver it later, so poll instead of a fixed sleep.
+        for(long end=SystemClock.elapsedRealtime()+30000;upcoming()==null&&SystemClock.elapsedRealtime()<end;)SystemClock.sleep(250);
         main(()->{Notification n=upcoming();check(n!=null,"Notification appears when the lead-time threshold is crossed with app closed");check((n.flags&Notification.FLAG_ONGOING_EVENT)!=0&&!n.extras.getBoolean(Notification.EXTRA_SHOW_CHRONOMETER),"Upcoming notification is ongoing with a static time");
             // 30 minutes covers the 10- and 20-minute QA alarms but not the phone's own alarms.
             new ClockSettings(context).put("upcoming_minutes",30);
