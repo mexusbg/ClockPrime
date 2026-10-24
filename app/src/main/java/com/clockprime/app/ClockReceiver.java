@@ -92,7 +92,7 @@ public class ClockReceiver extends BroadcastReceiver {
             ClockStore.put(o,"running",false);ClockStore.put(o,"remaining",0);
         }
         DebugLog.log(context,"fire",kind+" "+o.optInt("id")+" via "+from+" "+DebugLog.state(context)+" "+AlarmHealth.describe(context));
-        ClockStore.put(o,"ringStartedElapsed",android.os.SystemClock.elapsedRealtime());ClockStore.put(o,"ringBoot",ClockStore.bootCount(context));ClockStore.put(o,"autoSilenced",false);ClockStore.put(o,"ringing",true);s.schedule(kind,o);s.save();
+        ClockStore.put(o,"ringStartedElapsed",android.os.SystemClock.elapsedRealtime());ClockStore.put(o,"ringBoot",ClockStore.bootCount(context));ClockStore.put(o,"autoSilenced",false);ClockStore.put(o,"ringing",true);s.schedule(kind,o);s.save();Automation.event(context,kind.equals("alarms")?Automation.RINGING:Automation.TIMER_FINISHED,o);
         context.startForegroundService(new Intent(context,RingService.class));
         // If we are not already RingActivity (broadcast / timer poll), try to open it.
         if(!(context instanceof RingActivity))RingLaunch.open(context);

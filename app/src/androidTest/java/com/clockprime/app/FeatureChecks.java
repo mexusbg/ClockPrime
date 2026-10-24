@@ -65,6 +65,14 @@ final class FeatureChecks {
             JSONObject template=MainActivity.template(source);
             t.check(template.optInt("days")==31&&template.optString("challenge").equals("shake")&&!template.has("start")&&!template.has("name"),"New alarms copy the last alarm's settings, not its dates or label");
 
+            ClockStore seed=new ClockStore(t.context);JSONObject target=t.testAlarm(seed,"","api");seed.enable(target,true);seed.save();
+            ClockSettings settings=new ClockSettings(t.context);boolean control=settings.flag(Automation.CONTROL_KEY,false);
+            settings.put(Automation.CONTROL_KEY,false);int ignored=Automation.control(t.context,new Intent(Automation.DISABLE).putExtra("label","ClockPrime QA api"));
+            settings.put(Automation.CONTROL_KEY,true);int changed=Automation.control(t.context,new Intent(Automation.DISABLE).putExtra("label","clockprime qa api"));
+            settings.put(Automation.CONTROL_KEY,control);
+            ClockStore last=new ClockStore(t.context);JSONObject off=null;for(JSONObject a:last.objects("alarms"))if(a.optString("name").equals("ClockPrime QA api"))off=a;
+            t.check(ignored==0&&changed==1&&off!=null&&!off.optBoolean("enabled"),"Automation control works only when allowed");
+            last.remove("alarms",off);last.save();
         });
         holidays(t);
     }

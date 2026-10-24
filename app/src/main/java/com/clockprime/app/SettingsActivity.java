@@ -128,6 +128,9 @@ public class SettingsActivity extends Activity {
         item(appearance,R.string.date_format_label,dateFormatLabel(),null,this::chooseDateFormat);
         item(appearance,R.string.hour_format_label,hourFormatLabel(),null,this::chooseHourFormat);
         item(appearance,R.string.edit_system_time,null,null,()->startActivity(new Intent(Settings.ACTION_DATE_SETTINGS)));
+        LinearLayout automation=section(R.string.automation_section);
+        toggle(automation,R.string.automation_events,tr(R.string.automation_events_detail),Automation.EVENTS_KEY,false);
+        toggle(automation,R.string.automation_control,tr(R.string.automation_control_detail),Automation.CONTROL_KEY,false);
         LinearLayout backup=section(R.string.backup_section);
         item(backup,R.string.export_alarms,null,tr(R.string.export_alarms_detail),this::exportAlarms);
         item(backup,R.string.import_alarms,null,tr(R.string.import_alarms_detail),this::importAlarms);

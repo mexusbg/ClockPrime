@@ -381,6 +381,11 @@
   <string name="series_last">Последна аларма в</string>
   <string name="series_last_default">С един час по-късно</string>
   <string name="series_created">Създадени: %1$s</string>
+  <string name="automation_section">Автоматизация</string>
+  <string name="automation_events">Изпращане на събития за аларми</string>
+  <string name="automation_events_detail">Приложения като Tasker могат да реагират, когато аларма звъни, бъде отложена или изключена.</string>
+  <string name="automation_control">Разрешаване на управление</string>
+  <string name="automation_control_detail">Приложения като Tasker могат да включват или изключват аларми и групи или да пропускат следващото им звънене.</string>
   <plurals name="every_days"><item quantity="one">Всеки ден</item><item quantity="other">На всеки %d дни</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>
   <plurals name="days_value"><item quantity="one">%d ден</item><item quantity="other">%d дни</item></plurals>
