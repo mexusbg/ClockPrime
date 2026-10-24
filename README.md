@@ -12,6 +12,13 @@ A native Android clock app: alarms with named groups, world clocks, a stopwatch,
   <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="19%" alt="Settings">
 </p>
 
+## Download
+
+Signed APKs are on the [Releases](https://github.com/mexusbg/ClockPrime/releases) page. Add this repository to [Obtainium](https://github.com/ImranR98/Obtainium) for automatic updates. Android 13 or newer.
+
+Signing certificate SHA-256:
+`1D:7C:29:49:1C:14:D8:D0:C9:60:B3:FA:ED:2D:8F:F6:31:47:76:5A:BC:90:D9:C7:2A:17:41:BE:E3:42:8A:5E`
+
 ## Features
 
 - **Alarms:** repeat days, per-alarm ringtone, vibration, snooze duration and limit, and auto-delete for one-time alarms. Gradual volume uses Android's alarm volume. A built-in fallback tone plays if the chosen sound is unavailable.
@@ -70,7 +77,7 @@ GitHub Actions (`.github/workflows/ci.yml`):
 The repository carries what F-Droid needs:
 - Store listing: `fastlane/metadata/android/` (English and Bulgarian) with screenshots and the icon.
 - Build recipe: `fdroid/com.clockprime.app.yml`, for the fdroiddata repository.
-- Unsigned release build: `./gradlew assembleRelease`.
+- Release build: `./gradlew assembleRelease` (unsigned, as F-Droid builds it; signed when a local `keystore.properties` exists).
 
 Each release is a `vX.Y.Z` tag with a matching `versionName` and a new `versionCode`, plus a changelog in `fastlane/metadata/android/*/changelogs/<versionCode>.txt`.
 

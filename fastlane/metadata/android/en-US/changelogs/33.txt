@@ -1,4 +1,4 @@
-First F-Droid release.
+First public release.
 * Licensed under GPL-3.0-or-later.
 * Settings > About: license, source code and a Ko-fi support link.
 * 11 home-screen widgets.
