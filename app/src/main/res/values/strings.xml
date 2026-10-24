@@ -417,6 +417,14 @@
   <!-- Button on timers: remove one minute -->
   <string name="remove_minute">−1 min</string>
   <string name="clear">Clear</string>
+  <string name="series_section">More alarms</string>
+  <!-- Followed by a choice such as "Just this one" or "5 alarms" -->
+  <string name="series_label">Create</string>
+  <string name="series_single">Just this one</string>
+  <string name="series_last">Last alarm at</string>
+  <string name="series_last_default">One hour later</string>
+  <!-- %1$s: alarm count from "alarm_count", e.g. "5 alarms" -->
+  <string name="series_created">Created %1$s</string>
   <plurals name="every_days"><item quantity="one">Every day</item><item quantity="other">Every %d days</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Every week</item><item quantity="other">Every %d weeks</item></plurals>
   <plurals name="days_value"><item quantity="one">%d day</item><item quantity="other">%d days</item></plurals>

@@ -375,6 +375,12 @@
   <string name="add_minute">+1 мин</string>
   <string name="remove_minute">−1 мин</string>
   <string name="clear">Изчистване</string>
+  <string name="series_section">Още аларми</string>
+  <string name="series_label">Създаване</string>
+  <string name="series_single">Само тази</string>
+  <string name="series_last">Последна аларма в</string>
+  <string name="series_last_default">С един час по-късно</string>
+  <string name="series_created">Създадени: %1$s</string>
   <plurals name="every_days"><item quantity="one">Всеки ден</item><item quantity="other">На всеки %d дни</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>
   <plurals name="days_value"><item quantity="one">%d ден</item><item quantity="other">%d дни</item></plurals>
