@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.13.4
+- Alarm editor dropdowns all have the same width and line up.
+
 ## 0.13.3
 - Alarm editor dropdowns: the arrow sits at the right edge.
 

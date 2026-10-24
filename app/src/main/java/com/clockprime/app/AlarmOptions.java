@@ -23,6 +23,7 @@ final class AlarmOptions {
     /** Once: optional fixed date. Repeating: optional first and last day. Pause: through a date, or for a number of rings. */
     LocalDate onDate,startDate,endDate,pauseUntil;int pauseRings;
     static final int ONCE=0,DAILY=1,WEEKDAYS=2,CUSTOM=3,EVERY_DAYS=4,EVERY_WEEKS=5,MONTHLY=6;
+    static final int PICK_WIDTH=172;
     static final int[] LIMITS={1,2,3,5,10,0};
     /** Same choices as the default snooze duration in Settings. */
     static final int[] DURATIONS={1,3,5,10,15,20,30};
@@ -109,7 +110,8 @@ final class AlarmOptions {
     LinearLayout pick(LinearLayout card,int title,Spinner s){
         LinearLayout r=line(card,title,null);
         if(a.largeFont()){r.setOrientation(LinearLayout.VERTICAL);r.setGravity(Gravity.START);r.setPadding(0,a.dp(8),0,a.dp(10));r.getChildAt(0).setLayoutParams(new LinearLayout.LayoutParams(-1,-2));LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.topMargin=a.dp(6);r.addView(s,lp);}
-        else{LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.setMarginStart(a.dp(8));r.addView(s,lp);}
+        // Every dropdown has the same width, so they line up down the editor (longer values ellipsize).
+        else{LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(a.dp(PICK_WIDTH),-2);lp.setMarginStart(a.dp(8));r.addView(s,lp);}
         return r;
     }
     /** Tappable row whose detail (in accent colour) shows the chosen value. */

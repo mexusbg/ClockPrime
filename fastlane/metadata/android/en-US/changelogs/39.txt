@@ -1,0 +1,1 @@
+* Alarm editor dropdowns: the arrow sits at the right edge, and all dropdowns have the same width.
