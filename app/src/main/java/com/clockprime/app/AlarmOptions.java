@@ -126,9 +126,9 @@ final class AlarmOptions {
         s.addState(new int[]{android.R.attr.state_checked},on);s.addState(new int[]{},off);return s;
     }
     /** Dropdown in the app's style: an outlined pill with a chevron, opening a rounded card whose current choice is highlighted.
-     *  The pill is as wide as the longest choice; the current one sits at its end, by the chevron. */
+     *  The pill is as wide as the longest choice; the current one and its chevron start at its left. */
     Spinner spinner(String[] values){
-        Spinner s=new Spinner(a,Spinner.MODE_DROPDOWN);s.setAdapter(adapter(s,values));s.setGravity(Gravity.END|Gravity.CENTER_VERTICAL);s.setMinimumHeight(a.dp(44));
+        Spinner s=new Spinner(a,Spinner.MODE_DROPDOWN);s.setAdapter(adapter(s,values));s.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);s.setMinimumHeight(a.dp(44));
         GradientDrawable pill=a.bg(a.CARD,14);pill.setStroke(a.dp(1),a.LINE);s.setBackground(new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf((a.MINT&0x00FFFFFF)|0x30000000),pill,null));
         GradientDrawable popup=a.bg(a.CARD,18);popup.setStroke(a.dp(1),a.LINE);s.setPopupBackgroundDrawable(popup);s.setDropDownVerticalOffset(a.dp(6));s.setElevation(0);
         return s;

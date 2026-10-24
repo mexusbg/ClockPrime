@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.13.2
+- Alarm editor dropdowns show their value on the left.
+
 ## 0.13.1
 - Deleting an alarm, timer or world clock shows Undo; delete actions are styled as destructive.
 - The alarm editor follows the 12-hour format with an AM/PM wheel.

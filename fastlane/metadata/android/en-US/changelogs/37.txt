@@ -1,0 +1,1 @@
+* Alarm editor dropdowns show their value on the left.
