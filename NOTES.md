@@ -1,5 +1,17 @@
 # Release notes
 
+## 0.13.1
+- Deleting an alarm, timer or world clock shows Undo; delete actions are styled as destructive.
+- The alarm editor follows the 12-hour format with an AM/PM wheel.
+- Large text: page titles, editor rows and timer presets no longer cut off or break words.
+- Alarm cards and headers use relative dates (Today, Tomorrow, weekday).
+- Timers: compact rows, running timers first with a progress bar, "5 min" presets.
+- Settings: values in a quieter colour; problems marked with a warning; done setup steps shown with a check.
+- Group menu grouped, showing only the actions that apply; groups use a "more" icon.
+- Ringtone list shows the current choice; "Alarm sound" is the one way to silence an alarm.
+- Stopwatch laps marked "fastest" and "slowest" and use the main display format.
+- Accessibility: stronger light-theme contrast (text, switches, selected tab), larger touch targets, tabs announced as selected, puzzle feedback announced, named timer buttons.
+
 ## 0.13.0
 - More schedules: one-time alarms on a chosen date, every few days, every few weeks on chosen weekdays, monthly (a day or the last day), with optional start and end dates.
 - Holidays: a shared list of dates in Settings; alarms with "Skip holidays" don't ring on them.

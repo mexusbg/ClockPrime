@@ -17,7 +17,7 @@ import java.util.*;
 
 /** Full-screen settings with app-owned sound preferences and native ringtone selection. */
 public class SettingsActivity extends Activity {
-    boolean dark,advanced,showPast;String page="";int bg,card,text,muted,accent,line,soft,onAccent,mainScroll;LinearLayout body;ScrollView scroll;ClockSettings prefs;
+    boolean dark,advanced,showPast;String page="";int bg,card,text,muted,accent,gold,line,soft,onAccent,mainScroll;Palette palette;LinearLayout body;ScrollView scroll;ClockSettings prefs;
     Ringtone preview;final Handler handler=new Handler(Looper.getMainLooper());int savedScroll=-1;
     String tr(int id,Object... args){return args.length==0?getString(id):getString(id,args);}
     int dp(float n){return Math.round(n*getResources().getDisplayMetrics().density);}
@@ -43,11 +43,11 @@ public class SettingsActivity extends Activity {
     void gap(LinearLayout parent,int height){parent.addView(new View(this),new LinearLayout.LayoutParams(1,dp(height)));}
     void render(){
         int offset=savedScroll>=0?savedScroll:scroll==null?0:scroll.getScrollY();savedScroll=-1;
-        bg=Color.parseColor(dark?"#101722":"#F3F6FC");card=Color.parseColor(dark?"#192334":"#FFFFFF");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");accent=Color.parseColor(dark?"#9CBCFF":"#386BC0");line=Color.parseColor(dark?"#2B3950":"#E1E7F0");soft=Color.parseColor(dark?"#253652":"#E8F0FC");onAccent=Color.parseColor(dark?"#132342":"#FFFFFF");
+        Palette p=new Palette(dark);palette=p;bg=p.bg;card=p.card;text=p.text;muted=p.muted;accent=p.accent;gold=p.gold;line=p.line;soft=p.soft;onAccent=p.onAccent;
         LinearLayout root=column();root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.parseColor(dark?"#18263F":"#E7F0FF"),bg}));root.setOnApplyWindowInsetsListener((v,i)->{android.graphics.Insets in=i.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(20)+in.left,in.top,dp(20)+in.right,in.bottom);return i;});setContentView(LocaleText.direction(root));
         WindowInsetsController bars=getWindow().getInsetsController();if(bars!=null)bars.setSystemBarsAppearance(dark?0:WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         LinearLayout header=row();ImageButton back=new ImageButton(this);back.setImageDrawable(new ClockIcon("back",accent));back.setPadding(dp(12),dp(12),dp(12),dp(12));back.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),shape(Color.TRANSPARENT,16),null));back.setContentDescription(tr(R.string.back));back.setOnClickListener(v->back());header.addView(back,new LinearLayout.LayoutParams(dp(48),dp(48)));
-        TextView title=label(tr(holidayPage()?R.string.holidays_label:R.string.settings),26,text);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));header.addView(title,new LinearLayout.LayoutParams(0,-2,1));root.addView(header,new LinearLayout.LayoutParams(-1,dp(80)));
+        TextView title=label(tr(holidayPage()?R.string.holidays_label:R.string.settings),26,text);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));header.addView(title,new LinearLayout.LayoutParams(0,-2,1));header.setMinimumHeight(dp(80));header.setPadding(0,dp(8),0,dp(8));root.addView(header,new LinearLayout.LayoutParams(-1,-2));
         scroll=new ScrollView(this);scroll.setVerticalScrollBarEnabled(false);body=column();body.setPadding(0,dp(8),0,dp(24));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if(holidayPage())holidays(root);else general();root.requestApplyInsets();scroll.post(()->scroll.scrollTo(0,offset));
     }
     LinearLayout section(int title){TextView heading=label(tr(title),12,muted);heading.setPaddingRelative(dp(8),dp(20),0,dp(10));body.addView(heading);LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));body.addView(c,new LinearLayout.LayoutParams(-1,-2));return c;}
@@ -65,12 +65,15 @@ public class SettingsActivity extends Activity {
         return b;
     }
     void openLink(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url)));}catch(android.content.ActivityNotFoundException e){android.widget.Toast.makeText(this,url,android.widget.Toast.LENGTH_LONG).show();}}
-    void item(LinearLayout c,int title,String value,String detail,Runnable action){
-        divider(c);LinearLayout r=row();r.setPadding(0,dp(12),0,dp(12));r.setMinimumHeight(dp(56));LinearLayout words=column();words.addView(label(tr(title),16,text));if(value!=null){gap(words,5);words.addView(label(value,14,accent));}if(detail!=null){gap(words,5);words.addView(label(detail,12,muted));}r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
+    void item(LinearLayout c,int title,String value,String detail,Runnable action){item(c,title,value,detail,action,false);}
+    /** Values read in the muted colour; a problem (something that can keep alarms from ringing) in gold with a warning sign. */
+    void item(LinearLayout c,int title,String value,String detail,Runnable action,boolean problem){
+        divider(c);LinearLayout r=row();r.setPadding(0,dp(12),0,dp(12));r.setMinimumHeight(dp(56));LinearLayout words=column();words.addView(label(tr(title),16,text));
+        if(value!=null){gap(words,5);TextView v=label(value,14,problem?gold:muted);if(problem){LinearLayout state=row();ImageView sign=new ImageView(this);sign.setImageDrawable(new ClockIcon("warning",gold));sign.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(dp(16),dp(16));lp.setMarginEnd(dp(6));state.addView(sign,lp);state.addView(v,new LinearLayout.LayoutParams(0,-2,1));state.setTag("problem");words.addView(state);}else words.addView(v);}if(detail!=null){gap(words,5);words.addView(label(detail,12,muted));}r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
         if(action!=null){ImageView arrow=new ImageView(this);arrow.setImageDrawable(new ClockIcon("right",muted));r.addView(arrow,new LinearLayout.LayoutParams(dp(22),dp(22)));r.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,12)));r.setFocusable(true);r.setOnClickListener(v->action.run());}c.addView(r);
     }
-    void toggle(LinearLayout c,int title,String detail,String key,boolean fallback){divider(c);LinearLayout r=row();r.setPadding(0,dp(14),0,dp(14));LinearLayout words=column();words.addView(label(tr(title),16,text));if(detail!=null){gap(words,5);words.addView(label(detail,12,muted));}r.addView(words,new LinearLayout.LayoutParams(0,-2,1));Switch value=new Switch(this);value.setChecked(prefs.flag(key,fallback));value.setContentDescription(tr(title));value.setMinimumHeight(dp(48));r.addView(value);value.setOnCheckedChangeListener((v,on)->{prefs.put(key,on);changed();});r.setOnClickListener(v->value.toggle());c.addView(r);}
-    void volume(LinearLayout c,String kind){if(kind.equals("alarms")){alarmVolume(c);return;}divider(c);LinearLayout controls=column();controls.setPadding(0,dp(16),0,dp(12));LinearLayout r=row();LinearLayout words=column();words.addView(label(tr(R.string.timer_volume),16,text));words.addView(label(tr(R.string.timer_volume_detail),12,muted));r.addView(words,new LinearLayout.LayoutParams(0,-2,1));TextView amount=label(percent(prefs.volume(kind)),14,accent);r.addView(amount);controls.addView(r);SeekBar slider=new SeekBar(this);slider.setMax(100);slider.setProgress(prefs.volume(kind));slider.setMinimumHeight(dp(48));slider.setContentDescription(tr(R.string.timer_volume));slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
+    void toggle(LinearLayout c,int title,String detail,String key,boolean fallback){divider(c);LinearLayout r=row();r.setPadding(0,dp(14),0,dp(14));LinearLayout words=column();words.addView(label(tr(title),16,text));if(detail!=null){gap(words,5);words.addView(label(detail,12,muted));}r.addView(words,new LinearLayout.LayoutParams(0,-2,1));Switch value=new Switch(this);palette.tint(value);value.setChecked(prefs.flag(key,fallback));value.setContentDescription(tr(title));value.setMinimumHeight(dp(48));r.addView(value);value.setOnCheckedChangeListener((v,on)->{prefs.put(key,on);changed();});r.setOnClickListener(v->value.toggle());c.addView(r);}
+    void volume(LinearLayout c,String kind){if(kind.equals("alarms")){alarmVolume(c);return;}divider(c);LinearLayout controls=column();controls.setPadding(0,dp(16),0,dp(12));LinearLayout r=row();LinearLayout words=column();words.addView(label(tr(R.string.timer_volume),16,text));words.addView(label(tr(R.string.timer_volume_detail),12,muted));r.addView(words,new LinearLayout.LayoutParams(0,-2,1));TextView amount=label(percent(prefs.volume(kind)),14,muted);r.addView(amount);controls.addView(r);SeekBar slider=new SeekBar(this);slider.setMax(100);slider.setProgress(prefs.volume(kind));slider.setMinimumHeight(dp(48));slider.setContentDescription(tr(R.string.timer_volume));slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
             public void onProgressChanged(SeekBar s,int value,boolean user){amount.setText(percent(value));if(user){if(preview!=null)preview.setVolume(value/100f);else scheduleVolumePreview(kind,value);}}
             public void onStartTrackingTouch(SeekBar s){previewAt(kind,s.getProgress(),0);}
             public void onStopTrackingTouch(SeekBar s){prefs.put("timer_volume",s.getProgress());changed();previewAt(kind,s.getProgress(),1000);}
@@ -85,7 +88,7 @@ public class SettingsActivity extends Activity {
     }
     void alarmVolume(LinearLayout c){
         divider(c);LinearLayout controls=column();controls.setPadding(0,dp(16),0,dp(12));LinearLayout r=row();LinearLayout words=column();words.addView(label(tr(R.string.alarm_volume),16,text));words.addView(label(tr(R.string.alarm_volume_detail),12,muted));r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
-        alarmAmount=label(alarmPercent(),14,accent);r.addView(alarmAmount);controls.addView(r);
+        alarmAmount=label(alarmPercent(),14,muted);r.addView(alarmAmount);controls.addView(r);
         int min=audio().getStreamMinVolume(AudioManager.STREAM_ALARM);
         alarmSlider=new SeekBar(this);alarmSlider.setMax(audio().getStreamMaxVolume(AudioManager.STREAM_ALARM)-min);alarmSlider.setProgress(audio().getStreamVolume(AudioManager.STREAM_ALARM)-min);alarmSlider.setMinimumHeight(dp(48));alarmSlider.setContentDescription(tr(R.string.alarm_volume));
         alarmSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener(){
@@ -104,7 +107,7 @@ public class SettingsActivity extends Activity {
     void changed(){ClockStore s=new ClockStore(this);UpcomingAlarm.refresh(this,s,System.currentTimeMillis());Widgets.update(this,s);if(s.ringing())s.refreshSound();}
     String toneName(String kind){if(prefs.text(ClockSettings.prefix(kind)+"_tone","default").equals(ClockSettings.BUILTIN))return tr(R.string.builtin_tone);Uri uri=prefs.tone(kind);if(uri==null)return tr(R.string.silent);if(RingtoneManager.isDefault(uri))return tr(R.string.system_alarm_sound);try{Ringtone tone=RingtoneManager.getRingtone(this,uri);if(tone!=null)return tone.getTitle(this);}catch(Exception ignored){}return tr(R.string.sound_unavailable);}
     void gradual(LinearLayout parent,String kind){
-        String key=ClockSettings.prefix(kind);divider(parent);LinearLayout r=row();r.setPadding(0,dp(12),0,dp(12));TextView title=label(tr(R.string.gradual_volume),16,text);r.addView(title,new LinearLayout.LayoutParams(0,-2,1));Switch enabled=new Switch(this);enabled.setContentDescription(tr(R.string.gradual_volume));enabled.setMinimumHeight(dp(48));enabled.setChecked(prefs.flag(key+"_ascending",false));r.addView(enabled);parent.addView(r);
+        String key=ClockSettings.prefix(kind);divider(parent);LinearLayout r=row();r.setPadding(0,dp(12),0,dp(12));TextView title=label(tr(R.string.gradual_volume),16,text);r.addView(title,new LinearLayout.LayoutParams(0,-2,1));Switch enabled=new Switch(this);palette.tint(enabled);enabled.setContentDescription(tr(R.string.gradual_volume));enabled.setMinimumHeight(dp(48));enabled.setChecked(prefs.flag(key+"_ascending",false));r.addView(enabled);parent.addView(r);
         LinearLayout duration=column();item(duration,R.string.ramp_duration,getResources().getQuantityString(R.plurals.seconds_value,prefs.rampSeconds(kind),prefs.rampSeconds(kind)),tr(R.string.ramp_detail),()->{int[] values={10,30,60,120};String[] labels=new String[values.length];int selected=0;for(int i=0;i<values.length;i++){labels[i]=getResources().getQuantityString(R.plurals.seconds_value,values[i],values[i]);if(values[i]==prefs.rampSeconds(kind))selected=i;}new AlertDialog.Builder(this).setTitle(R.string.ramp_duration).setSingleChoiceItems(labels,selected,(d,i)->{prefs.put(key+"_ramp",values[i]);d.dismiss();changed();render();}).setNegativeButton(R.string.cancel,null).show();});parent.addView(duration);duration.setVisibility(enabled.isChecked()?View.VISIBLE:View.GONE);enabled.setOnCheckedChangeListener((v,on)->{prefs.put(key+"_ascending",on);duration.setVisibility(on?View.VISIBLE:View.GONE);changed();});r.setOnClickListener(v->enabled.toggle());
     }
     void general(){
@@ -150,7 +153,7 @@ public class SettingsActivity extends Activity {
     void chooseUpcoming(){
         int current=prefs.upcomingMinutes();int[] split=ClockSettings.splitMinutes(current==0?720:current);
         LinearLayout box=column();box.setPadding(dp(24),dp(8),dp(24),0);
-        Switch on=new Switch(this);on.setText(tr(R.string.upcoming_enabled));on.setTextSize(16);on.setTextColor(text);on.setMinHeight(dp(48));on.setChecked(current>0);box.addView(on);
+        Switch on=new Switch(this);palette.tint(on);on.setText(tr(R.string.upcoming_enabled));on.setTextSize(16);on.setTextColor(text);on.setMinHeight(dp(48));on.setChecked(current>0);box.addView(on);
         LinearLayout pickers=row();pickers.setGravity(Gravity.CENTER);
         NumberPicker amount=new NumberPicker(this),unit=new NumberPicker(this);
         unit.setMinValue(0);unit.setMaxValue(1);unit.setDisplayedValues(new String[]{tr(R.string.unit_minutes),tr(R.string.unit_hours)});unit.setValue(split[1]);unit.setWrapSelectorWheel(false);
@@ -165,14 +168,8 @@ public class SettingsActivity extends Activity {
         upcomingDialog=new AlertDialog.Builder(this).setTitle(R.string.upcoming_toggle).setView(LocaleText.direction(box)).setNegativeButton(R.string.cancel,null)
                 .setPositiveButton(R.string.save,(d,w)->{prefs.put("upcoming_minutes",on.isChecked()?ClockSettings.toMinutes(amount.getValue(),unit.getValue()==1):0);changed();render();}).show();
     }
-    String dateFormatLabel(){
-        return switch(prefs.dateFormat()){
-            case "dmy"->tr(R.string.date_format_dmy);
-            case "mdy"->tr(R.string.date_format_mdy);
-            case "ymd"->tr(R.string.date_format_ymd);
-            default->tr(R.string.follow_system)+" · "+LocaleText.datePattern(this);
-        };
-    }
+    /** A sample date (today) in the chosen order instead of a raw pattern such as MM/dd/yyyy. */
+    String dateFormatLabel(){String example=LocaleText.example(this,prefs.dateOrder(this));return prefs.dateFormat().equals("system")?tr(R.string.follow_system)+" · "+example:example;}
     String hourFormatLabel(){
         return switch(prefs.hourFormat()){
             case "24"->tr(R.string.hour_format_24);
@@ -182,7 +179,7 @@ public class SettingsActivity extends Activity {
     }
     void chooseDateFormat(){
         String[] keys=ClockSettings.DATE_FORMATS;
-        String[] labels={tr(R.string.follow_system),tr(R.string.date_format_dmy),tr(R.string.date_format_mdy),tr(R.string.date_format_ymd)};
+        String[] labels={tr(R.string.follow_system)+" · "+LocaleText.example(this,android.text.format.DateFormat.getDateFormatOrder(LocaleText.formatContext(this))),LocaleText.example(this,new char[]{'d','M','y'})+"  ("+tr(R.string.date_format_dmy)+")",LocaleText.example(this,new char[]{'M','d','y'})+"  ("+tr(R.string.date_format_mdy)+")",LocaleText.example(this,new char[]{'y','M','d'})+"  ("+tr(R.string.date_format_ymd)+")"};
         int selected=Arrays.asList(keys).indexOf(prefs.dateFormat());
         new AlertDialog.Builder(this).setTitle(R.string.date_format_label).setSingleChoiceItems(labels,Math.max(0,selected),(d,i)->{prefs.put("date_format",keys[i]);changed();d.dismiss();render();}).setNegativeButton(R.string.cancel,null).show();
     }
@@ -196,14 +193,14 @@ public class SettingsActivity extends Activity {
         LinearLayout section=section(R.string.reliability);
         List<SetupGuide.Step> steps=SetupGuide.steps(this);item(section,R.string.setup_row,tr(R.string.setup_progress,SetupGuide.doneCount(this),steps.size()),null,()->new SetupGuide(this).show());
         // ClockPrime holds USE_EXACT_ALARM, so this only appears if a phone ever revokes it.
-        if(!getSystemService(AlarmManager.class).canScheduleExactAlarms())item(section,R.string.exact_alarms_label,tr(R.string.exact_alarms_blocked),null,()->startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:"+getPackageName()))));
-        item(section,R.string.notification_settings,tr(nm.areNotificationsEnabled()?R.string.allowed:R.string.blocked),null,()->startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName())));
-        if(Build.VERSION.SDK_INT>=34)item(section,R.string.fullscreen_label,tr(nm.canUseFullScreenIntent()?R.string.allowed:R.string.set_up),null,()->startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,Uri.parse("package:"+getPackageName()))));
-        item(section,R.string.launch_label,tr(RingLaunch.canLaunch(this)?R.string.allowed:R.string.set_up),tr(R.string.launch_detail),()->RingLaunch.requestPermission(this));
+        if(!getSystemService(AlarmManager.class).canScheduleExactAlarms())item(section,R.string.exact_alarms_label,tr(R.string.exact_alarms_blocked),null,()->startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:"+getPackageName()))),true);
+        item(section,R.string.notification_settings,tr(nm.areNotificationsEnabled()?R.string.allowed:R.string.blocked),null,()->startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName())),!nm.areNotificationsEnabled());
+        if(Build.VERSION.SDK_INT>=34)item(section,R.string.fullscreen_label,tr(nm.canUseFullScreenIntent()?R.string.allowed:R.string.set_up),null,()->startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,Uri.parse("package:"+getPackageName()))),!nm.canUseFullScreenIntent());
+        item(section,R.string.launch_label,tr(RingLaunch.canLaunch(this)?R.string.allowed:R.string.set_up),SetupGuide.launchDetail(this),()->RingLaunch.requestPermission(this),!RingLaunch.canLaunch(this));
         boolean unrestricted=getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(getPackageName());
-        item(section,R.string.battery_restriction,tr(unrestricted?R.string.battery_unrestricted:R.string.battery_optimized),unrestricted?null:tr(R.string.battery_detail),()->SetupGuide.openBatterySettings(this));
+        item(section,R.string.battery_restriction,tr(unrestricted?R.string.battery_unrestricted:R.string.battery_optimized),unrestricted?null:tr(R.string.battery_detail),()->SetupGuide.openBatterySettings(this),!unrestricted);
         item(section,R.string.background_apps,null,tr(R.string.background_apps_detail),()->SetupGuide.openBackgroundApps(this));
-        if(FocusIsland.shouldAttach(this)){String island=islandAllowed==null?FocusIsland.supportLabel(this):tr(islandAllowed?R.string.island_allowed:R.string.island_denied);item(section,R.string.island_label,island,tr(R.string.island_detail),null);}
+        if(FocusIsland.shouldAttach(this)){String island=islandAllowed==null?FocusIsland.supportLabel(this):tr(islandAllowed?R.string.island_allowed:R.string.island_denied);item(section,R.string.island_label,island,tr(R.string.island_detail),null,Boolean.FALSE.equals(islandAllowed));}
     }
     void scheduleTestAlarm(){
         try{
@@ -250,7 +247,7 @@ public class SettingsActivity extends Activity {
         if(undoAction!=null){
             LinearLayout bar=row();bar.setPaddingRelative(dp(18),0,dp(6),0);bar.setMinimumHeight(dp(52));bar.setBackground(shape(text,16));bar.setElevation(dp(3));bar.setTag("holiday-undo-bar");bar.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
             TextView message=label(undoText,14,bg);message.setMaxLines(2);bar.addView(message,new LinearLayout.LayoutParams(0,-2,1));
-            TextView undo=label(tr(R.string.undo),14,Color.parseColor(dark?"#386BC0":"#9CBCFF"));undo.setTypeface(medium());undo.setGravity(Gravity.CENTER);undo.setMinHeight(dp(48));undo.setPadding(dp(14),0,dp(14),0);undo.setBackground(new RippleDrawable(ColorStateList.valueOf(0x30FFFFFF),null,shape(Color.WHITE,12)));undo.setTag("holiday-undo");
+            TextView undo=label(tr(R.string.undo),14,palette.inverseAccent);undo.setTypeface(medium());undo.setGravity(Gravity.CENTER);undo.setMinHeight(dp(48));undo.setPadding(dp(14),0,dp(14),0);undo.setBackground(new RippleDrawable(ColorStateList.valueOf(0x30FFFFFF),null,shape(Color.WHITE,12)));undo.setTag("holiday-undo");
             Runnable action=undoAction;undo.setOnClickListener(v->{undoAction=null;action.run();});bar.addView(undo);
             LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(10);bottom.addView(bar,lp);
         }
@@ -307,7 +304,7 @@ public class SettingsActivity extends Activity {
     void editHoliday(Holidays.Entry e){
         java.time.LocalDate today=java.time.LocalDate.now();java.time.LocalDate[] r={e==null?today:e.from,e==null?today:e.to};holidayRange=r;
         LinearLayout box=column();box.setPaddingRelative(dp(24),dp(8),dp(24),dp(4));
-        EditText name=new EditText(this);name.setHint(R.string.holiday_name_hint);name.setSingleLine();name.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);name.setText(e==null?"":e.name);name.setTextColor(text);name.setHintTextColor(muted);name.setMinHeight(dp(48));name.setTextSize(17);holidayName=name;box.addView(name);
+        EditText name=new EditText(this);name.setHint(R.string.holiday_name_hint);name.setSingleLine();name.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);name.setText(e==null?"":e.name);name.setTextColor(text);name.setHintTextColor(muted);name.setMinHeight(dp(48));name.setTextSize(16);name.setBackground(shape(soft,16));name.setPaddingRelative(dp(16),dp(14),dp(16),dp(14));holidayName=name;box.addView(name,new LinearLayout.LayoutParams(-1,-2));
         TextView fromValue=new TextView(this),fromDay=new TextView(this),toValue=new TextView(this),toDay=new TextView(this),total=label("",13,muted);
         int[] lengths={1,3,7,14};List<TextView> chips=new ArrayList<>();
         Runnable sync=()->{boolean same=r[1].equals(r[0]);fromValue.setText(fieldDate(r[0]));fromDay.setText(r[0].format(LocaleText.formatter(this,"EEEE")));toValue.setText(same?tr(R.string.holiday_same_day):fieldDate(r[1]));toDay.setText(same?"":r[1].format(LocaleText.formatter(this,"EEEE")));
@@ -319,7 +316,7 @@ public class SettingsActivity extends Activity {
         fields.addView(dateField(R.string.holiday_to,toValue,toDay,()->pickDate(r[1],r[0],d->{r[1]=d;sync.run();})),new LinearLayout.LayoutParams(0,-2,1));box.addView(fields);
         HorizontalScrollView strip=new HorizontalScrollView(this);strip.setHorizontalScrollBarEnabled(false);LinearLayout chipRow=row();chipRow.setPadding(0,dp(12),0,dp(4));
         for(int n:lengths){TextView chip=label(n%7==0?getResources().getQuantityString(R.plurals.weeks_value,n/7,n/7):getResources().getQuantityString(R.plurals.days_value,n,n),14,text);chip.setGravity(Gravity.CENTER);chip.setPadding(dp(14),0,dp(14),0);
-            chip.setOnClickListener(v->{r[1]=r[0].plusDays(n-1);sync.run();});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dp(40));lp.setMarginEnd(dp(8));chipRow.addView(chip,lp);chips.add(chip);}
+            chip.setOnClickListener(v->{r[1]=r[0].plusDays(n-1);sync.run();});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dp(48));lp.setMarginEnd(dp(8));chipRow.addView(chip,lp);chips.add(chip);}
         strip.addView(chipRow);box.addView(strip);total.setPaddingRelative(dp(2),dp(6),0,0);box.addView(total);sync.run();
         AlertDialog.Builder b=new AlertDialog.Builder(this).setTitle(e==null?R.string.holiday_add:R.string.holiday_edit).setView(LocaleText.direction(box)).setNegativeButton(R.string.cancel,null)
             .setPositiveButton(R.string.save,(d,w)->changeHolidays(data->{if(e!=null)Holidays.remove(data,e);Holidays.add(data,r[0],r[1],name.getText().toString());},null));
@@ -328,8 +325,9 @@ public class SettingsActivity extends Activity {
     }
     /** Phone default, ClockPrime's own tone, any phone sound (system picker) or silent. */
     void pickSound(String kind){String key=ClockSettings.prefix(kind)+"_tone";
-        new AlertDialog.Builder(this).setTitle(kind.equals("alarms")?R.string.default_alarm_ringtone:R.string.default_timer_ringtone).setItems(new String[]{tr(R.string.system_alarm_sound),tr(R.string.builtin_tone),tr(R.string.choose_sound),tr(R.string.silent)},(d,n)->{
-            if(n==2){systemPicker(kind);return;}prefs.put(key,n==0?"default":n==1?ClockSettings.BUILTIN:"silent");changed();render();}).show();}
+        String current=prefs.text(key,"default");int checked=current.equals("default")?0:current.equals(ClockSettings.BUILTIN)?1:current.equals("silent")?3:2;
+        new AlertDialog.Builder(this).setTitle(kind.equals("alarms")?R.string.default_alarm_ringtone:R.string.default_timer_ringtone).setSingleChoiceItems(new String[]{tr(R.string.system_alarm_sound),tr(R.string.builtin_tone),tr(R.string.choose_sound),tr(R.string.silent)},checked,(d,n)->{d.dismiss();
+            if(n==2){systemPicker(kind);return;}prefs.put(key,n==0?"default":n==1?ClockSettings.BUILTIN:"silent");changed();render();}).setNegativeButton(R.string.cancel,null).show();}
     void systemPicker(String kind){Intent i=new Intent(RingtoneManager.ACTION_RINGTONE_PICKER).putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM).putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT,true).putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT,true).putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI,prefs.tone(kind)).putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE,tr(kind.equals("alarms")?R.string.default_alarm_ringtone:R.string.default_timer_ringtone));try{startActivityForResult(i,kind.equals("alarms")?201:202);}catch(ActivityNotFoundException e){Toast.makeText(this,R.string.picker_unavailable,Toast.LENGTH_LONG).show();}}
     void exportAlarms(){
         Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"clockprime-alarms-"+java.time.LocalDate.now()+".json");

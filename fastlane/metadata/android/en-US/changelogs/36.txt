@@ -1,0 +1,5 @@
+* Undo after deleting an alarm, timer or world clock.
+* 12-hour alarm editor with AM/PM.
+* Better large-text layouts, relative dates, compact timers.
+* Clearer settings, group menu and ringtone choice.
+* Accessibility and light-theme contrast improvements.

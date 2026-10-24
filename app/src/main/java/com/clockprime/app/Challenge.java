@@ -53,7 +53,7 @@ final class Challenge implements SensorEventListener {
             answer.setInputType(kind.equals("math")?InputType.TYPE_CLASS_NUMBER:InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS|InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS|InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             answer.setImeOptions(EditorInfo.IME_ACTION_DONE);answer.setOnEditorActionListener((v,action,e)->{check();return true;});
             answer.setBackground(a.shape(a.soft,16));answer.setPadding(a.dp(16),a.dp(12),a.dp(16),a.dp(12));panel.addView(answer,new LinearLayout.LayoutParams(-1,-2));
-            status=a.label("",13,a.gold);status.setPadding(0,a.dp(6),0,0);status.setVisibility(android.view.View.GONE);panel.addView(status);
+            status=a.label("",13,a.gold);status.setPadding(0,a.dp(6),0,0);status.setVisibility(android.view.View.GONE);status.setAccessibilityLiveRegion(android.view.View.ACCESSIBILITY_LIVE_REGION_POLITE);panel.addView(status);
         }
         LinearLayout buttons=new LinearLayout(a);buttons.setPadding(0,a.dp(12),0,0);
         LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMarginEnd(a.dp(8));buttons.addView(a.action(a.getString(R.string.back),false,()->{stop();cancel.run();}),half);
@@ -65,7 +65,7 @@ final class Challenge implements SensorEventListener {
         String typed=answer.getText().toString().trim();
         boolean ok=kind.equals("math")?typed.matches("\\d{1,6}")&&Integer.parseInt(typed)==(Integer)expected:sameCode((String)expected,typed);
         if(ok){stop();solved.run();return;}
-        answer.setText("");status.setText(R.string.challenge_wrong);status.setVisibility(android.view.View.VISIBLE);
+        answer.setText("");boolean again=status.getVisibility()==android.view.View.VISIBLE;status.setText(R.string.challenge_wrong);status.setVisibility(android.view.View.VISIBLE);if(again)status.announceForAccessibility(status.getText());
         android.animation.ObjectAnimator.ofFloat(answer,"translationX",0,a.dp(8),-a.dp(8),a.dp(5),-a.dp(5),0).setDuration(320).start();
     }
     void update(){status.setText(String.format(Locale.getDefault(),"%d / %d",shakes,SHAKES[level-1]));progress.setProgress(shakes);}

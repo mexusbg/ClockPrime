@@ -32,6 +32,10 @@ final class ClockIcon extends Drawable {
             case "none":c.drawRoundRect(4,4,20,20,3,3,paint);break;
             case "coffee":path(c,4,9,4,15,6.5f,19,13.5f,19,16,15,16,9,4,9);path(c,16,10.5f,18.5f,10.5f,18.5f,14,16,14);line(c,7.5f,3,7.5f,6);line(c,10.5f,2.5f,10.5f,6);line(c,13.5f,3,13.5f,6);line(c,3,21.5f,17,21.5f);break;
             case "all":c.drawRoundRect(4,4,20,20,3,3,paint);path(c,8,12,11,15,16,9);break;
+            case "more":for(float y:new float[]{5.5f,12,18.5f})c.drawCircle(12,y,1.3f,paint);break;
+            case "check":path(c,5,12.5f,10,17.5f,19,7);break;
+            case "warning":path(c,12,3.5f,21.5f,20,2.5f,20,12,3.5f);line(c,12,9.5f,12,14);c.drawCircle(12,17,.5f,paint);break;
+            case "copy":c.drawRoundRect(8.5f,8.5f,20,20,2.5f,2.5f,paint);path(c,15.5f,8.5f,15.5f,5.5f,13,4,6.5f,4,4,6.5f,4,13,5.5f,15.5f,8.5f,15.5f);break;
             case "group":path(c,3,8,3,5,9,5,11,7,21,7,21,20,3,20,3,8);line(c,9,13,15,13);line(c,12,10,12,16);break;
         }raw.restoreToCount(save);
     }

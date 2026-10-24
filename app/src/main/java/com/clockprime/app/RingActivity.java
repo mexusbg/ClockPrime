@@ -53,7 +53,8 @@ public class RingActivity extends Activity {
     @Override public void onPause(){visible=false;if(challenge!=null){challenge.stop();challenge=null;shownKey=null;}if(pulse!=null)pulse.cancel();handler.removeCallbacks(tick);if(ClockStore.onChanged==storeChanged)ClockStore.onChanged=null;super.onPause();}
     @Override public void onDestroy(){handler.removeCallbacks(tick);super.onDestroy();}
 
-    void palette(){bg=Color.parseColor(dark?"#101722":"#F3F6FC");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");mint=Color.parseColor(dark?"#9CBCFF":"#386BC0");gold=Color.parseColor(dark?"#F5CE8D":"#996319");soft=Color.parseColor(dark?"#253652":"#E8F0FC");onAccent=Color.parseColor(dark?"#132342":"#FFFFFF");}
+    Palette colors;
+    void palette(){Palette p=new Palette(dark);colors=p;bg=p.bg;text=p.text;muted=p.muted;mint=p.accent;gold=p.gold;soft=p.soft;onAccent=p.onAccent;}
     int dp(float n){return Math.round(n*getResources().getDisplayMetrics().density);}
     GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
     RippleDrawable ripple(int color,int radius){return new RippleDrawable(ColorStateList.valueOf(dark?0x30FFFFFF:0x16000000),shape(color,radius),null);}
@@ -124,7 +125,7 @@ public class RingActivity extends Activity {
     /** One card per ringing alarm or timer, with side-by-side Snooze and Dismiss. */
     void compact(String kind,JSONObject item,ClockSettings settings){
         LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(dp(18),dp(14),dp(18),dp(14));
-        GradientDrawable surface=shape(Color.parseColor(dark?"#192334":"#FFFFFF"),24);surface.setStroke(dp(1),Color.parseColor(dark?"#2B3950":"#E1E7F0"));card.setBackground(surface);
+        GradientDrawable surface=shape(colors.card,24);surface.setStroke(dp(1),colors.line);card.setBackground(surface);
         LinearLayout.LayoutParams cardLp=new LinearLayout.LayoutParams(-1,-2);cardLp.setMargins(0,dp(6),0,dp(6));list.addView(card,cardLp);
         TextView name=label(title(kind,item),20,text);name.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);card.addView(name);
         card.addView(label(detail(kind,item),14,muted));

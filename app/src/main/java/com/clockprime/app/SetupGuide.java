@@ -30,13 +30,13 @@ final class SetupGuide {
     final Activity a;final boolean dark;final int text,muted,accent,onAccent,soft,line;AlertDialog dialog;LinearLayout rows;TextView progress;
 
     SetupGuide(Activity a){
-        this.a=a;dark=ThemeChoice.dark(a);
-        text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");accent=Color.parseColor(dark?"#9CBCFF":"#386BC0");
-        onAccent=Color.parseColor(dark?"#132342":"#FFFFFF");soft=Color.parseColor(dark?"#253652":"#E8F0FC");line=Color.parseColor(dark?"#2B3950":"#E1E7F0");
+        this.a=a;Palette p=new Palette(a);dark=p.dark;text=p.text;muted=p.muted;accent=p.accent;onAccent=p.onAccent;soft=p.soft;line=p.line;
     }
     static ClockSettings prefs(Context c){return new ClockSettings(c);}
     static boolean vendorAutostart(){return VENDORS.contains(Build.MANUFACTURER.toLowerCase(Locale.ROOT));}
 
+    /** Xiaomi's extra pop-up permission is only mentioned on Xiaomi, Redmi and POCO phones. */
+    static String launchDetail(Context c){String d=c.getString(R.string.launch_detail);return FocusIsland.isXiaomiFamily()?d+" "+c.getString(R.string.launch_detail_xiaomi):d;}
     static List<Step> steps(Activity a){
         NotificationManager nm=a.getSystemService(NotificationManager.class);List<Step> out=new ArrayList<>();
         out.add(new Step("notifications",R.string.step_notifications,R.string.step_notifications_detail,nm::areNotificationsEnabled,()->requestNotifications(a)));
@@ -77,12 +77,14 @@ final class SetupGuide {
     View row(Step s,boolean ok){
         LinearLayout r=new LinearLayout(a);r.setGravity(Gravity.CENTER_VERTICAL);r.setPadding(0,dp(10),0,dp(10));r.setTag("setup-"+s.key);
         LinearLayout words=new LinearLayout(a);words.setOrientation(LinearLayout.VERTICAL);
-        words.addView(label(a.getString(s.title),16,text));TextView d=label(a.getString(s.detail),12,muted);d.setPadding(0,dp(2),0,0);words.addView(d);
+        words.addView(label(a.getString(s.title),16,text));TextView d=label(s.detail==R.string.launch_detail?launchDetail(a):a.getString(s.detail),12,muted);d.setPadding(0,dp(2),0,0);words.addView(d);
         r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
-        TextView state=label(a.getString(ok?(s.done==null?R.string.setup_checked:R.string.setup_step_done):s.done==null?R.string.setup_open:R.string.allow),13,ok?accent:onAccent);
-        state.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));state.setGravity(Gravity.CENTER);state.setPadding(dp(14),dp(8),dp(14),dp(8));state.setMinWidth(dp(76));
-        GradientDrawable pill=new GradientDrawable();pill.setCornerRadius(dp(18));if(ok){pill.setColor(Color.TRANSPARENT);pill.setStroke(dp(1),line);}else pill.setColor(accent);state.setBackground(pill);
-        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.setMarginStart(dp(12));r.addView(state,lp);
+        TextView state=label(a.getString(ok?(s.done==null?R.string.setup_checked:R.string.setup_step_done):s.done==null?R.string.setup_open:R.string.allow),13,ok?muted:onAccent);
+        state.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));state.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.setMarginStart(dp(12));
+        // Done reads as a status (check and plain text); only a pending step looks like a button.
+        if(ok){LinearLayout done=new LinearLayout(a);done.setGravity(Gravity.CENTER_VERTICAL);ImageView check=new ImageView(a);check.setImageDrawable(new ClockIcon("check",accent));check.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);LinearLayout.LayoutParams cp=new LinearLayout.LayoutParams(dp(20),dp(20));cp.setMarginEnd(dp(4));done.addView(check,cp);done.addView(state);done.setMinimumWidth(dp(76));done.setTag("setup-done");r.addView(done,lp);}
+        else{state.setPadding(dp(14),dp(8),dp(14),dp(8));state.setMinWidth(dp(76));GradientDrawable pill=new GradientDrawable();pill.setCornerRadius(dp(18));pill.setColor(accent);state.setBackground(pill);r.addView(state,lp);}
         // A finished step can still be reopened (e.g. to undo it), but only a pending one looks like a call to action.
         r.setBackground(new RippleDrawable(ColorStateList.valueOf(soft),null,new ColorDrawable(Color.WHITE)));r.setOnClickListener(v->s.fix.run());
         r.setContentDescription(a.getString(s.title)+", "+state.getText());

@@ -11,6 +11,8 @@ import org.json.JSONObject;
 /** Integration checks for editing and real touch gestures, including nested-scroll conflicts. */
 final class DesignChecks {
     static void run(SmokeTests test){
+        // The typed-hour checks below use the 24-hour wheel; 12-hour entry is covered by UxChecks.
+        ClockSettings prefs=new ClockSettings(test.context);String hourFormat=prefs.text("hour_format",null);prefs.put("hour_format","24");
         MainActivity activity=test.openActivity();test.waitForIdleSync();SystemClock.sleep(350);
         try{
             test.main(()->{
@@ -54,7 +56,7 @@ final class DesignChecks {
             test.main(()->{test.check(activity.timerInput.values()[0]==0,"Timer hour wheel wraps from 99 to 00");minute[0].setValue(20,false);});
             drag(test,minute[0].surface,-1.4f,100);SystemClock.sleep(1800);
             test.main(()->{test.check(!minute[0].surface.flinging&&Math.abs(minute[0].position-Math.round(minute[0].position))<.001,"Fast fling finishes on an aligned number");int value=minute[0].getValue();test.check(value>=0&&value<=59,"Fling remains inside minute range");});
-        }finally{test.main(()->{if(activity.alarmDialog!=null)activity.alarmDialog.dismiss();activity.finish();});}
+        }finally{test.main(()->{if(activity.alarmDialog!=null)activity.alarmDialog.dismiss();activity.finish();if(hourFormat==null)prefs.prefs.edit().remove("hour_format").commit();else prefs.put("hour_format",hourFormat);});}
     }
     static void drag(SmokeTests test,View view,float rows,int duration){
         final float[] geometry=new float[3];test.main(()->{int[] location=new int[2];view.getLocationOnScreen(location);geometry[0]=location[0]+view.getWidth()/2f;geometry[1]=location[1]+view.getHeight()*.6f;geometry[2]=rows*58*view.getResources().getDisplayMetrics().density;});

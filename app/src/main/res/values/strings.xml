@@ -34,8 +34,8 @@
   <string name="rename_group">Rename group</string>
   <string name="enter_name">Enter a name</string>
   <string name="group_exists">Group already exists</string>
-  <string name="enable_all">All on</string>
-  <string name="disable_all">All off</string>
+  <string name="enable_all">Turn all on</string>
+  <string name="disable_all">Turn all off</string>
   <string name="skip_occurrences">Skip next occurrences</string>
   <string name="delete_group">Delete group (keep alarms)</string>
   <string name="minutes">Minutes</string>
@@ -56,7 +56,6 @@
   <string name="finished">Finished</string>
   <string name="finished_offline">Finished while phone was off</string>
   <string name="counting_down">Counting down</string>
-  <string name="paused_ready">Paused / ready</string>
   <string name="pause">Pause</string>
   <string name="start">Start</string>
   <string name="reset">Reset</string>
@@ -90,7 +89,6 @@
   <string name="next_alarm">Next alarm · %1$s</string>
   <string name="select_all">Select all alarms in %1$s</string>
   <string name="delete_selection">Only selected alarms in %1$s will be deleted.</string>
-  <string name="finish_selection">Finish selecting in %1$s first</string>
   <!-- Under a group name. %1$s: alarm count from "alarm_count" (e.g. "3 alarms"); %2$d: how many of them are on -->
   <string name="group_count">%1$s · %2$d on</string>
   <string name="expand_group">Expand %1$s</string>
@@ -163,7 +161,7 @@
   <string name="adjust_volume">Adjust volume</string>
   <string name="upcoming_toggle">Notify before ringing</string>
   <string name="lock_screen_toggle">Show upcoming alarm on lock screen</string>
-  <string name="choose_sound">Choose sound…</string>
+  <string name="choose_sound">Phone sounds…</string>
   <string name="system_alarm_sound">Phone default alarm sound</string>
   <string name="sound_unavailable">Sound unavailable — using phone default</string>
   <string name="picker_unavailable">This phone has no compatible sound picker.</string>
@@ -182,7 +180,7 @@
   <string name="group_choice">Group: %1$s</string>
   <string name="create_group">Create new group…</string>
   <string name="create">Create</string>
-  <string name="time_range">Enter a number from 0 to %1$d</string>
+  <string name="time_range">Enter a number from %1$d to %2$d</string>
   <string name="no_upcoming">No upcoming alarm</string>
   <string name="deselect_all">Deselect all in %1$s</string>
   <!-- %1$s: group name; %2$s: alarm count from "alarm_count" -->
@@ -206,7 +204,7 @@
   <string name="choose_days">Select at least one day</string>
   <string name="alarm_ringtone">Ringtone</string>
   <string name="default_tone">Default alarm ringtone</string>
-  <string name="audio_file">Choose audio file</string>
+  <string name="audio_file">Audio file…</string>
   <plurals name="seconds_value"><item quantity="one">%d second</item><item quantity="other">%d seconds</item></plurals>
   <string name="restore_skips">Resume skipped or paused alarms</string>
   <string name="reliability">Reliability</string>
@@ -228,8 +226,7 @@
   <string name="test_alarm_name">ClockPrime test alarm</string>
   <string name="open_app_settings">App settings</string>
   <string name="launch_label">Alarm screen over apps</string>
-  <!-- The quoted name is Xiaomi's own setting; use the wording Xiaomi phones show in your language -->
-  <string name="launch_detail">Opens the full alarm screen while you use the phone. Xiaomi also needs “Display pop-up windows while running in the background”.</string>
+  <string name="launch_detail">Opens the full alarm screen while you use the phone.</string>
   <string name="allow">Allow</string>
   <string name="export_logs">Export debug logs</string>
   <string name="export_logs_detail">Shares a text report with recent alarm events and phone settings. It includes your alarm names.</string>
@@ -343,7 +340,7 @@
   <!-- Name of the app's own built-in alarm sound in ringtone lists -->
   <string name="builtin_tone">ClockPrime tone</string>
   <!-- Shown under a typed hour/minute/second that is out of range, e.g. "0–23"; keep it very short -->
-  <string name="time_range_short">0–%1$d</string>
+  <string name="time_range_short">%1$d–%2$d</string>
   <string name="repeat_every_days">Every few days</string>
   <string name="repeat_every_weeks">Every few weeks</string>
   <string name="repeat_monthly">Monthly</string>
@@ -358,7 +355,7 @@
   <string name="end_before_start">The end date is before the start date</string>
   <string name="no_upcoming_schedule">This schedule has no upcoming alarm</string>
   <string name="skip_holidays">Skip holidays</string>
-  <string name="holidays_none">Add holidays in Settings</string>
+  <string name="holidays_none">No holidays yet</string>
   <string name="holidays_label">Holidays</string>
   <string name="holidays_detail">Alarms with “Skip holidays” don\'t ring on these days.</string>
   <string name="holidays_empty">No holidays yet.</string>
@@ -436,4 +433,13 @@
   <plurals name="weeks_value"><item quantity="one">%d week</item><item quantity="other">%d weeks</item></plurals>
   <plurals name="holiday_count"><item quantity="one">%d holiday</item><item quantity="other">%d holidays</item></plurals>
   <plurals name="pause_rings_value"><item quantity="one">Next ring</item><item quantity="other">Next %d rings</item></plurals>
+  <string name="timer_ready">Ready</string>
+  <!-- The quoted name is Xiaomi's own setting; use the wording Xiaomi phones show in your language -->
+  <string name="launch_detail_xiaomi">Xiaomi also needs “Display pop-up windows while running in the background”.</string>
+  <string name="timer_start_named">Start %1$s</string>
+  <string name="timer_pause_named">Pause %1$s</string>
+  <string name="timer_reset_named">Reset %1$s</string>
+  <string name="timer_delete_named">Delete %1$s</string>
+  <string name="tab_role">Tab</string>
+  <string name="am_pm">AM/PM</string>
 </resources>

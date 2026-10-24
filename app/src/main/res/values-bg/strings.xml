@@ -50,7 +50,6 @@
   <string name="finished">Приключи</string>
   <string name="finished_offline">Приключи, докато телефонът беше изключен</string>
   <string name="counting_down">Обратно броене</string>
-  <string name="paused_ready">На пауза / готов</string>
   <string name="pause">Пауза</string>
   <string name="start">Старт</string>
   <string name="reset">Нулирай</string>
@@ -83,7 +82,6 @@
   <string name="next_alarm">Следваща аларма · %1$s</string>
   <string name="select_all">Избери всички аларми в %1$s</string>
   <string name="delete_selection">Ще бъдат изтрити само избраните аларми в %1$s.</string>
-  <string name="finish_selection">Първо приключете избора в %1$s</string>
   <string name="group_count">%1$s · %2$d включени</string>
   <string name="expand_group">Разгъни %1$s</string>
   <string name="collapse_group">Свий %1$s</string>
@@ -144,7 +142,7 @@
   <string name="adjust_volume">Промени силата на звука</string>
   <string name="upcoming_toggle">Известие преди звънене</string>
   <string name="lock_screen_toggle">Показвай следващата аларма на заключен екран</string>
-  <string name="choose_sound">Избери звук…</string>
+  <string name="choose_sound">Звуци на телефона…</string>
   <string name="system_alarm_sound">Звук за аларма по подразбиране на телефона</string>
   <string name="sound_unavailable">Звукът не е достъпен — използва се стандартният звук</string>
   <string name="picker_unavailable">Телефонът няма съвместим екран за избор на звук.</string>
@@ -163,7 +161,7 @@
   <string name="group_choice">Група: %1$s</string>
   <string name="create_group">Създай нова група…</string>
   <string name="create">Създай</string>
-  <string name="time_range">Въведете число от 0 до %1$d</string>
+  <string name="time_range">Въведете число от %1$d до %2$d</string>
   <string name="no_upcoming">Няма предстояща аларма</string>
   <string name="deselect_all">Отмяна на избора в %1$s</string>
   <string name="delete_group_members">Изтриване на %1$s и %2$s в групата?</string>
@@ -186,7 +184,7 @@
   <string name="choose_days">Изберете поне един ден</string>
   <string name="alarm_ringtone">Мелодия</string>
   <string name="default_tone">Мелодия по подразбиране</string>
-  <string name="audio_file">Избор на аудиофайл</string>
+  <string name="audio_file">Аудиофайл…</string>
   <plurals name="seconds_value"><item quantity="one">%d секунда</item><item quantity="other">%d секунди</item></plurals>
   <string name="restore_skips">Възобновяване на пропуснати или спрени аларми</string>
   <string name="reliability">Надеждност</string>
@@ -207,7 +205,7 @@
   <string name="test_alarm_name">Тестова аларма на ClockPrime</string>
   <string name="open_app_settings">Настройки на приложението</string>
   <string name="launch_label">Екран на алармата над приложения</string>
-  <string name="launch_detail">Отваря целия екран на алармата, докато използвате телефона. Xiaomi изисква и „Показване на изскачащи прозорци при работа във фонов режим“.</string>
+  <string name="launch_detail">Отваря целия екран на алармата, докато използвате телефона.</string>
   <string name="allow">Разреши</string>
   <string name="export_logs">Експортиране на диагностични журнали</string>
   <string name="export_logs_detail">Споделя текстов отчет с последните събития на алармите и настройките на телефона. Съдържа имената на алармите.</string>
@@ -308,7 +306,7 @@
   <string name="step_autostart_detail">Допълнителна настройка на производителя: разрешете на ClockPrime да се стартира и работи във фонов режим.</string>
   <string name="step_exact_detail">Алармите звънят точно в минутата.</string>
   <string name="builtin_tone">Тон на ClockPrime</string>
-  <string name="time_range_short">0–%1$d</string>
+  <string name="time_range_short">%1$d–%2$d</string>
   <string name="repeat_every_days">През няколко дни</string>
   <string name="repeat_every_weeks">През няколко седмици</string>
   <string name="repeat_monthly">Месечно</string>
@@ -322,7 +320,7 @@
   <string name="end_before_start">Крайната дата е преди началната</string>
   <string name="no_upcoming_schedule">Този график няма предстояща аларма</string>
   <string name="skip_holidays">Пропускане на празници</string>
-  <string name="holidays_none">Добавете празници в Настройки</string>
+  <string name="holidays_none">Още няма празници</string>
   <string name="holidays_label">Празници</string>
   <string name="holidays_detail">Алармите с „Пропускане на празници“ не звънят в тези дни.</string>
   <string name="holidays_empty">Все още няма празници.</string>
@@ -392,4 +390,12 @@
   <plurals name="weeks_value"><item quantity="one">%d седмица</item><item quantity="other">%d седмици</item></plurals>
   <plurals name="holiday_count"><item quantity="one">%d празник</item><item quantity="other">%d празника</item></plurals>
   <plurals name="pause_rings_value"><item quantity="one">Следващото звънене</item><item quantity="other">Следващите %d звънения</item></plurals>
+  <string name="timer_ready">Готов</string>
+  <string name="launch_detail_xiaomi">Xiaomi изисква и „Показване на изскачащи прозорци при работа във фонов режим“.</string>
+  <string name="timer_start_named">Старт: %1$s</string>
+  <string name="timer_pause_named">Пауза: %1$s</string>
+  <string name="timer_reset_named">Нулирай %1$s</string>
+  <string name="timer_delete_named">Изтрий %1$s</string>
+  <string name="tab_role">Раздел</string>
+  <string name="am_pm">Преди/след обяд</string>
 </resources>

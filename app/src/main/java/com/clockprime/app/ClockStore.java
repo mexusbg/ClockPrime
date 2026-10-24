@@ -244,6 +244,15 @@ public final class ClockStore {
     boolean autoDelete(JSONObject a){return !Schedule.repeats(a)&&a.optBoolean("autoDelete",false);}
     void dismiss(String kind,JSONObject o) { if(o.optBoolean("ringing"))Automation.event(context,kind.equals("alarms")?Automation.DISMISSED:Automation.TIMER_DISMISSED,o); if(kind.equals("alarms")&&autoDelete(o)){remove(kind,o);return;} put(o,"ringing",false);put(o,"snoozeCount",0); if(kind.equals("timers")) {put(o,"running",false);put(o,"paused",false);put(o,"remaining",o.optLong("duration")); schedule(kind,o);} }
     void snooze(JSONObject a,int minutes) { if(!new ClockSettings(context).canSnooze(a))return;Automation.event(context,Automation.SNOOZED,a);put(a,"snoozeCount",a.optInt("snoozeCount")+1);a.remove("ringStartedElapsed"); put(a,"ringing",false); put(a,"enabled",true); put(a,"snoozed",true); put(a,"next",System.currentTimeMillis()+minutes*60000L); schedule("alarms",a); }
+    /** Undo of a single delete: back at its old position and re-armed; an alarm whose ring passed moves to its next one, an expired timer resets. */
+    void restoreRemoved(String kind,JSONObject o,int index){
+        if(find(kind,o.optInt("id"))!=null)return;JSONArray arr=list(kind);List<Object> items=new ArrayList<>();for(int i=0;i<arr.length();i++)items.add(arr.opt(i));
+        items.add(Math.max(0,Math.min(index,items.size())),o);while(arr.length()>0)arr.remove(0);for(Object x:items)arr.put(x);
+        put(o,"ringing",false);long now=System.currentTimeMillis();
+        if(kind.equals("alarms")&&o.optBoolean("enabled")&&o.optLong("next")<=now)advance(o,now);
+        if(kind.equals("timers")&&o.optBoolean("running")&&remaining(o)<=0){put(o,"running",false);put(o,"paused",false);put(o,"remaining",o.optLong("duration"));}
+        schedule(kind,o);
+    }
     void remove(String kind,JSONObject o) { put(o,"enabled",false);put(o,"running",false);put(o,"paused",false); schedule(kind,o);JSONArray arr=list(kind);for(int i=0;i<arr.length();i++)if(arr.optJSONObject(i).optInt("id")==o.optInt("id")){arr.remove(i);break;} }
     boolean ringing() { for(String k:List.of("alarms","timers"))for(JSONObject o:objects(k))if(o.optBoolean("ringing"))return true;return false; }
     void refreshSound() { if(!ringing())context.stopService(new Intent(context,RingService.class));else context.startForegroundService(new Intent(context,RingService.class)); }

@@ -47,14 +47,25 @@ final class LocaleText {
     static boolean use24Hour(Context c){return new ClockSettings(c).use24Hour(c);}
     static DateTimeFormatter formatter(Context c,String skeleton){Locale l=formatLocale(c);return DateTimeFormatter.ofPattern(DateFormat.getBestDateTimePattern(l,skeleton),l).withDecimalStyle(DecimalStyle.of(l));}
     static String alarmTime(Context c,int hour,int minute){return LocalTime.of(hour,minute).format(formatter(c,use24Hour(c)?"Hm":"hm"));}
-    static String datePattern(Context c){
-        char[] order=new ClockSettings(c).dateOrder(c);
+    static String datePattern(Context c){return pattern(new ClockSettings(c).dateOrder(c),true);}
+    static String pattern(char[] order,boolean year){
         StringBuilder pattern=new StringBuilder();
-        for(int i=0;i<order.length;i++){
-            if(i>0)pattern.append('/');
-            switch(order[i]){case 'd'->pattern.append("dd");case 'M'->pattern.append("MM");case 'y'->pattern.append("yyyy");default->pattern.append(order[i]);}
+        for(char part:order){if(part=='y'&&!year)continue;
+            if(pattern.length()>0)pattern.append('/');
+            switch(part){case 'd'->pattern.append("dd");case 'M'->pattern.append("MM");case 'y'->pattern.append("yyyy");default->pattern.append(part);}
         }
         return pattern.toString();
+    }
+    /** A sample date in the given order (Settings shows this instead of a raw pattern). */
+    static String example(Context c,char[] order){return LocalDate.now().format(DateTimeFormatter.ofPattern(pattern(order,true),formatLocale(c)));}
+    /** "Today 9:30 AM", "Tomorrow 6:45 AM", "Mon 7:00 AM" within a week, else "Nov 3 7:00 AM" (year only when not this year). */
+    static String relative(Context c,long millis){
+        ZoneId zone=ZoneId.systemDefault();ZonedDateTime when=Instant.ofEpochMilli(millis).atZone(zone);LocalDate d=when.toLocalDate(),today=LocalDate.now(zone);
+        String time=when.format(formatter(c,use24Hour(c)?"Hm":"hm")),day;
+        if(d.equals(today))day=c.getString(R.string.today);else if(d.equals(today.plusDays(1)))day=c.getString(R.string.tomorrow);
+        else if(d.isAfter(today)&&d.isBefore(today.plusDays(7)))day=d.format(formatter(c,"EEE"));
+        else{boolean year=d.getYear()!=today.getYear();day=new ClockSettings(c).dateFormat().equals("system")?d.format(formatter(c,year?"yMMMd":"MMMd")):d.format(DateTimeFormatter.ofPattern(pattern(new ClockSettings(c).dateOrder(c),year),formatLocale(c)));}
+        return day+" "+time;
     }
     static String dateTime(Context c,long millis){
         Locale locale=formatLocale(c);
