@@ -1,5 +1,8 @@
 # Release notes
 
+## 0.13.3
+- Alarm editor dropdowns: the arrow sits at the right edge.
+
 ## 0.13.2
 - Alarm editor dropdowns show their value on the left.
 

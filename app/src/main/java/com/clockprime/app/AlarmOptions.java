@@ -126,19 +126,21 @@ final class AlarmOptions {
         s.addState(new int[]{android.R.attr.state_checked},on);s.addState(new int[]{},off);return s;
     }
     /** Dropdown in the app's style: an outlined pill with a chevron, opening a rounded card whose current choice is highlighted.
-     *  The pill is as wide as the longest choice; the current one and its chevron start at its left. */
+     *  The pill is as wide as the longest choice: the value sits at its left, the chevron (drawn in the background) at its end. */
     Spinner spinner(String[] values){
         Spinner s=new Spinner(a,Spinner.MODE_DROPDOWN);s.setAdapter(adapter(s,values));s.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);s.setMinimumHeight(a.dp(44));
-        GradientDrawable pill=a.bg(a.CARD,14);pill.setStroke(a.dp(1),a.LINE);s.setBackground(new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf((a.MINT&0x00FFFFFF)|0x30000000),pill,null));
+        GradientDrawable pill=a.bg(a.CARD,14);pill.setStroke(a.dp(1),a.LINE);
+        android.graphics.drawable.LayerDrawable face=new android.graphics.drawable.LayerDrawable(new android.graphics.drawable.Drawable[]{pill,new ClockIcon("down",a.MUTED)});face.setLayerGravity(1,Gravity.END|Gravity.CENTER_VERTICAL);face.setLayerSize(1,a.dp(18),a.dp(18));face.setLayerInsetEnd(1,a.dp(12));
+        s.setBackground(new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf((a.MINT&0x00FFFFFF)|0x30000000),face,null));
         GradientDrawable popup=a.bg(a.CARD,18);popup.setStroke(a.dp(1),a.LINE);s.setPopupBackgroundDrawable(popup);s.setDropDownVerticalOffset(a.dp(6));s.setElevation(0);
         return s;
     }
     ArrayAdapter<String> adapter(Spinner s,String[] values){
         return new ArrayAdapter<>(a,0,values){
             @Override public View getView(int p,View reuse,android.view.ViewGroup parent){
-                LinearLayout r=new LinearLayout(a);r.setGravity(Gravity.CENTER_VERTICAL);r.setPaddingRelative(a.dp(14),0,a.dp(10),0);r.setMinimumHeight(a.dp(44));
-                TextView t=a.text(getItem(p),14,a.TEXT);t.setMaxLines(1);t.setEllipsize(android.text.TextUtils.TruncateAt.END);t.setTypeface(android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL));r.addView(t,new LinearLayout.LayoutParams(-2,-2));
-                ImageView chevron=a.icon("down",a.MUTED,18);LinearLayout.LayoutParams gap=(LinearLayout.LayoutParams)chevron.getLayoutParams();gap.setMarginStart(a.dp(6));r.addView(chevron,gap);return r;}
+                // End padding leaves room for the chevron drawn in the pill's background.
+                TextView t=a.text(getItem(p),14,a.TEXT);t.setMaxLines(1);t.setEllipsize(android.text.TextUtils.TruncateAt.END);t.setTypeface(android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL));
+                t.setGravity(Gravity.CENTER_VERTICAL);t.setPaddingRelative(a.dp(14),0,a.dp(40),0);t.setMinHeight(a.dp(44));return t;}
             @Override public View getDropDownView(int p,View reuse,android.view.ViewGroup parent){
                 boolean chosen=p==s.getSelectedItemPosition();TextView t=a.text(getItem(p),15,chosen?a.MINT:a.TEXT);t.setPaddingRelative(a.dp(18),a.dp(13),a.dp(28),a.dp(13));t.setMinHeight(a.dp(48));t.setGravity(Gravity.CENTER_VERTICAL);
                 if(chosen){t.setTypeface(android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL));t.setBackground(a.bg(a.SOFT,12));}return t;}

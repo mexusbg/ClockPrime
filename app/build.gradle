@@ -6,7 +6,7 @@ if(keystore.exists())keystore.withInputStream{signing.load(it)}
 android {
     namespace 'com.clockprime.app'
     compileSdk 35
-    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 37; versionName '0.13.2'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
+    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 38; versionName '0.13.3'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     signingConfigs { if(keystore.exists())release { storeFile rootProject.file(signing.storeFile); storePassword signing.storePassword; keyAlias signing.keyAlias; keyPassword signing.keyPassword } }
     buildTypes {
