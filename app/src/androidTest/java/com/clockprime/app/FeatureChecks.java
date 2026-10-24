@@ -33,6 +33,11 @@ final class FeatureChecks {
             ClockStore.put(everyThree,"end","2026-12-01");
             t.check(Schedule.describe(t.context,everyThree).contains("3")&&!Schedule.describe(t.context,last).isEmpty(),"Cards describe the new repeat rules: "+Schedule.describe(t.context,everyThree));
 
+            // Weekday 8:00 alarm, paused on Saturday 24 Oct 2026: skipping 1 ring rings again Tuesday, skipping 2 rings Wednesday.
+            JSONObject weekdays=rule(null,0,31,null);ClockStore.put(weekdays,"hour",8);long saturday=at(2026,10,24,9,0);
+            LocalDate one=Schedule.nthRing(weekdays,1,saturday),two=Schedule.nthRing(weekdays,2,saturday);
+            JSONObject afterOne=Schedule.copy(weekdays);ClockStore.put(afterOne,"skipDate",one.toString());JSONObject afterTwo=Schedule.copy(weekdays);ClockStore.put(afterTwo,"skipDate",two.toString());
+            t.check(Schedule.next(afterOne,saturday)==at(2026,10,27,8,0)&&Schedule.next(afterTwo,saturday)==at(2026,10,28,8,0),"Pausing for 1 or 2 rings skips exactly that many");
             ClockStore s=new ClockStore(t.context);
             JSONObject p=t.testAlarm(s,"","pause");s.enable(p,true);LocalDate until=LocalDate.now().plusDays(3);s.pause(p,until);
             LocalDate resumes=Instant.ofEpochMilli(p.optLong("next")).atZone(ZoneId.systemDefault()).toLocalDate();

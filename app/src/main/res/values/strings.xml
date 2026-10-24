@@ -384,13 +384,13 @@
   <!-- Value of the Pause row when the alarm is not paused -->
   <string name="not_paused">Off</string>
   <!-- %1$s: a date -->
-  <string name="paused_until">Until %1$s</string>
-  <string name="pause_until_date">Until a date…</string>
+  <string name="paused_until">Through %1$s</string>
+  <string name="pause_until_date">Through a date…</string>
   <string name="pause_for_rings">For the next rings…</string>
   <string name="resume_now">Resume now</string>
   <string name="pause_group">Pause…</string>
-  <!-- Alarm card. %1$s: last paused date; %2$s: date and time of the next ring -->
-  <string name="paused_card">Paused until %1$s · %2$s</string>
+  <!-- Alarm card of a paused alarm. %1$s: date and time it rings again -->
+  <string name="paused_card">Paused · rings again %1$s</string>
   <string name="monthly_on">Monthly on day %1$d</string>
   <string name="monthly_last">Monthly on the last day</string>
   <!-- %1$s: repeat description; %2$s: end date -->

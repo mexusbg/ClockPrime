@@ -346,12 +346,12 @@
   <string name="holiday_hide_past">Скриване на минали празници</string>
   <string name="pause_label">Пауза</string>
   <string name="not_paused">Изключена</string>
-  <string name="paused_until">До %1$s</string>
-  <string name="pause_until_date">До дата…</string>
+  <string name="paused_until">До %1$s включително</string>
+  <string name="pause_until_date">До дата включително…</string>
   <string name="pause_for_rings">За следващите звънения…</string>
   <string name="resume_now">Възобновяване сега</string>
   <string name="pause_group">Пауза…</string>
-  <string name="paused_card">На пауза до %1$s · %2$s</string>
+  <string name="paused_card">На пауза · звъни отново %1$s</string>
   <string name="monthly_on">Месечно на %1$d-о число</string>
   <string name="monthly_last">Месечно в последния ден</string>
   <string name="schedule_until">%1$s · до %2$s</string>
