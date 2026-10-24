@@ -18,7 +18,7 @@ Repo: https://github.com/mexusbg/ClockPrime.git
 Builds:
   - versionName: 0.13.4
     versionCode: 39
-    commit: e7f835d3fad8a31104ab469ccd75ffab79686232
+    commit: 3907691295cefe2ceb0d14aedd71880f902b4baf
     subdir: app
     gradle:
       - yes
