@@ -155,6 +155,7 @@ public final class ClockStore {
         PendingIntent toggle=pending("timers",id,running?"PAUSE":"RESUME"),cancel=pending("timers",id,"CANCEL");
         String toggleLabel=context.getString(running?R.string.pause:R.string.resume);
         Notification.Builder b=new Notification.Builder(context,RingService.TIMER_CHANNEL).setSmallIcon(R.drawable.ic_stat_notify).setContentTitle(name).setOngoing(true).setOnlyAlertOnce(true).setCategory(Notification.CATEGORY_STOPWATCH).setVisibility(Notification.VISIBILITY_PUBLIC).setContentIntent(open()).addAction(0,toggleLabel,toggle).addAction(0,context.getString(R.string.cancel),cancel);
+        if(running)b.addAction(0,context.getString(R.string.add_minute),pending("timers",id,"ADD_MINUTE"));
         if(running)b.setContentText(context.getString(R.string.timer_running)).setWhen(end).setShowWhen(true).setUsesChronometer(true).setChronometerCountDown(true);
         else b.setContentText(MainActivity.duration(left)+" · "+context.getString(R.string.timer_paused)).setShowWhen(false);
         Notification n=b.build();
@@ -231,6 +232,13 @@ public final class ClockStore {
             case "SKIP":skipOnce(a);break;
             case "DELETE":remove("alarms",a);break;
         }
+    }
+    /** Adds (or with a negative value removes) time on a running or paused timer; never below one second left. */
+    boolean timerAdjust(JSONObject t,long delta){
+        if(t.optBoolean("ringing")||!(t.optBoolean("running")||t.optBoolean("paused")))return false;
+        long left=remaining(t),target=Math.max(1000,left+delta);if(target==left)return false;long change=target-left;
+        if(t.optBoolean("running")){put(t,"endElapsed",t.optLong("endElapsed")+change);put(t,"endWall",t.optLong("endWall")+change);}
+        put(t,"remaining",target);schedule("timers",t);return true;
     }
     void timerStart(JSONObject t,long duration) { put(t,"autoSilenced",false);t.remove("ringStartedElapsed"); put(t,"remaining",duration); put(t,"running",true); put(t,"paused",false); put(t,"ringing",false); put(t,"endElapsed",SystemClock.elapsedRealtime()+duration); put(t,"endWall",System.currentTimeMillis()+duration); schedule("timers",t); }
     boolean autoDelete(JSONObject a){return !Schedule.repeats(a)&&a.optBoolean("autoDelete",false);}

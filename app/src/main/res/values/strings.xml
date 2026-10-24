@@ -412,6 +412,10 @@
   <string name="challenge_wrong">Not quite. Try again.</string>
   <string name="challenge_shake">Shake the phone</string>
   <string name="challenge_no_sensor">This phone has no motion sensor; dismissing.</string>
+  <!-- Button on timers: add one minute -->
+  <string name="add_minute">+1 min</string>
+  <!-- Button on timers: remove one minute -->
+  <string name="remove_minute">−1 min</string>
   <string name="clear">Clear</string>
   <plurals name="every_days"><item quantity="one">Every day</item><item quantity="other">Every %d days</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Every week</item><item quantity="other">Every %d weeks</item></plurals>

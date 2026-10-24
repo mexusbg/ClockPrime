@@ -52,6 +52,16 @@ final class FeatureChecks {
             JSONObject stop=after.find("alarms",puzzle.optInt("id"));after.dismiss("alarms",stop);after.save();after.refreshSound();
         });
 
+        t.main(()->{
+            ClockStore s=new ClockStore(t.context);JSONObject tm=new JSONObject();ClockStore.put(tm,"id",s.id());ClockStore.put(tm,"name","ClockPrime QA adjust");ClockStore.put(tm,"duration",600000L);ClockStore.put(tm,"sound",false);ClockStore.put(tm,"vibrate",false);
+            s.list("timers").put(tm);s.timerStart(tm,600000L);long before=ClockStore.remaining(tm);s.timerAdjust(tm,60000);long more=ClockStore.remaining(tm);s.timerAdjust(tm,-100000000L);
+            t.check(Math.abs(more-before-60000)<1500&&ClockStore.remaining(tm)<=1000&&ClockStore.remaining(tm)>0,"Timers gain a minute and never drop below a second");
+            boolean notified=Arrays.stream(s.timerNotification(tm).actions).anyMatch(x->x.title.toString().equals(t.context.getString(R.string.add_minute)));
+            t.check(notified,"Running timer notification offers +1 min");
+            s.remove("timers",tm);s.save();
+
+
+        });
         holidays(t);
     }
 

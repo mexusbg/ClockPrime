@@ -131,6 +131,8 @@ public class RingActivity extends Activity {
         LinearLayout actions=new LinearLayout(this);actions.setPadding(0,dp(12),0,0);final int id=item.optInt("id");
         LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMarginEnd(dp(8));
         if(kind.equals("alarms")&&settings.canSnooze(item))actions.addView(action(getString(R.string.snooze_action),false,()->act(kind,id,true)),half);
+        // A finished timer can run one more minute.
+        if(kind.equals("timers"))actions.addView(action(getString(R.string.add_minute),false,()->addMinute(id)),half);
         boolean puzzle=kind.equals("alarms")&&Challenge.required(item);
         actions.addView(action(getString(R.string.dismiss),true,()->{if(!puzzle){act(kind,id,false);return;}
             // The puzzle replaces the buttons in this card; Back brings them back, snooze stays reachable there.
@@ -139,6 +141,11 @@ public class RingActivity extends Activity {
         card.addView(actions);
     }
 
+    void addMinute(int id){
+        ClockStore store=new ClockStore(this);JSONObject t=store.find("timers",id);
+        if(t!=null&&t.optBoolean("ringing")){DebugLog.log(this,"ring-ui","timer "+id+" +1 min");store.timerStart(t,60000);store.save(true);store.refreshSound();}
+        refresh();
+    }
     /** Acts on freshly loaded state; the cards may be older than the latest save. */
     void act(String kind,int id,boolean snooze){
         ClockStore store=new ClockStore(this);JSONObject target=store.find(kind,id);

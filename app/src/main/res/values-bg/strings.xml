@@ -372,6 +372,8 @@
   <string name="challenge_wrong">Не съвсем. Опитайте пак.</string>
   <string name="challenge_shake">Разклатете телефона</string>
   <string name="challenge_no_sensor">Телефонът няма сензор за движение; изключване.</string>
+  <string name="add_minute">+1 мин</string>
+  <string name="remove_minute">−1 мин</string>
   <string name="clear">Изчистване</string>
   <plurals name="every_days"><item quantity="one">Всеки ден</item><item quantity="other">На всеки %d дни</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>
