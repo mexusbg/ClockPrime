@@ -151,7 +151,7 @@ final class Widgets {
         RemoteViews.RemoteCollectionItems.Builder items=new RemoteViews.RemoteCollectionItems.Builder().setHasStableIds(true).setViewTypeCount(1);
         for(JSONObject a:alarms){
             RemoteViews row=new RemoteViews(c.getPackageName(),R.layout.widget_alarm_row);boolean on=a.optBoolean("enabled");String time=LocaleText.alarmTime(c,a.optInt("hour"),a.optInt("minute"));
-            row.setTextViewText(R.id.row_time,time);row.setTextViewText(R.id.row_detail,label(c,a)+" · "+LocaleText.days(c,a.optInt("days")));
+            row.setTextViewText(R.id.row_time,time);row.setTextViewText(R.id.row_detail,label(c,a)+" · "+Schedule.describe(c,a));
             row.setFloat(R.id.row_time,"setAlpha",on?1f:.55f);row.setFloat(R.id.row_detail,"setAlpha",on?1f:.55f);
             row.setCompoundButtonChecked(R.id.row_switch,on);row.setContentDescription(R.id.row_switch,c.getString(R.string.enable_alarm,label(c,a),time));
             row.setOnCheckedChangeResponse(R.id.row_switch,RemoteViews.RemoteResponse.fromFillInIntent(new Intent().putExtra("kind","alarms").putExtra("id",a.optInt("id"))));

@@ -54,7 +54,7 @@ final class UpcomingAlarm {
                 .setCategory(Notification.CATEGORY_ALARM).setOngoing(true).setOnlyAlertOnce(true)
                 .setContentIntent(store.open()).setVisibility(new ClockSettings(c).flag("lockscreen",false)?Notification.VISIBILITY_PUBLIC:Notification.VISIBILITY_SECRET)
                 .addAction(0,c.getString(R.string.skip_once),action(c,a,"SKIP_UPCOMING"));
-        if(a.optInt("days")!=0)builder.addAction(0,c.getString(R.string.turn_off),action(c,a,"OFF_UPCOMING"));
+        if(Schedule.repeats(a))builder.addAction(0,c.getString(R.string.turn_off),action(c,a,"OFF_UPCOMING"));
         nm.notify(NOTIFICATION_ID,builder.build());
     }
 }

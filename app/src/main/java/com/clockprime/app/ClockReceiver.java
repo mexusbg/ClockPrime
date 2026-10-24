@@ -84,7 +84,7 @@ public class ClockReceiver extends BroadcastReceiver {
             if(RingPolicy.expire(s,new ClockSettings(context),android.os.SystemClock.elapsedRealtime()))s.save();
             for(JSONObject active:s.objects("alarms"))if(active.optBoolean("ringing")&&active.optInt("id")!=o.optInt("id"))replaceRinging(context,s,active,o);
             ClockStore.put(o,"missed",false);
-            if(!o.optBoolean("snoozed"))ClockStore.put(o,"snoozeCount",0);ClockStore.put(o,"enabled",o.optInt("days")!=0);ClockStore.put(o,"next",o.optInt("days")==0?0:ClockStore.next(o,System.currentTimeMillis()));ClockStore.put(o,"snoozed",false);ClockStore.put(o,"postponed",false);
+            if(!o.optBoolean("snoozed"))ClockStore.put(o,"snoozeCount",0);if(Schedule.repeats(o))s.advance(o,System.currentTimeMillis());else{ClockStore.put(o,"enabled",false);ClockStore.put(o,"next",0);}ClockStore.put(o,"snoozed",false);ClockStore.put(o,"postponed",false);
         }else{
             if(o.optBoolean("ringing")){s.refreshSound();return true;}
             if(!o.optBoolean("running")||ClockStore.remaining(o)>1000){DebugLog.log(context,"fire","ignored timer "+o.optInt("id")+" via "+from+" running="+o.optBoolean("running")+" remaining="+ClockStore.remaining(o));return false;}

@@ -66,6 +66,7 @@ public final class ClockStore {
                 JSONObject m=new JSONObject();
                 for(String k:List.of("id","name","hour","minute","days","enabled","next","ringing","ringBoot","snoozed","postponed","skipDate","sound","vibrate","autoDelete","snoozeCount","snoozeMinutes","snoozeLimit","ringStartedElapsed","autoSilenced","missed","tone"))
                     if(a.has(k))m.put(k,a.get(k));
+                for(String k:Schedule.KEYS)if(a.has(k))m.put(k,a.get(k));
                 alarms.put(m);
             }
             JSONArray timers=new JSONArray();
@@ -100,18 +101,10 @@ public final class ClockStore {
     static void markBootSeen(Context context){new ClockStore(context).markBootSeen();}
     /** A ring left over from before the current boot; rings started this boot carry its boot count. */
     static boolean staleRing(JSONObject o,int boot){return o.optBoolean("ringing")&&(boot<0||o.optInt("ringBoot",-1)!=boot);}
-    static long next(JSONObject a,long after) {
-        ZoneId zone=ZoneId.systemDefault(); LocalDate today=Instant.ofEpochMilli(after).atZone(zone).toLocalDate();
-        // skipDate is the inclusive end of consecutive skipped occurrences.
-        String cutoff=a.optString("skipDate");
-        if(!cutoff.isEmpty()){LocalDate resume=LocalDate.parse(cutoff).plusDays(1);if(resume.isAfter(today))today=resume;}
-        for(int i=0;i<9;i++) {
-            LocalDate date=today.plusDays(i); int bit=1<<(date.getDayOfWeek().getValue()-1); int days=a.optInt("days");
-            long stamp=date.atTime(a.optInt("hour"),a.optInt("minute")).atZone(zone).toInstant().toEpochMilli();
-            boolean skipped=!a.optString("skipDate").isEmpty() && date.toString().equals(a.optString("skipDate"));
-            if(stamp>after && !skipped && (days==0 || (days&bit)!=0)) return stamp;
-        } throw new IllegalStateException("Invalid alarm days");
-    }
+    /** Next ring after {@code after}; 0 when the schedule has none left. See {@link Schedule}. */
+    static long next(JSONObject a,long after){return Schedule.next(a,after);}
+    /** Moves "next" to the following ring; a schedule with nothing left (past date or end) turns the alarm off. */
+    void advance(JSONObject a,long after){long n=next(a,after);if(n==0){put(a,"enabled",false);put(a,"next",0);}else put(a,"next",n);}
     static long remaining(JSONObject t) { return t.optBoolean("running") ? Math.max(0,t.optLong("endElapsed")-SystemClock.elapsedRealtime()) : t.optLong("remaining"); }
     static int requestCode(String kind,int id,String action) {
         return Objects.hash(kind,id,action)&0x7fffffff;
@@ -199,14 +192,14 @@ public final class ClockStore {
         nm.notify(STOPWATCH_ID,n);
     }
     void refreshLocalizedNotifications(){RingService.channels(context);syncStopwatch();for(JSONObject t:objects("timers"))if(timerShown(t))notifyTimer(t);UpcomingAlarm.refresh(context,this,System.currentTimeMillis());Widgets.update(context,this);}
-    void enable(JSONObject a,boolean enabled) { put(a,"snoozeCount",0);put(a,"autoSilenced",false); put(a,"enabled",enabled); put(a,"ringing",false); put(a,"snoozed",false); put(a,"postponed",false); a.remove("skipDate"); a.remove("skipDisabled"); put(a,"next",enabled?next(a,System.currentTimeMillis()):0); schedule("alarms",a); }
+    void enable(JSONObject a,boolean enabled) { put(a,"snoozeCount",0);put(a,"autoSilenced",false); put(a,"enabled",enabled); put(a,"ringing",false); put(a,"snoozed",false); put(a,"postponed",false); a.remove("skipDate"); a.remove("skipDisabled"); long n=enabled?next(a,System.currentTimeMillis()):0; put(a,"enabled",enabled&&n>0); put(a,"next",n); schedule("alarms",a); }
     void skipOnce(JSONObject a) {
         if(!a.optBoolean("enabled"))return;
         long due=Math.max(System.currentTimeMillis(),a.optLong("next"));
         LocalDate skipped=Instant.ofEpochMilli(due).atZone(ZoneId.systemDefault()).toLocalDate();
         put(a,"ringing",false);put(a,"snoozed",false);put(a,"postponed",false);
-        if(a.optInt("days")==0){if(autoDelete(a))remove("alarms",a);else {enable(a,false);put(a,"skipDisabled",true);put(a,"skipDate",skipped.toString());}}
-        else {put(a,"skipDate",skipped.toString());put(a,"next",next(a,due));schedule("alarms",a);}
+        if(!Schedule.repeats(a)){if(autoDelete(a))remove("alarms",a);else {enable(a,false);put(a,"skipDisabled",true);put(a,"skipDate",skipped.toString());}}
+        else {put(a,"skipDate",skipped.toString());advance(a,due);schedule("alarms",a);}
     }
     void restoreSkips(JSONObject a) {
         if(a.optString("skipDate").isEmpty())return;
@@ -214,7 +207,7 @@ public final class ClockStore {
         a.remove("skipDate");a.remove("skipDisabled");
         if(resumeOnce)put(a,"enabled",true);
         if(a.optBoolean("enabled")&&!a.optBoolean("ringing")&&!a.optBoolean("snoozed")&&!a.optBoolean("postponed"))
-            put(a,"next",next(a,System.currentTimeMillis()));
+            advance(a,System.currentTimeMillis());
         schedule("alarms",a);
     }
     boolean collapsed(String group) { JSONObject folded=data.optJSONObject("collapsedGroups");return !group.isEmpty()&&folded!=null&&folded.optBoolean(group); }
@@ -232,7 +225,7 @@ public final class ClockStore {
         }
     }
     void timerStart(JSONObject t,long duration) { put(t,"autoSilenced",false);t.remove("ringStartedElapsed"); put(t,"remaining",duration); put(t,"running",true); put(t,"paused",false); put(t,"ringing",false); put(t,"endElapsed",SystemClock.elapsedRealtime()+duration); put(t,"endWall",System.currentTimeMillis()+duration); schedule("timers",t); }
-    boolean autoDelete(JSONObject a){return a.optInt("days")==0&&a.optBoolean("autoDelete",false);}
+    boolean autoDelete(JSONObject a){return !Schedule.repeats(a)&&a.optBoolean("autoDelete",false);}
     void dismiss(String kind,JSONObject o) { if(kind.equals("alarms")&&autoDelete(o)){remove(kind,o);return;} put(o,"ringing",false);put(o,"snoozeCount",0); if(kind.equals("timers")) {put(o,"running",false);put(o,"paused",false);put(o,"remaining",o.optLong("duration")); schedule(kind,o);} }
     void snooze(JSONObject a,int minutes) { if(!new ClockSettings(context).canSnooze(a))return;put(a,"snoozeCount",a.optInt("snoozeCount")+1);a.remove("ringStartedElapsed"); put(a,"ringing",false); put(a,"enabled",true); put(a,"snoozed",true); put(a,"next",System.currentTimeMillis()+minutes*60000L); schedule("alarms",a); }
     void remove(String kind,JSONObject o) { put(o,"enabled",false);put(o,"running",false);put(o,"paused",false); schedule(kind,o);JSONArray arr=list(kind);for(int i=0;i<arr.length();i++)if(arr.optJSONObject(i).optInt("id")==o.optInt("id")){arr.remove(i);break;} }
@@ -267,7 +260,7 @@ public final class ClockStore {
             if(a.optBoolean("enabled") && ((clockChanged&&!a.optBoolean("snoozed")&&!a.optBoolean("postponed"))||((reboot||clockChanged)&&a.optLong("next")<=now))) {
                 if(a.optLong("next")<=now&&autoDelete(a)){remove("alarms",a);continue;}
                 if(a.optLong("next")<=now) put(a,"missed",true);
-                if(a.optInt("days")==0 && a.optLong("next")<=now) {put(a,"enabled",false);put(a,"next",0);} else put(a,"next",next(a,now));
+                if(!Schedule.repeats(a) && a.optLong("next")<=now) {put(a,"enabled",false);put(a,"next",0);} else advance(a,now);
             } schedule("alarms",a);
         }
         for(JSONObject t:objects("timers")) {

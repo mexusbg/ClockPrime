@@ -66,5 +66,6 @@ final class LocaleText {
     static String worldTime(Context c,ZonedDateTime time){return time.format(formatter(c,use24Hour(c)?"Hms":"hms"));}
     static String day(Context c,ZonedDateTime time){return time.format(formatter(c,"MMMdE"));}
     static String days(Context c,int mask){if(mask==0)return c.getString(R.string.once);if(mask==127)return c.getString(R.string.every_day);if(mask==31)return c.getString(R.string.weekdays);java.util.StringJoiner j=new java.util.StringJoiner(" ");for(int i=0;i<7;i++)if((mask&(1<<i))!=0)j.add(DayOfWeek.of(i+1).getDisplayName(TextStyle.SHORT,locale(c)));return j.toString();}
+    static String shortDate(Context c,java.time.LocalDate d){return d.format(formatter(c,d.getYear()==java.time.LocalDate.now().getYear()?"MMMEd":"yMMMEd"));}
     static String city(Context c,String zone){String canonical=android.icu.util.TimeZone.getCanonicalID(zone);String name=TimeZoneNames.getInstance(locale(c)).getExemplarLocationName(canonical==null?zone:canonical);return name==null?zone.substring(zone.lastIndexOf('/')+1).replace('_',' '):name;}
 }

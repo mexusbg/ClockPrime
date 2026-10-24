@@ -344,4 +344,26 @@
   <string name="builtin_tone">ClockPrime tone</string>
   <!-- Shown under a typed hour/minute/second that is out of range, e.g. "0–23"; keep it very short -->
   <string name="time_range_short">0–%1$d</string>
+  <string name="repeat_every_days">Every few days</string>
+  <string name="repeat_every_weeks">Every few weeks</string>
+  <string name="repeat_monthly">Monthly</string>
+  <string name="repeat_every_label">Repeat every</string>
+  <string name="month_day_label">Day of the month</string>
+  <string name="month_last_day">Last day</string>
+  <string name="date_label">Date</string>
+  <!-- Value of the Date row when no date is chosen: the alarm rings today or tomorrow -->
+  <string name="date_next_possible">Next time it comes</string>
+  <string name="starts_label">Starts</string>
+  <string name="ends_label">Ends</string>
+  <string name="end_before_start">The end date is before the start date</string>
+  <string name="no_upcoming_schedule">This schedule has no upcoming alarm</string>
+  <string name="monthly_on">Monthly on day %1$d</string>
+  <string name="monthly_last">Monthly on the last day</string>
+  <!-- %1$s: repeat description; %2$s: end date -->
+  <string name="schedule_until">%1$s · until %2$s</string>
+  <string name="clear">Clear</string>
+  <plurals name="every_days"><item quantity="one">Every day</item><item quantity="other">Every %d days</item></plurals>
+  <plurals name="every_weeks"><item quantity="one">Every week</item><item quantity="other">Every %d weeks</item></plurals>
+  <plurals name="days_value"><item quantity="one">%d day</item><item quantity="other">%d days</item></plurals>
+  <plurals name="weeks_value"><item quantity="one">%d week</item><item quantity="other">%d weeks</item></plurals>
 </resources>

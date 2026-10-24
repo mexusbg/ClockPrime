@@ -309,4 +309,24 @@
   <string name="step_exact_detail">Алармите звънят точно в минутата.</string>
   <string name="builtin_tone">Тон на ClockPrime</string>
   <string name="time_range_short">0–%1$d</string>
+  <string name="repeat_every_days">През няколко дни</string>
+  <string name="repeat_every_weeks">През няколко седмици</string>
+  <string name="repeat_monthly">Месечно</string>
+  <string name="repeat_every_label">Повтаряне на всеки</string>
+  <string name="month_day_label">Ден от месеца</string>
+  <string name="month_last_day">Последен ден</string>
+  <string name="date_label">Дата</string>
+  <string name="date_next_possible">Следващия път, когато настъпи</string>
+  <string name="starts_label">Начало</string>
+  <string name="ends_label">Край</string>
+  <string name="end_before_start">Крайната дата е преди началната</string>
+  <string name="no_upcoming_schedule">Този график няма предстояща аларма</string>
+  <string name="monthly_on">Месечно на %1$d-о число</string>
+  <string name="monthly_last">Месечно в последния ден</string>
+  <string name="schedule_until">%1$s · до %2$s</string>
+  <string name="clear">Изчистване</string>
+  <plurals name="every_days"><item quantity="one">Всеки ден</item><item quantity="other">На всеки %d дни</item></plurals>
+  <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>
+  <plurals name="days_value"><item quantity="one">%d ден</item><item quantity="other">%d дни</item></plurals>
+  <plurals name="weeks_value"><item quantity="one">%d седмица</item><item quantity="other">%d седмици</item></plurals>
 </resources>
