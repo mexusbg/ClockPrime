@@ -19,7 +19,7 @@ final class Schedule {
     static volatile Set<String> holidays=Set.of();
     /** Days searched for the next ring: enough for a monthly 31st or an every-52-weeks rule. */
     static final int HORIZON=1500;
-    static final List<String> KEYS=List.of("repeat","every","monthDay","start","end","date","skipHolidays","paused");
+    static final List<String> KEYS=List.of("repeat","every","monthDay","start","end","date","skipHolidays","paused","challenge","difficulty");
 
     static boolean repeats(JSONObject a){return a.optInt("days")!=0||!a.optString("repeat").isEmpty();}
     static LocalDate date(String value){try{return value==null||value.isEmpty()?null:LocalDate.parse(value);}catch(java.time.format.DateTimeParseException e){return null;}}

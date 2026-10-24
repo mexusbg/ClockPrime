@@ -395,6 +395,23 @@
   <string name="monthly_last">Monthly on the last day</string>
   <!-- %1$s: repeat description; %2$s: end date -->
   <string name="schedule_until">%1$s · until %2$s</string>
+  <string name="dismiss_section">Dismiss</string>
+  <string name="challenge_label">Wake-up puzzle</string>
+  <string name="challenge_none">None</string>
+  <string name="challenge_math">Math</string>
+  <string name="challenge_retype_name">Retype a code</string>
+  <string name="challenge_shake_name">Shake the phone</string>
+  <string name="difficulty_label">Difficulty</string>
+  <string name="difficulty_easy">Easy</string>
+  <string name="difficulty_medium">Medium</string>
+  <string name="difficulty_hard">Hard</string>
+  <string name="challenge_title">Solve to dismiss</string>
+  <string name="challenge_answer">Answer</string>
+  <string name="challenge_retype">Type the code</string>
+  <string name="challenge_check">Check</string>
+  <string name="challenge_wrong">Not quite. Try again.</string>
+  <string name="challenge_shake">Shake the phone</string>
+  <string name="challenge_no_sensor">This phone has no motion sensor; dismissing.</string>
   <string name="clear">Clear</string>
   <plurals name="every_days"><item quantity="one">Every day</item><item quantity="other">Every %d days</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Every week</item><item quantity="other">Every %d weeks</item></plurals>

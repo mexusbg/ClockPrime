@@ -14,12 +14,12 @@ import java.util.*;
 /** Device integration tests: real AlarmManager delivery, no mocked receivers. */
 public class SmokeTests extends Instrumentation {
     Context context;String backup;int leadBackup=-2;int alarmId,timerId;List<String> results=new ArrayList<>();Set<Integer> featureIds=new HashSet<>();boolean passed,designOnly;
-    String qaAlarmIn,qaTimerIn,demoData;
-    @Override public void onCreate(Bundle args){super.onCreate(args);designOnly="true".equals(args.getString("design_only"));qaAlarmIn=args.getString("qa_alarm_in");qaTimerIn=args.getString("qa_timer_in");demoData=args.getString("demo_data");start();}
+    String qaAlarmIn,qaTimerIn,demoData,qaChallenge;
+    @Override public void onCreate(Bundle args){super.onCreate(args);designOnly="true".equals(args.getString("design_only"));qaAlarmIn=args.getString("qa_alarm_in");qaTimerIn=args.getString("qa_timer_in");qaChallenge=args.getString("qa_challenge");demoData=args.getString("demo_data");start();}
     /** Manual reboot QA (-e qa_alarm_in <seconds>): schedules one real one-time alarm and exits without running checks. */
     void scheduleQaAlarm(){
         long when=System.currentTimeMillis()+Long.parseLong(qaAlarmIn)*1000L;LocalTime at=Instant.ofEpochMilli(when).atZone(ZoneId.systemDefault()).toLocalTime();
-        main(()->{ClockStore s=new ClockStore(getTargetContext());JSONObject a=new JSONObject();ClockStore.put(a,"id",s.id());ClockStore.put(a,"name","ClockPrime QA reboot");ClockStore.put(a,"hour",at.getHour());ClockStore.put(a,"minute",at.getMinute());ClockStore.put(a,"days",0);ClockStore.put(a,"enabled",true);ClockStore.put(a,"sound",true);ClockStore.put(a,"vibrate",false);ClockStore.put(a,"next",when);s.list("alarms").put(a);s.schedule("alarms",a);
+        main(()->{ClockStore s=new ClockStore(getTargetContext());JSONObject a=new JSONObject();ClockStore.put(a,"id",s.id());ClockStore.put(a,"name","ClockPrime QA reboot");ClockStore.put(a,"hour",at.getHour());ClockStore.put(a,"minute",at.getMinute());ClockStore.put(a,"days",0);ClockStore.put(a,"enabled",true);ClockStore.put(a,"sound",true);ClockStore.put(a,"vibrate",false);ClockStore.put(a,"next",when);if(qaChallenge!=null){ClockStore.put(a,"challenge",qaChallenge);ClockStore.put(a,"difficulty",2);}s.list("alarms").put(a);s.schedule("alarms",a);
             if(qaTimerIn!=null){JSONObject q=new JSONObject();long d=Long.parseLong(qaTimerIn)*1000L;ClockStore.put(q,"id",s.id());ClockStore.put(q,"name","ClockPrime QA tea");ClockStore.put(q,"duration",d);ClockStore.put(q,"sound",false);ClockStore.put(q,"vibrate",false);s.list("timers").put(q);s.timerStart(q,d);}
             s.save();});
         Bundle out=new Bundle();out.putString("stream","QA alarm at "+at+"\n");finish(-1,out);

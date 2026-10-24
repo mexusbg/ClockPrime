@@ -49,7 +49,7 @@ public class RingService extends Service {
             PendingIntent full=RingLaunch.pending(this);
             String title=ringTitle(kind,first,count);
             String detail=ringDetail(kind,first);
-            PendingIntent dismiss=store.pending(kind,first.optInt("id"),"DISMISS"),snooze=kind.equals("alarms")&&settings.canSnooze(first)?store.pending(kind,first.optInt("id"),"SNOOZE"):null;
+            PendingIntent dismiss=kind.equals("alarms")&&Challenge.required(first)?full:store.pending(kind,first.optInt("id"),"DISMISS"),snooze=kind.equals("alarms")&&settings.canSnooze(first)?store.pending(kind,first.optInt("id"),"SNOOZE"):null;
             Notification.Builder n=new Notification.Builder(this,"alerts_ring").setSmallIcon(R.drawable.ic_stat_notify).setContentTitle(title).setContentText(detail).setStyle(new Notification.BigTextStyle().bigText(detail)).setCategory(Notification.CATEGORY_ALARM).setOngoing(true).setOnlyAlertOnce(true).setContentIntent(full).setFullScreenIntent(full,true).setVisibility(Notification.VISIBILITY_PUBLIC).addAction(0,getString(R.string.dismiss),dismiss);
             if(snooze!=null)n.addAction(0,settings.snoozeLabel(this,first),snooze);
             String name=first.optString("name","").trim();

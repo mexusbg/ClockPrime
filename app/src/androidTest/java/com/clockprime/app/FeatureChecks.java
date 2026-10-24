@@ -5,7 +5,7 @@ import org.json.*;
 import java.time.*;
 import java.util.*;
 
-/** 0.13: flexible schedules, holidays and pause. */
+/** 0.13: flexible schedules, holidays, pause, wake-up puzzles, Android clock requests, automation, timer minutes, alarm series. */
 final class FeatureChecks {
     static long at(int y,int m,int d,int h,int min){return LocalDate.of(y,m,d).atTime(h,min).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();}
     static JSONObject rule(String repeat,int every,int days,String start){JSONObject a=new JSONObject();ClockStore.put(a,"hour",7);ClockStore.put(a,"minute",0);ClockStore.put(a,"days",days);if(repeat!=null)ClockStore.put(a,"repeat",repeat);if(every>0)ClockStore.put(a,"every",every);if(start!=null)ClockStore.put(a,"start",start);return a;}
@@ -43,6 +43,13 @@ final class FeatureChecks {
             JSONObject ended=t.testAlarm(s,"","ended");ClockStore.put(ended,"end",LocalDate.now().minusDays(1).toString());s.enable(ended,true);
             t.check(!ended.optBoolean("enabled")&&ended.optLong("next")==0,"An alarm whose schedule has ended cannot be turned on");
 
+            Random r=new Random(7);boolean positive=true;for(int level=1;level<=3;level++)for(int i=0;i<200;i++){Object[] m=Challenge.math(level,r);positive&=(Integer)m[1]>0;}
+            String code=Challenge.code(2,r);
+            t.check(positive&&code.replace("-","").length()==9&&Challenge.sameCode(code,code.toLowerCase().replace("-"," ")),"Wake-up puzzles have positive answers and forgiving codes");
+            JSONObject puzzle=t.testAlarm(s,"","puzzle");ClockStore.put(puzzle,"challenge","math");ClockStore.put(puzzle,"ringing",true);s.save();
+            new ClockReceiver().onReceive(t.context,new Intent("DISMISS").putExtra("kind","alarms").putExtra("id",puzzle.optInt("id")));
+            ClockStore after=new ClockStore(t.context);t.check(after.find("alarms",puzzle.optInt("id")).optBoolean("ringing"),"A puzzle alarm cannot be dismissed from the notification");
+            JSONObject stop=after.find("alarms",puzzle.optInt("id"));after.dismiss("alarms",stop);after.save();after.refreshSound();
         });
 
         holidays(t);

@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
         bottomBar=row();bottomBar.setPadding(dp(2),dp(4),dp(2),dp(4));root.addView(bottomBar,new LinearLayout.LayoutParams(-1,dp(88)));
         updateSelectionUi();root.requestApplyInsets();contentScroll.post(()->contentScroll.scrollTo(0,offset));
     }
-    void activeAlerts(){for(String kind:List.of("alarms","timers"))for(JSONObject a:store.objects(kind))if(a.optBoolean("ringing")){LinearLayout c=card();c.addView(text(kind.equals("alarms")?tr(R.string.alarm_ringing):tr(R.string.timer_finished),12,GOLD));c.addView(text(a.optString("name","ClockPrime"),24,TEXT));LinearLayout r=row();weighted(r,button(tr(R.string.dismiss),()->{store.dismiss(kind,a);commit();}));if(kind.equals("alarms")&&new ClockSettings(this).canSnooze(a))weighted(r,button(new ClockSettings(this).snoozeLabel(this,a),()->{store.snooze(a,new ClockSettings(this).snoozeMinutes(a));commit();}));c.addView(r);}}
+    void activeAlerts(){for(String kind:List.of("alarms","timers"))for(JSONObject a:store.objects(kind))if(a.optBoolean("ringing")){LinearLayout c=card();c.addView(text(kind.equals("alarms")?tr(R.string.alarm_ringing):tr(R.string.timer_finished),12,GOLD));c.addView(text(a.optString("name","ClockPrime"),24,TEXT));LinearLayout r=row();weighted(r,button(tr(R.string.dismiss),()->{if(kind.equals("alarms")&&Challenge.required(a)){startActivity(new Intent(this,RingActivity.class));return;}store.dismiss(kind,a);commit();}));if(kind.equals("alarms")&&new ClockSettings(this).canSnooze(a))weighted(r,button(new ClockSettings(this).snoozeLabel(this,a),()->{store.snooze(a,new ClockSettings(this).snoozeMinutes(a));commit();}));c.addView(r);}}
     String groupLabel(String group){return group.isEmpty()?tr(R.string.ungrouped):group;}
     void selectAlarm(String group,int id){
         if(!selection.toggle(group,id)){toast(tr(R.string.finish_selection,groupLabel(selection.group)));return;}
@@ -255,7 +255,7 @@ public class MainActivity extends Activity {
     @Override public boolean onKeyDown(int code,KeyEvent event){
         if(code==KeyEvent.KEYCODE_VOLUME_UP||code==KeyEvent.KEYCODE_VOLUME_DOWN){if(ringVolumeKey)return true;
             ClockSettings settings=new ClockSettings(this);String action=settings.text("volume_buttons","volume");ClockStore current=new ClockStore(this);
-            if(current.ringing()&&!action.equals("volume")){ringVolumeKey=true;if(event.getRepeatCount()==0){for(String kind:List.of("alarms","timers"))for(JSONObject a:current.objects(kind))if(a.optBoolean("ringing")){if(action.equals("snooze")&&kind.equals("alarms")&&settings.canSnooze(a))current.snooze(a,settings.snoozeMinutes(a));else current.dismiss(kind,a);}current.save();current.refreshSound();render();}return true;}
+            if(current.ringing()&&!action.equals("volume")){ringVolumeKey=true;if(event.getRepeatCount()==0){for(String kind:List.of("alarms","timers"))for(JSONObject a:current.objects(kind))if(a.optBoolean("ringing")){if(action.equals("snooze")&&kind.equals("alarms")&&settings.canSnooze(a))current.snooze(a,settings.snoozeMinutes(a));else if(!(kind.equals("alarms")&&Challenge.required(a)))current.dismiss(kind,a);}current.save();current.refreshSound();render();}return true;}
         }
         return super.onKeyDown(code,event);
     }

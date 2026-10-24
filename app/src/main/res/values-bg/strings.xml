@@ -355,6 +355,23 @@
   <string name="monthly_on">Месечно на %1$d-о число</string>
   <string name="monthly_last">Месечно в последния ден</string>
   <string name="schedule_until">%1$s · до %2$s</string>
+  <string name="dismiss_section">Изключване</string>
+  <string name="challenge_label">Задача за събуждане</string>
+  <string name="challenge_none">Без</string>
+  <string name="challenge_math">Сметка</string>
+  <string name="challenge_retype_name">Преписване на код</string>
+  <string name="challenge_shake_name">Разклащане на телефона</string>
+  <string name="difficulty_label">Трудност</string>
+  <string name="difficulty_easy">Лесна</string>
+  <string name="difficulty_medium">Средна</string>
+  <string name="difficulty_hard">Трудна</string>
+  <string name="challenge_title">Решете, за да изключите</string>
+  <string name="challenge_answer">Отговор</string>
+  <string name="challenge_retype">Въведете кода</string>
+  <string name="challenge_check">Проверка</string>
+  <string name="challenge_wrong">Не съвсем. Опитайте пак.</string>
+  <string name="challenge_shake">Разклатете телефона</string>
+  <string name="challenge_no_sensor">Телефонът няма сензор за движение; изключване.</string>
   <string name="clear">Изчистване</string>
   <plurals name="every_days"><item quantity="one">Всеки ден</item><item quantity="other">На всеки %d дни</item></plurals>
   <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>

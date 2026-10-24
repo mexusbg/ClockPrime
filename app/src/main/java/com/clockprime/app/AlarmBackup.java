@@ -8,7 +8,7 @@ import java.util.*;
 /** Portable JSON backup of alarms, groups, world clocks and preferences (Settings > Backup). */
 final class AlarmBackup {
     static final String FORMAT="clockprime-backup";
-    static final List<String> ALARM_KEYS=List.of("name","group","hour","minute","days","enabled","sound","vibrate","autoDelete","tone","snoozeMinutes","snoozeLimit","repeatMode","repeat","every","monthDay","start","end","date","skipHolidays");
+    static final List<String> ALARM_KEYS=List.of("name","group","hour","minute","days","enabled","sound","vibrate","autoDelete","tone","snoozeMinutes","snoozeLimit","repeatMode","repeat","every","monthDay","start","end","date","skipHolidays","challenge","difficulty");
 
     static JSONObject create(Context c){
         ClockStore store=new ClockStore(c);JSONObject out=new JSONObject();JSONArray alarms=new JSONArray();

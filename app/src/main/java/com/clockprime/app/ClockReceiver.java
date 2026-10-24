@@ -42,7 +42,7 @@ public class ClockReceiver extends BroadcastReceiver {
         switch(action==null?"":action) {
             case "FIRE":fire(context,intent);break;
             case "SNOOZE":if(!o.optBoolean("ringing")||!kind.equals("alarms"))return;s.snooze(o,new ClockSettings(context).snoozeMinutes(o));s.save();s.refreshSound();break;
-            case "DISMISS":s.dismiss(kind,o);s.save();s.refreshSound();break;
+            case "DISMISS":if(kind.equals("alarms")&&o.optBoolean("ringing")&&Challenge.required(o)){DebugLog.log(context,"receiver","dismiss needs the puzzle on the ring screen");return;}s.dismiss(kind,o);s.save();s.refreshSound();break;
             case "PAUSE":if(kind.equals("timers")&&o.optBoolean("running")){s.timerPause(o);s.save();}break;
             case "RESUME":if(kind.equals("timers")&&!o.optBoolean("running")&&!o.optBoolean("ringing")){s.timerStart(o,o.optLong("remaining")>0?o.optLong("remaining"):o.optLong("duration"));s.save();}break;
             case "CANCEL":s.dismiss(kind,o);s.save();s.refreshSound();break;

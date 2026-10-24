@@ -21,7 +21,7 @@ public class RingActivity extends Activity {
     boolean dark;int bg,text,muted,mint,gold,soft,onAccent;
     LinearLayout root,list;TextView clock,date;FrameLayout halo;ImageView haloIcon;android.animation.ObjectAnimator pulse;
     final Handler handler=new Handler(Looper.getMainLooper());
-    boolean volumeKey;String shownKey;
+    boolean volumeKey;String shownKey;Challenge challenge;
     /** Lets {@link RingLaunch} skip redundant starts while this screen is in front. */
     static volatile boolean visible;static volatile long shownAt;
     final Runnable tick=new Runnable(){public void run(){refresh();handler.postDelayed(this,1000);}};
@@ -31,6 +31,7 @@ public class RingActivity extends Activity {
         dark=ThemeChoice.dark(this);setTheme(dark?R.style.AppTheme_Dark:R.style.AppTheme_Light);super.onCreate(b);
         setShowWhenLocked(true);setTurnScreenOn(true);
         setVolumeControlStream(android.media.AudioManager.STREAM_ALARM);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
                 |WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
         // No requestDismissKeyguard: on a secure lock screen it would cover the alarm with the PIN prompt.
@@ -49,7 +50,7 @@ public class RingActivity extends Activity {
         setIntent(intent);
     }
     @Override public void onResume(){super.onResume();visible=true;shownAt=android.os.SystemClock.elapsedRealtime();ClockStore.onChanged=()->handler.post(storeChanged);startPulse();handler.removeCallbacks(tick);handler.post(tick);}
-    @Override public void onPause(){visible=false;if(pulse!=null)pulse.cancel();handler.removeCallbacks(tick);if(ClockStore.onChanged==storeChanged)ClockStore.onChanged=null;super.onPause();}
+    @Override public void onPause(){visible=false;if(challenge!=null){challenge.stop();challenge=null;shownKey=null;}if(pulse!=null)pulse.cancel();handler.removeCallbacks(tick);if(ClockStore.onChanged==storeChanged)ClockStore.onChanged=null;super.onPause();}
     @Override public void onDestroy(){handler.removeCallbacks(tick);super.onDestroy();}
 
     void palette(){bg=Color.parseColor(dark?"#101722":"#F3F6FC");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");mint=Color.parseColor(dark?"#9CBCFF":"#386BC0");gold=Color.parseColor(dark?"#F5CE8D":"#996319");soft=Color.parseColor(dark?"#253652":"#E8F0FC");onAccent=Color.parseColor(dark?"#132342":"#FFFFFF");}
@@ -62,7 +63,9 @@ public class RingActivity extends Activity {
         root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setGravity(Gravity.CENTER_HORIZONTAL);
         int[] colors=dark?new int[]{Color.rgb(28,44,74),bg,Color.rgb(10,15,24)}:new int[]{Color.rgb(226,236,255),bg,Color.rgb(214,226,244)};
         root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,colors));
-        root.setOnApplyWindowInsetsListener((v,insets)->{android.graphics.Insets a=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(24)+a.left,a.top+dp(16),dp(24)+a.right,a.bottom+dp(20));return insets;});
+        // The keyboard (puzzle answers) pushes the cards up; the halo and date make room for it.
+        root.setOnApplyWindowInsetsListener((v,insets)->{android.graphics.Insets a=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());int ime=insets.getInsets(WindowInsets.Type.ime()).bottom;boolean typing=ime>a.bottom;
+            v.setPadding(dp(24)+a.left,a.top+dp(16),dp(24)+a.right,Math.max(a.bottom,ime)+dp(typing?8:20));if(halo!=null){halo.setVisibility(typing?View.GONE:View.VISIBLE);date.setVisibility(typing?View.GONE:View.VISIBLE);}return insets;});
         setContentView(LocaleText.direction(root));
         WindowInsetsController bars=getWindow().getInsetsController();
         if(bars!=null)bars.setSystemBarsAppearance(dark?0:WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
@@ -126,8 +129,13 @@ public class RingActivity extends Activity {
         TextView name=label(title(kind,item),20,text);name.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);card.addView(name);
         card.addView(label(detail(kind,item),14,muted));
         LinearLayout actions=new LinearLayout(this);actions.setPadding(0,dp(12),0,0);final int id=item.optInt("id");
-        if(kind.equals("alarms")&&settings.canSnooze(item)){LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMarginEnd(dp(8));actions.addView(action(getString(R.string.snooze_action),false,()->act(kind,id,true)),half);}
-        actions.addView(action(getString(R.string.dismiss),true,()->act(kind,id,false)),new LinearLayout.LayoutParams(0,-2,1));
+        LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMarginEnd(dp(8));
+        if(kind.equals("alarms")&&settings.canSnooze(item))actions.addView(action(getString(R.string.snooze_action),false,()->act(kind,id,true)),half);
+        boolean puzzle=kind.equals("alarms")&&Challenge.required(item);
+        actions.addView(action(getString(R.string.dismiss),true,()->{if(!puzzle){act(kind,id,false);return;}
+            // The puzzle replaces the buttons in this card; Back brings them back, snooze stays reachable there.
+            if(challenge!=null)challenge.stop();int at=card.indexOfChild(actions);card.removeView(actions);
+            challenge=new Challenge(this,item,()->{challenge=null;act(kind,id,false);},()->{challenge=null;card.removeViewAt(at);card.addView(actions,at);});card.addView(challenge.panel,at);}),new LinearLayout.LayoutParams(0,-2,1));
         card.addView(actions);
     }
 
@@ -153,7 +161,7 @@ public class RingActivity extends Activity {
                     ClockStore store=new ClockStore(this);
                     for(String kind:List.of("alarms","timers"))for(JSONObject a:store.objects(kind))if(a.optBoolean("ringing")){
                         if(action.equals("snooze")&&kind.equals("alarms")&&settings.canSnooze(a))store.snooze(a,settings.snoozeMinutes(a));
-                        else store.dismiss(kind,a);
+                        else if(!(kind.equals("alarms")&&Challenge.required(a)))store.dismiss(kind,a);
                     }
                     store.save(true);store.refreshSound();refresh();
                 }

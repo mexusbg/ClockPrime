@@ -15,11 +15,11 @@ import org.json.JSONObject;
 import java.time.LocalDate;
 import java.util.*;
 
-/** Unsaved alarm options in grouped cards: Schedule, Sound, Snooze. All writes happen only after validation. */
+/** Unsaved alarm options in grouped cards: Schedule, Sound, Dismiss, Snooze. All writes happen only after validation. */
 final class AlarmOptions {
-    final MainActivity a;final Spinner repeat,every,monthDay;final ToggleButton[] days=new ToggleButton[7];
+    final MainActivity a;final Spinner repeat,every,monthDay,puzzle,difficulty;final ToggleButton[] days=new ToggleButton[7];
     final Switch defaults,autoDelete,sound,vibrate,holidays;final Spinner interval,limit;final List<Integer> durations=new ArrayList<>();final TextView ringtone;
-    final LinearLayout dayRow,snoozeFields,deleteRow,toneRow,dateRow,everyRow,monthRow,startRow,endRow,holidayRow,pauseRow;String tone;final Set<Uri> acquired=new HashSet<>();
+    final LinearLayout dayRow,snoozeFields,deleteRow,toneRow,dateRow,everyRow,monthRow,startRow,endRow,holidayRow,pauseRow,difficultyRow;String tone;final Set<Uri> acquired=new HashSet<>();
     /** Once: optional fixed date. Repeating: optional first and last day. Pause: through a date, or for a number of rings. */
     LocalDate onDate,startDate,endDate,pauseUntil;int pauseRings;
     static final int ONCE=0,DAILY=1,WEEKDAYS=2,CUSTOM=3,EVERY_DAYS=4,EVERY_WEEKS=5,MONTHLY=6;
@@ -59,6 +59,14 @@ final class AlarmOptions {
         vibrate=new Switch(a);vibrate.setChecked(saved.optBoolean("vibrate",true));switchRow(soundCard,R.string.vibrate,null,vibrate);
         sound.setOnCheckedChangeListener((v,on)->toneState());toneState();
 
+        LinearLayout dismissCard=section(parent,R.string.dismiss_section);
+        puzzle=spinner(new String[]{a.tr(R.string.challenge_none),a.tr(R.string.challenge_math),a.tr(R.string.challenge_retype_name),a.tr(R.string.challenge_shake_name)});puzzle.setContentDescription(a.tr(R.string.challenge_label));
+        LinearLayout puzzleRow=line(dismissCard,R.string.challenge_label,null);puzzleRow.addView(puzzle,new LinearLayout.LayoutParams(-2,-2));
+        puzzle.setSelection(Math.max(0,Arrays.asList(Challenge.KINDS).indexOf(saved.optString("challenge"))));
+        difficulty=spinner(new String[]{a.tr(R.string.difficulty_easy),a.tr(R.string.difficulty_medium),a.tr(R.string.difficulty_hard)});difficulty.setSelection(Challenge.difficulty(saved)-1);difficulty.setContentDescription(a.tr(R.string.difficulty_label));
+        difficultyRow=line(dismissCard,R.string.difficulty_label,null);difficultyRow.addView(difficulty,new LinearLayout.LayoutParams(-2,-2));
+        puzzle.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int pos,long id){difficultyRow.setVisibility(pos==0?View.GONE:View.VISIBLE);}});
+
         LinearLayout snooze=section(parent,R.string.snooze_action);
         int limitDefault=settings.number("snooze_limit",0);String limitText=limitDefault==0?a.tr(R.string.unlimited):a.getResources().getQuantityString(R.plurals.times_value,limitDefault,limitDefault);
         defaults=new Switch(a);defaults.setChecked(!saved.has("snoozeMinutes"));switchRow(snooze,R.string.use_defaults,a.getResources().getQuantityString(R.plurals.minutes_value,settings.snoozeMinutes(),settings.snoozeMinutes())+" · "+limitText,defaults);
@@ -71,7 +79,7 @@ final class AlarmOptions {
         String[] counts=new String[LIMITS.length];int chosen=0;for(int i=0;i<LIMITS.length;i++){int n=LIMITS[i];counts[i]=n==0?a.tr(R.string.unlimited):a.getResources().getQuantityString(R.plurals.times_value,n,n);if(n==saved.optInt("snoozeLimit",limitDefault))chosen=i;}
         limit=spinner(counts);limit.setSelection(chosen);limit.setContentDescription(a.tr(R.string.snooze_count));LinearLayout limitRow=line(snoozeFields,R.string.snooze_count,null);limitRow.addView(limit,new LinearLayout.LayoutParams(-2,-2));
         snooze.addView(snoozeFields);snoozeFields.setVisibility(defaults.isChecked()?View.GONE:View.VISIBLE);defaults.setOnCheckedChangeListener((v,on)->snoozeFields.setVisibility(on?View.GONE:View.VISIBLE));
-        visibility();dates();updateTone();
+        visibility();dates();updateTone();difficultyRow.setVisibility(puzzle.getSelectedItemPosition()==0?View.GONE:View.VISIBLE);
     }
     static int modeOf(JSONObject a){
         switch(a.optString("repeat")){case "days":return EVERY_DAYS;case "weeks":return EVERY_WEEKS;case "month":return MONTHLY;}
@@ -149,6 +157,7 @@ final class AlarmOptions {
         if(mode!=ONCE){if(startDate!=null)ClockStore.put(o,"start",startDate.toString());if(endDate!=null)ClockStore.put(o,"end",endDate.toString());}
         else if(onDate!=null)ClockStore.put(o,"date",onDate.toString());
         ClockStore.put(o,"skipHolidays",mode!=ONCE&&holidays.isChecked());
+        int p=puzzle.getSelectedItemPosition();if(p==0){o.remove("challenge");o.remove("difficulty");}else{ClockStore.put(o,"challenge",Challenge.KINDS[p]);ClockStore.put(o,"difficulty",difficulty.getSelectedItemPosition()+1);}
         ClockStore.put(o,"autoDelete",mode==ONCE&&autoDelete.isChecked());ClockStore.put(o,"tone",tone);ClockStore.put(o,"sound",sound.isChecked());ClockStore.put(o,"vibrate",vibrate.isChecked());
         if(draft){ClockStore.put(o,"repeatMode",mode);if(pauseUntil!=null)ClockStore.put(o,"draftPause",pauseUntil.toString());ClockStore.put(o,"draftPauseRings",pauseRings);}
         if(defaults.isChecked()){o.remove("snoozeMinutes");o.remove("snoozeLimit");}else{ClockStore.put(o,"snoozeMinutes",durations.get(interval.getSelectedItemPosition()));ClockStore.put(o,"snoozeLimit",LIMITS[limit.getSelectedItemPosition()]);}
