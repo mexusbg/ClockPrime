@@ -60,6 +60,9 @@ final class FeatureChecks {
             t.check(notified,"Running timer notification offers +1 min");
             s.remove("timers",tm);s.save();
 
+            JSONObject source=new JSONObject();ClockStore.put(source,"days",31);ClockStore.put(source,"challenge","shake");ClockStore.put(source,"start","2026-11-02");ClockStore.put(source,"name","x");
+            JSONObject template=MainActivity.template(source);
+            t.check(template.optInt("days")==31&&template.optString("challenge").equals("shake")&&!template.has("start")&&!template.has("name"),"New alarms copy the last alarm's settings, not its dates or label");
 
         });
         holidays(t);
