@@ -208,7 +208,7 @@
   <string name="default_tone">Default alarm ringtone</string>
   <string name="audio_file">Choose audio file</string>
   <plurals name="seconds_value"><item quantity="one">%d second</item><item quantity="other">%d seconds</item></plurals>
-  <string name="restore_skips">Restore skipped alarms</string>
+  <string name="restore_skips">Resume skipped or paused alarms</string>
   <string name="reliability">Reliability</string>
   <string name="exact_alarms_label">Exact alarms</string>
   <string name="exact_alarms_blocked">Blocked — open settings</string>
@@ -357,6 +357,40 @@
   <string name="ends_label">Ends</string>
   <string name="end_before_start">The end date is before the start date</string>
   <string name="no_upcoming_schedule">This schedule has no upcoming alarm</string>
+  <string name="skip_holidays">Skip holidays</string>
+  <string name="holidays_none">Add holidays in Settings</string>
+  <string name="holidays_label">Holidays</string>
+  <string name="holidays_detail">Alarms with “Skip holidays” don\'t ring on these days.</string>
+  <string name="holidays_empty">No holidays yet.</string>
+  <string name="holiday_add">Add holiday</string>
+  <string name="holiday_edit">Edit holiday</string>
+  <string name="holiday_name_hint">Name (optional)</string>
+  <string name="holiday_from">From</string>
+  <string name="holiday_to">To</string>
+  <string name="holidays_upcoming">Upcoming</string>
+  <string name="holidays_past">Past</string>
+  <string name="holidays_clear_past">Clear past</string>
+  <string name="holidays_empty_hint">Add a single day or a range, like a vacation from 22 Dec to 2 Jan.</string>
+  <string name="holiday_delete">Delete %1$s</string>
+  <string name="holiday_removed">Removed %1$s</string>
+  <string name="holidays_past_removed">Past holidays removed</string>
+  <string name="undo">Undo</string>
+  <string name="holiday_now">Now</string>
+  <string name="holiday_next">Next: %1$s</string>
+  <string name="holiday_same_day">Same day</string>
+  <string name="holiday_show_past">Show past holidays</string>
+  <string name="holiday_hide_past">Hide past holidays</string>
+  <string name="pause_label">Pause</string>
+  <!-- Value of the Pause row when the alarm is not paused -->
+  <string name="not_paused">Off</string>
+  <!-- %1$s: a date -->
+  <string name="paused_until">Until %1$s</string>
+  <string name="pause_until_date">Until a date…</string>
+  <string name="pause_for_rings">For the next rings…</string>
+  <string name="resume_now">Resume now</string>
+  <string name="pause_group">Pause…</string>
+  <!-- Alarm card. %1$s: last paused date; %2$s: date and time of the next ring -->
+  <string name="paused_card">Paused until %1$s · %2$s</string>
   <string name="monthly_on">Monthly on day %1$d</string>
   <string name="monthly_last">Monthly on the last day</string>
   <!-- %1$s: repeat description; %2$s: end date -->
@@ -366,4 +400,6 @@
   <plurals name="every_weeks"><item quantity="one">Every week</item><item quantity="other">Every %d weeks</item></plurals>
   <plurals name="days_value"><item quantity="one">%d day</item><item quantity="other">%d days</item></plurals>
   <plurals name="weeks_value"><item quantity="one">%d week</item><item quantity="other">%d weeks</item></plurals>
+  <plurals name="holiday_count"><item quantity="one">%d holiday</item><item quantity="other">%d holidays</item></plurals>
+  <plurals name="pause_rings_value"><item quantity="one">Next ring</item><item quantity="other">Next %d rings</item></plurals>
 </resources>

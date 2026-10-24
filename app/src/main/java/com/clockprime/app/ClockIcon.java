@@ -28,6 +28,7 @@ final class ClockIcon extends Drawable {
             case "off":c.drawArc(4,4,20,20,-50,280,false,paint);line(c,12,2,12,10);line(c,3,3,21,21);break;
             case "skip":path(c,4,5,14,12,4,19,4,5);line(c,18,5,18,19);break;
             case "delete":line(c,4,6,20,6);path(c,8,6,8,3,16,3,16,6);path(c,6,6,7,21,17,21,18,6);line(c,10,10,10,17);line(c,14,10,14,17);break;
+            case "calendar":c.drawRoundRect(3.5f,5,20.5f,20.5f,3,3,paint);line(c,3.5f,10,20.5f,10);line(c,8,3,8,7);line(c,16,3,16,7);c.drawCircle(8.5f,14.5f,.6f,paint);c.drawCircle(12,14.5f,.6f,paint);c.drawCircle(15.5f,14.5f,.6f,paint);break;
             case "none":c.drawRoundRect(4,4,20,20,3,3,paint);break;
             case "coffee":path(c,4,9,4,15,6.5f,19,13.5f,19,16,15,16,9,4,9);path(c,16,10.5f,18.5f,10.5f,18.5f,14,16,14);line(c,7.5f,3,7.5f,6);line(c,10.5f,2.5f,10.5f,6);line(c,13.5f,3,13.5f,6);line(c,3,21.5f,17,21.5f);break;
             case "all":c.drawRoundRect(4,4,20,20,3,3,paint);path(c,8,12,11,15,16,9);break;

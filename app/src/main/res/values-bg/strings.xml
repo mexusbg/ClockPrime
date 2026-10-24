@@ -188,7 +188,7 @@
   <string name="default_tone">Мелодия по подразбиране</string>
   <string name="audio_file">Избор на аудиофайл</string>
   <plurals name="seconds_value"><item quantity="one">%d секунда</item><item quantity="other">%d секунди</item></plurals>
-  <string name="restore_skips">Възстановяване на пропуснатите аларми</string>
+  <string name="restore_skips">Възобновяване на пропуснати или спрени аларми</string>
   <string name="reliability">Надеждност</string>
   <string name="exact_alarms_label">Точни аларми</string>
   <string name="exact_alarms_blocked">Блокирани — отворете настройките</string>
@@ -321,6 +321,37 @@
   <string name="ends_label">Край</string>
   <string name="end_before_start">Крайната дата е преди началната</string>
   <string name="no_upcoming_schedule">Този график няма предстояща аларма</string>
+  <string name="skip_holidays">Пропускане на празници</string>
+  <string name="holidays_none">Добавете празници в Настройки</string>
+  <string name="holidays_label">Празници</string>
+  <string name="holidays_detail">Алармите с „Пропускане на празници“ не звънят в тези дни.</string>
+  <string name="holidays_empty">Все още няма празници.</string>
+  <string name="holiday_add">Добавяне на празник</string>
+  <string name="holiday_edit">Редактиране на празник</string>
+  <string name="holiday_name_hint">Име (по избор)</string>
+  <string name="holiday_from">От</string>
+  <string name="holiday_to">До</string>
+  <string name="holidays_upcoming">Предстоящи</string>
+  <string name="holidays_past">Минали</string>
+  <string name="holidays_clear_past">Изчистване на минали</string>
+  <string name="holidays_empty_hint">Добавете един ден или период, например ваканция от 22 дек. до 2 ян.</string>
+  <string name="holiday_delete">Изтриване на %1$s</string>
+  <string name="holiday_removed">Премахнато: %1$s</string>
+  <string name="holidays_past_removed">Миналите празници са премахнати</string>
+  <string name="undo">Отмяна</string>
+  <string name="holiday_now">Сега</string>
+  <string name="holiday_next">Следващ: %1$s</string>
+  <string name="holiday_same_day">Същия ден</string>
+  <string name="holiday_show_past">Показване на минали празници</string>
+  <string name="holiday_hide_past">Скриване на минали празници</string>
+  <string name="pause_label">Пауза</string>
+  <string name="not_paused">Изключена</string>
+  <string name="paused_until">До %1$s</string>
+  <string name="pause_until_date">До дата…</string>
+  <string name="pause_for_rings">За следващите звънения…</string>
+  <string name="resume_now">Възобновяване сега</string>
+  <string name="pause_group">Пауза…</string>
+  <string name="paused_card">На пауза до %1$s · %2$s</string>
   <string name="monthly_on">Месечно на %1$d-о число</string>
   <string name="monthly_last">Месечно в последния ден</string>
   <string name="schedule_until">%1$s · до %2$s</string>
@@ -329,4 +360,6 @@
   <plurals name="every_weeks"><item quantity="one">Всяка седмица</item><item quantity="other">На всеки %d седмици</item></plurals>
   <plurals name="days_value"><item quantity="one">%d ден</item><item quantity="other">%d дни</item></plurals>
   <plurals name="weeks_value"><item quantity="one">%d седмица</item><item quantity="other">%d седмици</item></plurals>
+  <plurals name="holiday_count"><item quantity="one">%d празник</item><item quantity="other">%d празника</item></plurals>
+  <plurals name="pause_rings_value"><item quantity="one">Следващото звънене</item><item quantity="other">Следващите %d звънения</item></plurals>
 </resources>

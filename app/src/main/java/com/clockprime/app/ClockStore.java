@@ -27,7 +27,7 @@ public final class ClockStore {
         try { parsed = new JSONObject(prefs().getString("state", "{}")); } catch (JSONException e) { throw new IllegalStateException("Cannot read saved clock data", e); }
         data = parsed;
         if (!data.has("alarms")) { put(data,"alarms",new JSONArray()); put(data,"timers",new JSONArray()); put(data,"groups",new JSONArray()); put(data,"cities",new JSONArray(List.of("Europe/Sofia","Europe/London","America/New_York"))); }
-        migrate();
+        migrate();Schedule.holidays=Schedule.holidays(data);
     }
     android.content.SharedPreferences prefs() {
         if(directBoot) return context.getSharedPreferences(DE_PREFS,Context.MODE_PRIVATE);
@@ -46,7 +46,7 @@ public final class ClockStore {
     int id() { int n=data.optInt("id",100)+1; put(data,"id",n); return n; }
     void save() { save(true); }
     void save(boolean notify) {
-        put(data,"schema",SCHEMA);
+        put(data,"schema",SCHEMA);Schedule.holidays=Schedule.holidays(data);
         if(!prefs().edit().putString("state",data.toString()).putLong(BOOT_ELAPSED,SystemClock.elapsedRealtime()).commit()) throw new IllegalStateException("Could not save clock data");
         if(!directBoot)mirrorDirectBoot();
         boolean running=objects("timers").stream().anyMatch(t->t.optBoolean("running"));
@@ -76,7 +76,7 @@ public final class ClockStore {
                     if(t.has(k))m.put(k,t.get(k));
                 timers.put(m);
             }
-            put(mirror,"alarms",alarms);put(mirror,"timers",timers);put(mirror,"id",data.optInt("id",100));put(mirror,"schema",SCHEMA);
+            put(mirror,"alarms",alarms);put(mirror,"timers",timers);if(data.has("holidays"))put(mirror,"holidays",data.get("holidays"));put(mirror,"id",data.optInt("id",100));put(mirror,"schema",SCHEMA);
             dePrefs().edit().putString("state",mirror.toString()).putLong(BOOT_ELAPSED,SystemClock.elapsedRealtime()).commit();
         } catch (JSONException e) { throw new IllegalStateException(e); }
     }
@@ -192,7 +192,7 @@ public final class ClockStore {
         nm.notify(STOPWATCH_ID,n);
     }
     void refreshLocalizedNotifications(){RingService.channels(context);syncStopwatch();for(JSONObject t:objects("timers"))if(timerShown(t))notifyTimer(t);UpcomingAlarm.refresh(context,this,System.currentTimeMillis());Widgets.update(context,this);}
-    void enable(JSONObject a,boolean enabled) { put(a,"snoozeCount",0);put(a,"autoSilenced",false); put(a,"enabled",enabled); put(a,"ringing",false); put(a,"snoozed",false); put(a,"postponed",false); a.remove("skipDate"); a.remove("skipDisabled"); long n=enabled?next(a,System.currentTimeMillis()):0; put(a,"enabled",enabled&&n>0); put(a,"next",n); schedule("alarms",a); }
+    void enable(JSONObject a,boolean enabled) { put(a,"snoozeCount",0);put(a,"autoSilenced",false); put(a,"enabled",enabled); put(a,"ringing",false); put(a,"snoozed",false); put(a,"postponed",false); a.remove("skipDate"); a.remove("skipDisabled"); a.remove("paused"); long n=enabled?next(a,System.currentTimeMillis()):0; put(a,"enabled",enabled&&n>0); put(a,"next",n); schedule("alarms",a); }
     void skipOnce(JSONObject a) {
         if(!a.optBoolean("enabled"))return;
         long due=Math.max(System.currentTimeMillis(),a.optLong("next"));
@@ -201,10 +201,18 @@ public final class ClockStore {
         if(!Schedule.repeats(a)){if(autoDelete(a))remove("alarms",a);else {enable(a,false);put(a,"skipDisabled",true);put(a,"skipDate",skipped.toString());}}
         else {put(a,"skipDate",skipped.toString());advance(a,due);schedule("alarms",a);}
     }
+    /** Pauses a repeating alarm through {@code until} (inclusive); it resumes by itself afterwards. One-time alarms are left alone. */
+    void pause(JSONObject a,LocalDate until){
+        if(!Schedule.repeats(a)||until==null)return;
+        put(a,"ringing",false);put(a,"snoozed",false);put(a,"postponed",false);put(a,"enabled",true);a.remove("skipDisabled");
+        put(a,"skipDate",until.toString());put(a,"paused",true);advance(a,System.currentTimeMillis());schedule("alarms",a);
+    }
+    /** Pauses through the {@code count}-th upcoming ring of this alarm. */
+    void pauseRings(JSONObject a,int count){pause(a,Schedule.nthRing(a,count,System.currentTimeMillis()));}
     void restoreSkips(JSONObject a) {
         if(a.optString("skipDate").isEmpty())return;
         boolean resumeOnce=a.optBoolean("skipDisabled");
-        a.remove("skipDate");a.remove("skipDisabled");
+        a.remove("skipDate");a.remove("skipDisabled");a.remove("paused");
         if(resumeOnce)put(a,"enabled",true);
         if(a.optBoolean("enabled")&&!a.optBoolean("ringing")&&!a.optBoolean("snoozed")&&!a.optBoolean("postponed"))
             advance(a,System.currentTimeMillis());

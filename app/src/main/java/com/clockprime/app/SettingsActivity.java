@@ -17,8 +17,8 @@ import java.util.*;
 
 /** Full-screen settings with app-owned sound preferences and native ringtone selection. */
 public class SettingsActivity extends Activity {
-    boolean dark,advanced;int bg,card,text,muted,accent,line;LinearLayout body;ScrollView scroll;ClockSettings prefs;
-    Ringtone preview;final Handler handler=new Handler(Looper.getMainLooper());int savedScroll;
+    boolean dark,advanced,showPast;String page="";int bg,card,text,muted,accent,line,soft,onAccent,mainScroll;LinearLayout body;ScrollView scroll;ClockSettings prefs;
+    Ringtone preview;final Handler handler=new Handler(Looper.getMainLooper());int savedScroll=-1;
     String tr(int id,Object... args){return args.length==0?getString(id):getString(id,args);}
     int dp(float n){return Math.round(n*getResources().getDisplayMetrics().density);}
     String minutes(int value){return value==0?tr(R.string.never):getResources().getQuantityString(R.plurals.minutes_value,value,value);}
@@ -27,13 +27,14 @@ public class SettingsActivity extends Activity {
         if(minutes%60==0){int hours=minutes/60;return getResources().getQuantityString(R.plurals.hours_value,hours,hours);}
         return getResources().getQuantityString(R.plurals.minutes_value,minutes,minutes);
     }
-    @Override public void onCreate(Bundle b){dark=ThemeChoice.dark(this);setTheme(dark?R.style.AppTheme_Dark:R.style.AppTheme_Light);super.onCreate(b);prefs=new ClockSettings(this);if(b!=null){advanced=b.getBoolean("advanced");savedScroll=b.getInt("scroll");}setVolumeControlStream(AudioManager.STREAM_ALARM);getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0,this::back);}
+    @Override public void onCreate(Bundle b){dark=ThemeChoice.dark(this);setTheme(dark?R.style.AppTheme_Dark:R.style.AppTheme_Light);super.onCreate(b);prefs=new ClockSettings(this);if(b!=null){advanced=b.getBoolean("advanced");savedScroll=b.getInt("scroll");page=b.getString("page","");showPast=b.getBoolean("showPast");mainScroll=b.getInt("mainScroll");}setVolumeControlStream(AudioManager.STREAM_ALARM);getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0,this::back);}
     Boolean islandAllowed;
     @Override public void onResume(){super.onResume();render();SetupGuide.refreshOpen();registerReceiver(volumeChanged,new IntentFilter("android.media.VOLUME_CHANGED_ACTION"),Context.RECEIVER_EXPORTED);
         if(FocusIsland.shouldAttach(this))new Thread(()->{Boolean allowed=FocusIsland.canShowFocus(this);handler.post(()->{if(!isFinishing()&&!java.util.Objects.equals(allowed,islandAllowed)){islandAllowed=allowed;render();}});},"island-check").start();}
     @Override public void onPause(){stopPreview();unregisterReceiver(volumeChanged);super.onPause();}
-    @Override public void onSaveInstanceState(Bundle b){b.putBoolean("advanced",advanced);b.putInt("scroll",scroll==null?0:scroll.getScrollY());super.onSaveInstanceState(b);}
-    void back(){finish();}
+    @Override public void onSaveInstanceState(Bundle b){b.putBoolean("advanced",advanced);b.putInt("scroll",scroll==null?0:scroll.getScrollY());b.putString("page",page);b.putBoolean("showPast",showPast);b.putInt("mainScroll",mainScroll);super.onSaveInstanceState(b);}
+    void back(){if(holidayPage()){page="";undoAction=null;savedScroll=mainScroll;render();return;}finish();}
+    boolean holidayPage(){return page.equals("holidays");}
     @Override public void onBackPressed(){back();}
     GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(dp(radius));return d;}
     LinearLayout column(){LinearLayout v=new LinearLayout(this);v.setOrientation(LinearLayout.VERTICAL);return v;}
@@ -41,13 +42,13 @@ public class SettingsActivity extends Activity {
     TextView label(String value,int size,int color){TextView t=new TextView(this);t.setText(value);t.setTextSize(size);t.setTextColor(color);return t;}
     void gap(LinearLayout parent,int height){parent.addView(new View(this),new LinearLayout.LayoutParams(1,dp(height)));}
     void render(){
-        int offset=scroll==null?savedScroll:scroll.getScrollY();savedScroll=0;
-        bg=Color.parseColor(dark?"#101722":"#F3F6FC");card=Color.parseColor(dark?"#192334":"#FFFFFF");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");accent=Color.parseColor(dark?"#9CBCFF":"#386BC0");line=Color.parseColor(dark?"#2B3950":"#E1E7F0");
+        int offset=savedScroll>=0?savedScroll:scroll==null?0:scroll.getScrollY();savedScroll=-1;
+        bg=Color.parseColor(dark?"#101722":"#F3F6FC");card=Color.parseColor(dark?"#192334":"#FFFFFF");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");accent=Color.parseColor(dark?"#9CBCFF":"#386BC0");line=Color.parseColor(dark?"#2B3950":"#E1E7F0");soft=Color.parseColor(dark?"#253652":"#E8F0FC");onAccent=Color.parseColor(dark?"#132342":"#FFFFFF");
         LinearLayout root=column();root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.parseColor(dark?"#18263F":"#E7F0FF"),bg}));root.setOnApplyWindowInsetsListener((v,i)->{android.graphics.Insets in=i.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(20)+in.left,in.top,dp(20)+in.right,in.bottom);return i;});setContentView(LocaleText.direction(root));
         WindowInsetsController bars=getWindow().getInsetsController();if(bars!=null)bars.setSystemBarsAppearance(dark?0:WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         LinearLayout header=row();ImageButton back=new ImageButton(this);back.setImageDrawable(new ClockIcon("back",accent));back.setPadding(dp(12),dp(12),dp(12),dp(12));back.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),shape(Color.TRANSPARENT,16),null));back.setContentDescription(tr(R.string.back));back.setOnClickListener(v->back());header.addView(back,new LinearLayout.LayoutParams(dp(48),dp(48)));
-        TextView title=label(tr(R.string.settings),26,text);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));header.addView(title,new LinearLayout.LayoutParams(0,-2,1));root.addView(header,new LinearLayout.LayoutParams(-1,dp(80)));
-        scroll=new ScrollView(this);scroll.setVerticalScrollBarEnabled(false);body=column();body.setPadding(0,dp(8),0,dp(24));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));general();root.requestApplyInsets();scroll.post(()->scroll.scrollTo(0,offset));
+        TextView title=label(tr(holidayPage()?R.string.holidays_label:R.string.settings),26,text);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));header.addView(title,new LinearLayout.LayoutParams(0,-2,1));root.addView(header,new LinearLayout.LayoutParams(-1,dp(80)));
+        scroll=new ScrollView(this);scroll.setVerticalScrollBarEnabled(false);body=column();body.setPadding(0,dp(8),0,dp(24));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));if(holidayPage())holidays(root);else general();root.requestApplyInsets();scroll.post(()->scroll.scrollTo(0,offset));
     }
     LinearLayout section(int title){TextView heading=label(tr(title),12,muted);heading.setPaddingRelative(dp(8),dp(20),0,dp(10));body.addView(heading);LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));body.addView(c,new LinearLayout.LayoutParams(-1,-2));return c;}
     void divider(LinearLayout c){if(c.getChildCount()>0){View v=new View(this);v.setBackgroundColor(line);c.addView(v,new LinearLayout.LayoutParams(-1,dp(1)));}}
@@ -113,6 +114,7 @@ public class SettingsActivity extends Activity {
         item(alarms,R.string.alarm_auto_silence,minutes(prefs.number("alarm_silence",10)),null,()->chooseNumber(R.string.alarm_auto_silence,"alarm_silence",10,new int[]{0,1,2,5,10,15,30,60},false));
         item(alarms,R.string.snooze_duration,minutes(prefs.snoozeMinutes()),null,()->chooseNumber(R.string.snooze_duration,"snooze_minutes",5,new int[]{1,3,5,10,15,20,30},false));
         int count=prefs.number("snooze_limit",0);item(alarms,R.string.snooze_count,count==0?tr(R.string.unlimited):getResources().getQuantityString(R.plurals.times_value,count,count),null,()->chooseNumber(R.string.snooze_count,"snooze_limit",0,new int[]{0,1,2,3,5,10},true));
+        item(alarms,R.string.holidays_label,Holidays.summary(this,new ClockStore(this).data),tr(R.string.holidays_detail),this::holidays);
         String action=prefs.text("volume_buttons","volume");item(alarms,R.string.volume_buttons,tr(action.equals("snooze")?R.string.snooze_action:action.equals("dismiss")?R.string.dismiss:R.string.adjust_volume),tr(R.string.volume_buttons_detail),this::buttons);
         LinearLayout timers=section(R.string.timers);
         item(timers,R.string.default_timer_ringtone,toneName("timers"),null,()->pickSound("timers"));volume(timers,"timers");gradual(timers,"timers");toggle(timers,R.string.vibrate_timers,null,"timer_vibrate",true);
@@ -214,6 +216,113 @@ public class SettingsActivity extends Activity {
     void chooseNumber(int title,String key,int fallback,int[] values,boolean count){String[] labels=new String[values.length];int selected=0;for(int i=0;i<values.length;i++){int value=values[i];labels[i]=count?(value==0?tr(R.string.unlimited):getResources().getQuantityString(R.plurals.times_value,value,value)):minutes(value);if(value==prefs.number(key,fallback))selected=i;}new AlertDialog.Builder(this).setTitle(tr(title)).setSingleChoiceItems(labels,selected,(d,index)->{prefs.put(key,values[index]);changed();d.dismiss();render();}).setNegativeButton(tr(R.string.cancel),null).show();}
     void buttons(){String[] keys={"volume","snooze","dismiss"};String[] labels={tr(R.string.adjust_volume),tr(R.string.snooze_action),tr(R.string.dismiss)};new AlertDialog.Builder(this).setTitle(tr(R.string.volume_buttons)).setSingleChoiceItems(labels,Arrays.asList(keys).indexOf(prefs.text("volume_buttons","volume")),(d,i)->{prefs.put("volume_buttons",keys[i]);d.dismiss();render();}).setNegativeButton(tr(R.string.cancel),null).show();}
     void theme(){String[] labels={tr(R.string.follow_system),tr(R.string.light),tr(R.string.dark)};new AlertDialog.Builder(this).setTitle(tr(R.string.appearance)).setSingleChoiceItems(labels,Arrays.asList(ThemeChoice.MODES).indexOf(ThemeChoice.get(this)),(d,i)->{ThemeChoice.set(this,ThemeChoice.MODES[i]);d.dismiss();recreate();}).setNegativeButton(tr(R.string.cancel),null).show();}
+    /** Settings › Holidays: shared days off (single days or ranges) that alarms with "Skip holidays" do not ring on. */
+    void holidays(){mainScroll=scroll==null?0:scroll.getScrollY();page="holidays";savedScroll=0;render();}
+    String undoText;Runnable undoAction;AlertDialog holidayEditor;java.time.LocalDate[] holidayRange;EditText holidayName;
+    Typeface medium(){return Typeface.create("sans-serif-medium",Typeface.NORMAL);}
+    String holidayDays(Holidays.Entry e){return getResources().getQuantityString(R.plurals.days_value,e.days(),e.days());}
+    void holidays(LinearLayout root){
+        ClockStore store=new ClockStore(this);java.time.LocalDate today=java.time.LocalDate.now();List<Holidays.Entry> upcoming=new ArrayList<>(),past=new ArrayList<>();
+        for(Holidays.Entry e:Holidays.entries(store.data))(e.past(today)?past:upcoming).add(e);
+        TextView intro=label(tr(R.string.holidays_detail),14,muted);intro.setPaddingRelative(dp(8),0,dp(8),dp(4));body.addView(intro);
+        if(upcoming.isEmpty()&&past.isEmpty()){
+            LinearLayout empty=column();empty.setGravity(Gravity.CENTER_HORIZONTAL);empty.setPadding(dp(24),dp(32),dp(24),dp(32));GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);empty.setBackground(d);empty.setTag("holidays-empty");
+            FrameLayout badge=new FrameLayout(this);badge.setBackground(shape(soft,36));ImageView icon=new ImageView(this);icon.setImageDrawable(new ClockIcon("calendar",accent));icon.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);badge.addView(icon,new FrameLayout.LayoutParams(dp(34),dp(34),Gravity.CENTER));empty.addView(badge,new LinearLayout.LayoutParams(dp(72),dp(72)));
+            TextView t=label(tr(R.string.holidays_empty),17,text);t.setTypeface(medium());t.setPadding(0,dp(16),0,dp(6));t.setGravity(Gravity.CENTER);empty.addView(t);
+            TextView hint=label(tr(R.string.holidays_empty_hint),13,muted);hint.setGravity(Gravity.CENTER);empty.addView(hint);
+            gap(body,16);body.addView(empty,new LinearLayout.LayoutParams(-1,-2));
+        }
+        if(!upcoming.isEmpty()){LinearLayout c=section(R.string.holidays_upcoming);c.setTag("holidays-upcoming");for(Holidays.Entry e:upcoming)holidayRow(c,e,today);}
+        if(!past.isEmpty()){
+            LinearLayout head=row();head.setPaddingRelative(0,dp(12),0,0);
+            LinearLayout toggle=row();toggle.setMinimumHeight(dp(48));toggle.setPaddingRelative(dp(8),0,dp(8),0);ImageView chevron=new ImageView(this);chevron.setImageDrawable(new ClockIcon(showPast?"down":"right",muted));chevron.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);toggle.addView(chevron,new LinearLayout.LayoutParams(dp(18),dp(18)));
+            TextView heading=label(tr(R.string.holidays_past)+" · "+past.size(),12,muted);heading.setPaddingRelative(dp(6),0,0,0);toggle.addView(heading);
+            toggle.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,12)));toggle.setFocusable(true);toggle.setContentDescription(tr(showPast?R.string.holiday_hide_past:R.string.holiday_show_past));toggle.setTag("holidays-past-toggle");
+            toggle.setOnClickListener(v->{showPast=!showPast;render();});head.addView(toggle,new LinearLayout.LayoutParams(0,-2,1));
+            TextView clear=label(tr(R.string.holidays_clear_past),13,accent);clear.setTypeface(medium());clear.setGravity(Gravity.CENTER);clear.setMinHeight(dp(48));clear.setPadding(dp(12),0,dp(12),0);clear.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,12)));clear.setTag("holidays-clear-past");
+            clear.setOnClickListener(v->changeHolidays(data->Holidays.removePast(data,java.time.LocalDate.now()),tr(R.string.holidays_past_removed)));head.addView(clear);body.addView(head);
+            if(showPast){LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));c.setTag("holidays-past");body.addView(c,new LinearLayout.LayoutParams(-1,-2));for(Holidays.Entry e:past)holidayRow(c,e,today);}
+        }
+        LinearLayout bottom=column();bottom.setPadding(0,dp(8),0,dp(16));
+        if(undoAction!=null){
+            LinearLayout bar=row();bar.setPaddingRelative(dp(18),0,dp(6),0);bar.setMinimumHeight(dp(52));bar.setBackground(shape(text,16));bar.setElevation(dp(3));bar.setTag("holiday-undo-bar");bar.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+            TextView message=label(undoText,14,bg);message.setMaxLines(2);bar.addView(message,new LinearLayout.LayoutParams(0,-2,1));
+            TextView undo=label(tr(R.string.undo),14,Color.parseColor(dark?"#386BC0":"#9CBCFF"));undo.setTypeface(medium());undo.setGravity(Gravity.CENTER);undo.setMinHeight(dp(48));undo.setPadding(dp(14),0,dp(14),0);undo.setBackground(new RippleDrawable(ColorStateList.valueOf(0x30FFFFFF),null,shape(Color.WHITE,12)));undo.setTag("holiday-undo");
+            Runnable action=undoAction;undo.setOnClickListener(v->{undoAction=null;action.run();});bar.addView(undo);
+            LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,-2);lp.bottomMargin=dp(10);bottom.addView(bar,lp);
+        }
+        LinearLayout add=row();add.setGravity(Gravity.CENTER);GradientDrawable fill=shape(accent,28);add.setBackground(new RippleDrawable(ColorStateList.valueOf(0x40FFFFFF),fill,null));add.setElevation(dp(2));
+        ImageView plus=new ImageView(this);plus.setImageDrawable(new ClockIcon("plus",onAccent));plus.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);add.addView(plus,new LinearLayout.LayoutParams(dp(22),dp(22)));
+        TextView addText=label(tr(R.string.holiday_add),16,onAccent);addText.setTypeface(medium());addText.setPaddingRelative(dp(10),0,0,0);add.addView(addText);
+        add.setContentDescription(tr(R.string.holiday_add));add.setFocusable(true);add.setClickable(true);add.setTag("holiday-add");add.setOnClickListener(v->editHoliday(null));
+        bottom.addView(add,new LinearLayout.LayoutParams(-1,dp(56)));root.addView(bottom);
+    }
+    /** Date tile, name or range, length, and a recycle-bin button; tapping the row edits the entry. */
+    void holidayRow(LinearLayout c,Holidays.Entry e,java.time.LocalDate today){
+        divider(c);boolean past=e.past(today),now=e.now(today);LinearLayout r=row();r.setPadding(0,dp(10),0,dp(10));r.setMinimumHeight(dp(68));r.setTag("holiday-"+e.from);
+        LinearLayout tile=column();tile.setGravity(Gravity.CENTER);tile.setBackground(shape(now?accent:soft,14));
+        TextView month=label(e.from.format(LocaleText.formatter(this,"MMM")).replace(".","").toUpperCase(LocaleText.locale(this)),11,now?onAccent:accent);month.setTypeface(medium());month.setLetterSpacing(.06f);month.setGravity(Gravity.CENTER);tile.addView(month);
+        TextView day=label(e.from.format(LocaleText.formatter(this,"d")),19,now?onAccent:text);day.setTypeface(medium());day.setIncludeFontPadding(false);day.setGravity(Gravity.CENTER);tile.addView(day);
+        tile.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);r.addView(tile,new LinearLayout.LayoutParams(dp(50),dp(54)));
+        LinearLayout words=column();words.setPaddingRelative(dp(14),0,dp(4),0);String title=Holidays.title(this,e);
+        TextView name=label(title,16,text);name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);words.addView(name);
+        String detail=(e.name.isEmpty()?"":Holidays.range(this,e)+" · ")+holidayDays(e);if(now)detail=tr(R.string.holiday_now)+" · "+detail;
+        TextView sub=label(detail,13,now?accent:muted);sub.setPadding(0,dp(3),0,0);words.addView(sub);r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
+        ImageButton bin=new ImageButton(this);bin.setImageDrawable(new ClockIcon("delete",muted));bin.setScaleType(ImageView.ScaleType.FIT_CENTER);bin.setPadding(dp(13),dp(13),dp(13),dp(13));bin.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,24)));
+        bin.setContentDescription(tr(R.string.holiday_delete,title));bin.setTag("holiday-delete");bin.setOnClickListener(v->deleteHoliday(e));r.addView(bin,new LinearLayout.LayoutParams(dp(48),dp(48)));
+        if(past){tile.setAlpha(.55f);words.setAlpha(.6f);}
+        r.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,12)));r.setFocusable(true);r.setContentDescription(title+", "+detail);r.setOnClickListener(v->editHoliday(e));c.addView(r);
+    }
+    void deleteHoliday(Holidays.Entry e){changeHolidays(data->Holidays.remove(data,e),tr(R.string.holiday_removed,Holidays.title(this,e)));}
+    /** Applies a change; with a message, offers Undo for a few seconds (restores the exact previous list). */
+    void changeHolidays(java.util.function.Consumer<JSONObject> change,String message){
+        ClockStore store=new ClockStore(this);org.json.JSONArray days=store.list("holidays");String beforeDays=days==null?"[]":days.toString(),beforeLabels=Holidays.labels(store.data).toString();
+        change.accept(store.data);handler.removeCallbacksAndMessages("undo");
+        if(message!=null){undoText=message;undoAction=()->{ClockStore s=new ClockStore(this);try{Holidays.write(s.data,Holidays.days(new JSONObject().put("holidays",new org.json.JSONArray(beforeDays))),new JSONObject(beforeLabels));}catch(org.json.JSONException x){throw new IllegalStateException(x);}saveHolidays(s);};
+            handler.postDelayed(()->{undoAction=null;if(holidayPage())render();},"undo",8000);}
+        else undoAction=null;
+        saveHolidays(store);
+    }
+    /** Saves and moves alarms that skip holidays to their next allowed day. */
+    void saveHolidays(ClockStore store){
+        Schedule.holidays=Schedule.holidays(store.data);long now=System.currentTimeMillis();
+        for(JSONObject a:store.objects("alarms"))if(a.optBoolean("enabled")&&a.optBoolean("skipHolidays")&&!a.optBoolean("ringing")&&!a.optBoolean("snoozed")){store.advance(a,now);store.schedule("alarms",a);}
+        store.save();changed();render();
+    }
+    String fieldDate(java.time.LocalDate d){return d.format(LocaleText.formatter(this,d.getYear()==java.time.LocalDate.now().getYear()?"MMMd":"yMMMd"));}
+    /** Outlined date field: caption, date and weekday. */
+    LinearLayout dateField(int caption,TextView value,TextView weekday,Runnable pick){
+        LinearLayout f=column();f.setPadding(dp(14),dp(10),dp(12),dp(10));f.setMinimumHeight(dp(72));GradientDrawable d=shape(Color.TRANSPARENT,16);d.setStroke(dp(1),line);f.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),d,shape(Color.WHITE,16)));
+        f.addView(label(tr(caption),12,muted));value.setTextSize(17);value.setTextColor(text);value.setTypeface(medium());value.setPadding(0,dp(2),0,0);f.addView(value);weekday.setTextSize(12);weekday.setTextColor(accent);f.addView(weekday);
+        f.setFocusable(true);f.setOnClickListener(v->pick.run());return f;
+    }
+    void pickDate(java.time.LocalDate current,java.time.LocalDate min,java.util.function.Consumer<java.time.LocalDate> done){
+        DatePickerDialog p=new DatePickerDialog(this,(v,y,m,day)->done.accept(java.time.LocalDate.of(y,m+1,day)),current.getYear(),current.getMonthValue()-1,current.getDayOfMonth());
+        if(min!=null){java.time.ZoneId z=java.time.ZoneId.systemDefault();p.getDatePicker().setMinDate(min.atStartOfDay(z).toInstant().toEpochMilli());p.getDatePicker().setMaxDate(min.plusDays(Holidays.MAX_DAYS-1).atStartOfDay(z).toInstant().toEpochMilli());}p.show();
+    }
+    /** Add (e == null) or edit: optional name, From / To fields and quick lengths. */
+    void editHoliday(Holidays.Entry e){
+        java.time.LocalDate today=java.time.LocalDate.now();java.time.LocalDate[] r={e==null?today:e.from,e==null?today:e.to};holidayRange=r;
+        LinearLayout box=column();box.setPaddingRelative(dp(24),dp(8),dp(24),dp(4));
+        EditText name=new EditText(this);name.setHint(R.string.holiday_name_hint);name.setSingleLine();name.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);name.setText(e==null?"":e.name);name.setTextColor(text);name.setHintTextColor(muted);name.setMinHeight(dp(48));name.setTextSize(17);holidayName=name;box.addView(name);
+        TextView fromValue=new TextView(this),fromDay=new TextView(this),toValue=new TextView(this),toDay=new TextView(this),total=label("",13,muted);
+        int[] lengths={1,3,7,14};List<TextView> chips=new ArrayList<>();
+        Runnable sync=()->{boolean same=r[1].equals(r[0]);fromValue.setText(fieldDate(r[0]));fromDay.setText(r[0].format(LocaleText.formatter(this,"EEEE")));toValue.setText(same?tr(R.string.holiday_same_day):fieldDate(r[1]));toDay.setText(same?"":r[1].format(LocaleText.formatter(this,"EEEE")));
+            int n=(int)(r[1].toEpochDay()-r[0].toEpochDay())+1;total.setText(getResources().getQuantityString(R.plurals.days_value,n,n));boolean preset=false;for(int x:lengths)preset|=x==n;total.setVisibility(preset?View.GONE:View.VISIBLE);
+            for(int i=0;i<chips.size();i++){boolean on=lengths[i]==n;TextView chip=chips.get(i);chip.setSelected(on);chip.setTextColor(on?onAccent:text);GradientDrawable g=shape(on?accent:Color.TRANSPARENT,20);if(!on)g.setStroke(dp(1),line);chip.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),g,null));}};
+        LinearLayout fields=row();fields.setPadding(0,dp(14),0,0);
+        fields.addView(dateField(R.string.holiday_from,fromValue,fromDay,()->pickDate(r[0],null,d->{long len=r[1].toEpochDay()-r[0].toEpochDay();r[0]=d;r[1]=d.plusDays(len);sync.run();})),new LinearLayout.LayoutParams(0,-2,1));
+        ImageView arrow=new ImageView(this);arrow.setImageDrawable(new ClockIcon("right",muted));arrow.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);LinearLayout.LayoutParams alp=new LinearLayout.LayoutParams(dp(18),dp(18));alp.setMarginStart(dp(4));alp.setMarginEnd(dp(4));fields.addView(arrow,alp);
+        fields.addView(dateField(R.string.holiday_to,toValue,toDay,()->pickDate(r[1],r[0],d->{r[1]=d;sync.run();})),new LinearLayout.LayoutParams(0,-2,1));box.addView(fields);
+        HorizontalScrollView strip=new HorizontalScrollView(this);strip.setHorizontalScrollBarEnabled(false);LinearLayout chipRow=row();chipRow.setPadding(0,dp(12),0,dp(4));
+        for(int n:lengths){TextView chip=label(n%7==0?getResources().getQuantityString(R.plurals.weeks_value,n/7,n/7):getResources().getQuantityString(R.plurals.days_value,n,n),14,text);chip.setGravity(Gravity.CENTER);chip.setPadding(dp(14),0,dp(14),0);
+            chip.setOnClickListener(v->{r[1]=r[0].plusDays(n-1);sync.run();});LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,dp(40));lp.setMarginEnd(dp(8));chipRow.addView(chip,lp);chips.add(chip);}
+        strip.addView(chipRow);box.addView(strip);total.setPaddingRelative(dp(2),dp(6),0,0);box.addView(total);sync.run();
+        AlertDialog.Builder b=new AlertDialog.Builder(this).setTitle(e==null?R.string.holiday_add:R.string.holiday_edit).setView(LocaleText.direction(box)).setNegativeButton(R.string.cancel,null)
+            .setPositiveButton(R.string.save,(d,w)->changeHolidays(data->{if(e!=null)Holidays.remove(data,e);Holidays.add(data,r[0],r[1],name.getText().toString());},null));
+        if(e!=null)b.setNeutralButton(R.string.delete,(d,w)->deleteHoliday(e));
+        holidayEditor=b.show();
+    }
     /** Phone default, ClockPrime's own tone, any phone sound (system picker) or silent. */
     void pickSound(String kind){String key=ClockSettings.prefix(kind)+"_tone";
         new AlertDialog.Builder(this).setTitle(kind.equals("alarms")?R.string.default_alarm_ringtone:R.string.default_timer_ringtone).setItems(new String[]{tr(R.string.system_alarm_sound),tr(R.string.builtin_tone),tr(R.string.choose_sound),tr(R.string.silent)},(d,n)->{

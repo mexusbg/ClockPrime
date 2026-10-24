@@ -18,17 +18,19 @@ import java.util.*;
 /** Unsaved alarm options in grouped cards: Schedule, Sound, Snooze. All writes happen only after validation. */
 final class AlarmOptions {
     final MainActivity a;final Spinner repeat,every,monthDay;final ToggleButton[] days=new ToggleButton[7];
-    final Switch defaults,autoDelete,sound,vibrate;final Spinner interval,limit;final List<Integer> durations=new ArrayList<>();final TextView ringtone;
-    final LinearLayout dayRow,snoozeFields,deleteRow,toneRow,dateRow,everyRow,monthRow,startRow,endRow;String tone;final Set<Uri> acquired=new HashSet<>();
-    /** Once: optional fixed date. Repeating: optional first and last day. */
-    LocalDate onDate,startDate,endDate;
+    final Switch defaults,autoDelete,sound,vibrate,holidays;final Spinner interval,limit;final List<Integer> durations=new ArrayList<>();final TextView ringtone;
+    final LinearLayout dayRow,snoozeFields,deleteRow,toneRow,dateRow,everyRow,monthRow,startRow,endRow,holidayRow,pauseRow;String tone;final Set<Uri> acquired=new HashSet<>();
+    /** Once: optional fixed date. Repeating: optional first and last day. Pause: through a date, or for a number of rings. */
+    LocalDate onDate,startDate,endDate,pauseUntil;int pauseRings;
     static final int ONCE=0,DAILY=1,WEEKDAYS=2,CUSTOM=3,EVERY_DAYS=4,EVERY_WEEKS=5,MONTHLY=6;
     static final int[] LIMITS={1,2,3,5,10,0};
     /** Same choices as the default snooze duration in Settings. */
     static final int[] DURATIONS={1,3,5,10,15,20,30};
+    static final int[] PAUSE_RINGS={1,2,3,5,7,10,14,30};
     AlarmOptions(MainActivity a,LinearLayout parent,JSONObject saved){
         this.a=a;ClockSettings settings=new ClockSettings(a);int mask=saved.optInt("days");tone=saved.optString("tone","inherit");
         onDate=Schedule.date(saved.optString("date"));startDate=Schedule.date(saved.optString("start"));endDate=Schedule.date(saved.optString("end"));
+        pauseUntil=Schedule.date(saved.optString(saved.has("draftPause")?"draftPause":saved.optBoolean("paused")?"skipDate":""));pauseRings=saved.optInt("draftPauseRings");
 
         LinearLayout schedule=section(parent,R.string.schedule_section);
         repeat=spinner(new String[]{a.tr(R.string.once),a.tr(R.string.repeat_daily),a.tr(R.string.repeat_weekdays),a.tr(R.string.customize),a.tr(R.string.repeat_every_days),a.tr(R.string.repeat_every_weeks),a.tr(R.string.repeat_monthly)});repeat.setContentDescription(a.tr(R.string.repeat_hint));
@@ -44,6 +46,9 @@ final class AlarmOptions {
         startRow=dateLine(schedule,R.string.starts_label,()->pickDate(startDate,d->{startDate=d;dates();},()->{startDate=null;dates();}));
         endRow=dateLine(schedule,R.string.ends_label,()->pickDate(endDate,d->{endDate=d;dates();},()->{endDate=null;dates();}));
         autoDelete=new Switch(a);autoDelete.setChecked(saved.optBoolean("autoDelete"));deleteRow=switchRow(schedule,R.string.auto_delete_alarm,null,autoDelete);
+        holidays=new Switch(a);holidays.setChecked(saved.optBoolean("skipHolidays"));
+        holidayRow=switchRow(schedule,R.string.skip_holidays,Holidays.summary(a,new ClockStore(a).data),holidays);
+        pauseRow=dateLine(schedule,R.string.pause_label,this::choosePause);pauseRow.setTag("pause-row");
         int selected=saved.optInt("repeatMode",modeOf(saved));repeat.setSelection(selected);fillEvery(selected,saved.optInt("every",selected==EVERY_WEEKS?1:2));
         repeat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){int last=selected;public void onNothingSelected(AdapterView<?> p){}public void onItemSelected(AdapterView<?> p,View v,int pos,long id){if(pos!=last&&(pos==EVERY_DAYS||pos==EVERY_WEEKS))fillEvery(pos,pos==EVERY_WEEKS?1:2);last=pos;visibility();}});
 
@@ -108,19 +113,29 @@ final class AlarmOptions {
         int mode=repeat.getSelectedItemPosition();boolean once=mode==ONCE;
         dayRow.setVisibility(mode==CUSTOM||mode==EVERY_WEEKS?View.VISIBLE:View.GONE);everyRow.setVisibility(mode==EVERY_DAYS||mode==EVERY_WEEKS?View.VISIBLE:View.GONE);monthRow.setVisibility(mode==MONTHLY?View.VISIBLE:View.GONE);
         dateRow.setVisibility(once?View.VISIBLE:View.GONE);deleteRow.setVisibility(once?View.VISIBLE:View.GONE);autoDelete.setVisibility(once?View.VISIBLE:View.GONE);
-        for(View v:new View[]{startRow,endRow})v.setVisibility(once?View.GONE:View.VISIBLE);
+        for(View v:new View[]{startRow,endRow,holidayRow,pauseRow})v.setVisibility(once?View.GONE:View.VISIBLE);
     }
-    /** Shows the chosen dates in the rows. */
+    /** Shows the chosen dates and pause in the rows. */
     void dates(){
         detail(dateRow).setText(onDate==null?a.tr(R.string.date_next_possible):LocaleText.shortDate(a,onDate));
         detail(startRow).setText(startDate==null?a.tr(R.string.today):LocaleText.shortDate(a,startDate));
         detail(endRow).setText(endDate==null?a.tr(R.string.never):LocaleText.shortDate(a,endDate));
+        detail(pauseRow).setText(pauseUntil!=null?a.tr(R.string.paused_until,LocaleText.shortDate(a,pauseUntil)):pauseRings>0?a.getResources().getQuantityString(R.plurals.pause_rings_value,pauseRings,pauseRings):a.tr(R.string.not_paused));
     }
     void pickDate(LocalDate current,java.util.function.Consumer<LocalDate> chosen,Runnable clear){
         LocalDate d=current==null?LocalDate.now():current;
         DatePickerDialog dialog=new DatePickerDialog(a,(v,y,m,day)->chosen.accept(LocalDate.of(y,m+1,day)),d.getYear(),d.getMonthValue()-1,d.getDayOfMonth());
         dialog.getDatePicker().setMinDate(System.currentTimeMillis()-1000);
         if(current!=null)dialog.setButton(DialogInterface.BUTTON_NEUTRAL,a.tr(R.string.clear),(x,y)->clear.run());dialog.show();
+    }
+    /** Pause through a date or for the next N rings; resumes by itself. */
+    void choosePause(){
+        List<String> items=new ArrayList<>(List.of(a.tr(R.string.pause_until_date),a.tr(R.string.pause_for_rings)));boolean paused=pauseUntil!=null||pauseRings>0;if(paused)items.add(a.tr(R.string.resume_now));
+        new AlertDialog.Builder(a).setTitle(R.string.pause_label).setItems(items.toArray(new String[0]),(d,n)->{
+            if(n==0)pickDate(pauseUntil,day->{pauseUntil=day;pauseRings=0;dates();},()->{pauseUntil=null;dates();});
+            else if(n==1){String[] labels=new String[PAUSE_RINGS.length];for(int i=0;i<labels.length;i++)labels[i]=a.getResources().getQuantityString(R.plurals.pause_rings_value,PAUSE_RINGS[i],PAUSE_RINGS[i]);
+                new AlertDialog.Builder(a).setTitle(R.string.pause_for_rings).setItems(labels,(x,i)->{pauseRings=PAUSE_RINGS[i];pauseUntil=null;dates();}).show();}
+            else{pauseUntil=null;pauseRings=0;dates();}}).show();
     }
     /** The ringtone only matters while sound is on. */
     void toneState(){toneRow.setAlpha(sound.isChecked()?1f:.4f);toneRow.setEnabled(sound.isChecked());}
@@ -133,10 +148,13 @@ final class AlarmOptions {
         if(mode==MONTHLY){ClockStore.put(o,"repeat","month");int day=monthDay.getSelectedItemPosition();ClockStore.put(o,"monthDay",day==31?-1:day+1);}
         if(mode!=ONCE){if(startDate!=null)ClockStore.put(o,"start",startDate.toString());if(endDate!=null)ClockStore.put(o,"end",endDate.toString());}
         else if(onDate!=null)ClockStore.put(o,"date",onDate.toString());
+        ClockStore.put(o,"skipHolidays",mode!=ONCE&&holidays.isChecked());
         ClockStore.put(o,"autoDelete",mode==ONCE&&autoDelete.isChecked());ClockStore.put(o,"tone",tone);ClockStore.put(o,"sound",sound.isChecked());ClockStore.put(o,"vibrate",vibrate.isChecked());
-        if(draft)ClockStore.put(o,"repeatMode",mode);
+        if(draft){ClockStore.put(o,"repeatMode",mode);if(pauseUntil!=null)ClockStore.put(o,"draftPause",pauseUntil.toString());ClockStore.put(o,"draftPauseRings",pauseRings);}
         if(defaults.isChecked()){o.remove("snoozeMinutes");o.remove("snoozeLimit");}else{ClockStore.put(o,"snoozeMinutes",durations.get(interval.getSelectedItemPosition()));ClockStore.put(o,"snoozeLimit",LIMITS[limit.getSelectedItemPosition()]);}
     }
+    /** Applies the chosen pause after the alarm was saved and enabled (saving clears earlier skips). */
+    void applyPause(ClockStore store,JSONObject o){if(!Schedule.repeats(o)||!o.optBoolean("enabled"))return;if(pauseUntil!=null)store.pause(o,pauseUntil);else if(pauseRings>0)store.pauseRings(o,pauseRings);}
     void updateTone(){String name=a.tr(R.string.default_tone);if(tone.equals("silent"))name=a.tr(R.string.silent);else if(tone.equals(ClockSettings.BUILTIN))name=a.tr(R.string.builtin_tone);else if(!tone.equals("inherit")){try{android.media.Ringtone r=RingtoneManager.getRingtone(a,tone.equals("default")?RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM):Uri.parse(tone));name=r==null?a.tr(R.string.sound_unavailable):r.getTitle(a);}catch(Exception e){name=a.tr(R.string.sound_unavailable);}}if(tone.startsWith("content:")){String display=SoundAccess.title(a,Uri.parse(tone));if(display!=null)name=display;}ringtone.setText(name);toneRow.setContentDescription(a.tr(R.string.alarm_ringtone)+", "+name);}
     void chooseTone(){new AlertDialog.Builder(a).setTitle(R.string.alarm_ringtone).setItems(new String[]{a.tr(R.string.default_tone),a.tr(R.string.builtin_tone),a.tr(R.string.choose_sound),a.tr(R.string.audio_file),a.tr(R.string.silent)},(d,n)->{if(n==0||n==1||n==4){tone=n==0?"inherit":n==1?ClockSettings.BUILTIN:"silent";updateTone();return;}Intent intent=n==3?new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("audio/*").addCategory(Intent.CATEGORY_OPENABLE).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION):new Intent(RingtoneManager.ACTION_RINGTONE_PICKER).putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALARM).putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT,true).putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT,true);try{a.startActivityForResult(intent,n==3?302:301);}catch(ActivityNotFoundException e){a.toast(a.tr(R.string.picker_unavailable));}}).show();}
     void result(int request,int result,Intent data){if(result!=Activity.RESULT_OK||data==null)return;Uri uri=request==302?data.getData():data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI,Uri.class);if(uri==null){tone="silent";updateTone();return;}try{if(request==302){a.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);acquired.add(uri);try(android.content.res.AssetFileDescriptor fd=a.getContentResolver().openAssetFileDescriptor(uri,"r")){if(fd==null)throw new IllegalArgumentException();}}android.media.Ringtone r=RingtoneManager.getRingtone(a,uri);if(r==null)throw new IllegalArgumentException();tone=RingtoneManager.isDefault(uri)?"default":uri.toString();updateTone();}catch(Exception e){a.toast(a.tr(R.string.sound_unavailable));}}
