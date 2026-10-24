@@ -57,8 +57,8 @@ final class AlarmOptions {
     }
     /** Small caption plus a rounded card, matching the Settings page. */
     LinearLayout section(LinearLayout parent,int title){
-        TextView heading=a.text(a.tr(title),12,a.MUTED);heading.setLetterSpacing(.04f);heading.setPadding(a.dp(6),a.dp(14),0,a.dp(6));parent.addView(heading);
-        LinearLayout card=a.column();card.setPadding(a.dp(16),a.dp(2),a.dp(12),a.dp(2));card.setBackground(a.bg(a.SOFT,18));parent.addView(card,new LinearLayout.LayoutParams(-1,-2));return card;
+        TextView heading=a.text(a.tr(title),12,a.MUTED);heading.setLetterSpacing(.04f);heading.setPaddingRelative(a.dp(6),a.dp(14),0,a.dp(6));parent.addView(heading);
+        LinearLayout card=a.column();card.setPaddingRelative(a.dp(16),a.dp(2),a.dp(12),a.dp(2));card.setBackground(a.bg(a.SOFT,18));parent.addView(card,new LinearLayout.LayoutParams(-1,-2));return card;
     }
     /** Row with a title (and optional detail) on the left; callers add the control on the right. */
     LinearLayout line(LinearLayout card,int title,String detail){

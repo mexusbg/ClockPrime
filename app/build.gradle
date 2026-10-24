@@ -6,13 +6,16 @@ if(keystore.exists())keystore.withInputStream{signing.load(it)}
 android {
     namespace 'com.clockprime.app'
     compileSdk 35
-    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 32; versionName '0.12.2'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
+    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 33; versionName '0.12.3'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     signingConfigs { if(keystore.exists())release { storeFile rootProject.file(signing.storeFile); storePassword signing.storePassword; keyAlias signing.keyAlias; keyPassword signing.keyPassword } }
     buildTypes {
-        debug { debuggable true }
+        // Pseudo-locales en-XA (long text) and ar-XB (right-to-left) for checking layouts before real translations.
+        debug { debuggable true; pseudoLocalesEnabled true }
         release { minifyEnabled false; if(keystore.exists())signingConfig signingConfigs.release }
     }
     // F-Droid rejects the encrypted dependency-metadata block AGP adds to APKs by default.
+    // Partial community translations fall back to English; tools/verify-localization.py enforces complete languages.
+    lint { informational 'MissingTranslation' }
     dependenciesInfo { includeInApk false; includeInBundle false }
 }

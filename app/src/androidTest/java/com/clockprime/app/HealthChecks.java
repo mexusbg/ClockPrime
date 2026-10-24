@@ -14,6 +14,8 @@ final class HealthChecks {
     static void run(SmokeTests t){
         t.main(()->{
             t.check(RingtoneManager.getRingtone(t.context,RingService.builtIn(t.context))!=null,"Built-in fallback alarm sound loads");
+            t.check(new ClockIcon("back",0).isAutoMirrored()&&new ClockIcon("right",0).isAutoMirrored()&&!new ClockIcon("plus",0).isAutoMirrored(),"Direction arrows mirror in right-to-left languages");
+            android.view.View probe=LocaleText.direction(new android.view.View(t.context));t.check(probe.getTextDirection()==android.view.View.TEXT_DIRECTION_LOCALE,"Screens lay out text in the UI language's direction");
             try(android.content.res.AssetFileDescriptor fd=t.context.getResources().openRawResourceFd(R.raw.fallback_alarm)){t.check(fd.getLength()>10000,"Built-in fallback sound is bundled");}catch(java.io.IOException e){throw new AssertionError(e);}
             t.check(FocusIsland.canShowFocus(t.context)==null,"Island permission is unknown on non-HyperOS phones");
         });

@@ -6,3 +6,4 @@ First F-Droid release.
 * Optional ringing during Do Not Disturb.
 * Timers: even spacing above the Start timer button.
 * First start: "Get alarms ready" checklist (notifications, full-screen alerts, alarm screen over apps, unrestricted battery, autostart).
+* Ready for translation, including right-to-left languages.

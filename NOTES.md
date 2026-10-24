@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.12.3
+- Ready for translation: translator notes on the English strings, a checker for every language (`tools/verify-localization.py`), and partial translations fall back to English.
+- Right-to-left languages: paddings and arrows follow the reading direction.
+- Debug builds include the pseudo-locales English (XA) and Arabic (XB) for layout checks.
+
 ## 0.12.2
 - ClockPrime is now free software under GPL-3.0-or-later.
 - Settings > About: version, license, source code and a Ko-fi support button.

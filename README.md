@@ -31,7 +31,7 @@ A native Android clock app: alarms with named groups, world clocks, a stopwatch,
   - Ringtones, volume, auto-silence and the upcoming-alarm notification.
   - Theme (system / light / dark), date and 12/24-hour formats.
   - Backup export/import and debug log export.
-- **Languages:** English and Bulgarian.
+- **Languages:** English and Bulgarian, with more welcome (see [Translations](#translations)).
 
 ## Build
 
@@ -73,6 +73,20 @@ The repository carries what F-Droid needs:
 - Unsigned release build: `./gradlew assembleRelease`.
 
 Each release is a `vX.Y.Z` tag with a matching `versionName` and a new `versionCode`, plus a changelog in `fastlane/metadata/android/*/changelogs/<versionCode>.txt`.
+
+## Translations
+
+ClockPrime is in English and Bulgarian. New languages are welcome, and a partial translation works: untranslated strings fall back to English.
+
+To add a language (`xx` is its code, e.g. `de`, `pt-rBR` for Brazilian Portuguese):
+
+1. Copy `app/src/main/res/values/strings.xml` to `app/src/main/res/values-xx/strings.xml` and translate the text between the tags. Comments above a string say where it appears and what its placeholders (`%1$s`, `%1$d`) hold. Keep the placeholders and the escapes `\'`, `\n` and `\t`, and leave out strings marked `translatable="false"`.
+2. For plurals, give the forms your language uses (`zero`, `one`, `two`, `few`, `many`, `other`); `other` is always required.
+3. Add the language to `app/src/main/res/xml/locales_config.xml` (as `xx` or `pt-BR`), so it shows in Android's per-app language setting.
+4. Optional: translate the store listing in `fastlane/metadata/android/xx/` (`title.txt`, `short_description.txt`, `full_description.txt`).
+5. Run `python tools/verify-localization.py`. It reports coverage and fails on wrong placeholders, unknown strings, unescaped apostrophes or a missing `locales_config` entry. CI runs it too.
+
+Dates, times, weekdays and city names come from Android and follow the language automatically. Right-to-left languages are supported. Debug builds include the pseudo-locales `en-XA` and `ar-XB` for checking long text and right-to-left layouts.
 
 ## Support
 

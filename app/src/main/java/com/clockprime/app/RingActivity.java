@@ -63,7 +63,7 @@ public class RingActivity extends Activity {
         int[] colors=dark?new int[]{Color.rgb(28,44,74),bg,Color.rgb(10,15,24)}:new int[]{Color.rgb(226,236,255),bg,Color.rgb(214,226,244)};
         root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,colors));
         root.setOnApplyWindowInsetsListener((v,insets)->{android.graphics.Insets a=insets.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(24)+a.left,a.top+dp(16),dp(24)+a.right,a.bottom+dp(20));return insets;});
-        setContentView(root);
+        setContentView(LocaleText.direction(root));
         WindowInsetsController bars=getWindow().getInsetsController();
         if(bars!=null)bars.setSystemBarsAppearance(dark?0:WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         // Top: pulsing halo, large current time and today's date.
@@ -126,7 +126,7 @@ public class RingActivity extends Activity {
         TextView name=label(title(kind,item),20,text);name.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));name.setMaxLines(2);name.setEllipsize(android.text.TextUtils.TruncateAt.END);card.addView(name);
         card.addView(label(detail(kind,item),14,muted));
         LinearLayout actions=new LinearLayout(this);actions.setPadding(0,dp(12),0,0);final int id=item.optInt("id");
-        if(kind.equals("alarms")&&settings.canSnooze(item)){LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMargins(0,0,dp(8),0);actions.addView(action(getString(R.string.snooze_action),false,()->act(kind,id,true)),half);}
+        if(kind.equals("alarms")&&settings.canSnooze(item)){LinearLayout.LayoutParams half=new LinearLayout.LayoutParams(0,-2,1);half.setMarginEnd(dp(8));actions.addView(action(getString(R.string.snooze_action),false,()->act(kind,id,true)),half);}
         actions.addView(action(getString(R.string.dismiss),true,()->act(kind,id,false)),new LinearLayout.LayoutParams(0,-2,1));
         card.addView(actions);
     }

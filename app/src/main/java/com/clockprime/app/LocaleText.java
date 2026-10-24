@@ -12,6 +12,8 @@ import java.util.Locale;
 /** Display-only formatting. Persisted dates, group IDs, and schedules stay locale independent. */
 final class LocaleText {
     /** UI language from the app configuration (strings, city names, weekday labels). */
+    /** Text inside v follows the UI language's direction, so a Latin alarm or group name still lines up with a right-to-left UI. */
+    static <T extends android.view.View> T direction(T v){v.setTextDirection(android.view.View.TEXT_DIRECTION_LOCALE);return v;}
     static Locale locale(Context c){return c.getResources().getConfiguration().getLocales().get(0);}
     /**
      * Locale for numeric date/time order. {@code locales_config} often resolves to a language-only

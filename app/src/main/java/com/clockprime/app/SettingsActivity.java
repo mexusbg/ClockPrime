@@ -43,13 +43,13 @@ public class SettingsActivity extends Activity {
     void render(){
         int offset=scroll==null?savedScroll:scroll.getScrollY();savedScroll=0;
         bg=Color.parseColor(dark?"#101722":"#F3F6FC");card=Color.parseColor(dark?"#192334":"#FFFFFF");text=Color.parseColor(dark?"#EEF3FF":"#17253C");muted=Color.parseColor(dark?"#A0ADC3":"#617189");accent=Color.parseColor(dark?"#9CBCFF":"#386BC0");line=Color.parseColor(dark?"#2B3950":"#E1E7F0");
-        LinearLayout root=column();root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.parseColor(dark?"#18263F":"#E7F0FF"),bg}));root.setOnApplyWindowInsetsListener((v,i)->{android.graphics.Insets in=i.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(20)+in.left,in.top,dp(20)+in.right,in.bottom);return i;});setContentView(root);
+        LinearLayout root=column();root.setBackground(new GradientDrawable(GradientDrawable.Orientation.TL_BR,new int[]{Color.parseColor(dark?"#18263F":"#E7F0FF"),bg}));root.setOnApplyWindowInsetsListener((v,i)->{android.graphics.Insets in=i.getInsets(WindowInsets.Type.systemBars()|WindowInsets.Type.displayCutout());v.setPadding(dp(20)+in.left,in.top,dp(20)+in.right,in.bottom);return i;});setContentView(LocaleText.direction(root));
         WindowInsetsController bars=getWindow().getInsetsController();if(bars!=null)bars.setSystemBarsAppearance(dark?0:WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS|WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
         LinearLayout header=row();ImageButton back=new ImageButton(this);back.setImageDrawable(new ClockIcon("back",accent));back.setPadding(dp(12),dp(12),dp(12),dp(12));back.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),shape(Color.TRANSPARENT,16),null));back.setContentDescription(tr(R.string.back));back.setOnClickListener(v->back());header.addView(back,new LinearLayout.LayoutParams(dp(48),dp(48)));
         TextView title=label(tr(R.string.settings),26,text);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));header.addView(title,new LinearLayout.LayoutParams(0,-2,1));root.addView(header,new LinearLayout.LayoutParams(-1,dp(80)));
         scroll=new ScrollView(this);scroll.setVerticalScrollBarEnabled(false);body=column();body.setPadding(0,dp(8),0,dp(24));scroll.addView(body);root.addView(scroll,new LinearLayout.LayoutParams(-1,0,1));general();root.requestApplyInsets();scroll.post(()->scroll.scrollTo(0,offset));
     }
-    LinearLayout section(int title){TextView heading=label(tr(title),12,muted);heading.setPadding(dp(8),dp(20),0,dp(10));body.addView(heading);LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));body.addView(c,new LinearLayout.LayoutParams(-1,-2));return c;}
+    LinearLayout section(int title){TextView heading=label(tr(title),12,muted);heading.setPaddingRelative(dp(8),dp(20),0,dp(10));body.addView(heading);LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));body.addView(c,new LinearLayout.LayoutParams(-1,-2));return c;}
     void divider(LinearLayout c){if(c.getChildCount()>0){View v=new View(this);v.setBackgroundColor(line);c.addView(v,new LinearLayout.LayoutParams(-1,dp(1)));}}
     static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.html",SOURCE_URL="https://github.com/mexusbg/ClockPrime",KOFI_URL="https://ko-fi.com/mexus";
     /** Warm gradient pill: coffee cup + "Support ClockPrime on Ko-fi". */
@@ -59,7 +59,7 @@ public class SettingsActivity extends Activity {
         GradientDrawable fill=new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{Color.parseColor("#F5CE8D"),Color.parseColor("#F2A07B"),Color.parseColor("#E9837E")});fill.setCornerRadius(dp(29));
         b.setBackground(new RippleDrawable(ColorStateList.valueOf(0x40FFFFFF),fill,null));b.setElevation(dp(2));
         ImageView cup=new ImageView(this);cup.setImageDrawable(new ClockIcon("coffee",ink));cup.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);b.addView(cup,new LinearLayout.LayoutParams(dp(24),dp(24)));
-        TextView t=label(tr(R.string.support_kofi),16,ink);t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));t.setPadding(dp(10),0,0,0);b.addView(t);
+        TextView t=label(tr(R.string.support_kofi),16,ink);t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));t.setPaddingRelative(dp(10),0,0,0);b.addView(t);
         b.setContentDescription(tr(R.string.support_kofi));b.setFocusable(true);b.setClickable(true);b.setOnClickListener(v->openLink(KOFI_URL));b.setTag("support");
         return b;
     }
@@ -157,7 +157,7 @@ public class SettingsActivity extends Activity {
         Runnable sync=()->{amount.setEnabled(on.isChecked());unit.setEnabled(on.isChecked());pickers.setAlpha(on.isChecked()?1f:.4f);};
         on.setOnCheckedChangeListener((b,checked)->sync.run());sync.run();
         upcomingAmount=amount;upcomingUnit=unit;upcomingOn=on;
-        upcomingDialog=new AlertDialog.Builder(this).setTitle(R.string.upcoming_toggle).setView(box).setNegativeButton(R.string.cancel,null)
+        upcomingDialog=new AlertDialog.Builder(this).setTitle(R.string.upcoming_toggle).setView(LocaleText.direction(box)).setNegativeButton(R.string.cancel,null)
                 .setPositiveButton(R.string.save,(d,w)->{prefs.put("upcoming_minutes",on.isChecked()?ClockSettings.toMinutes(amount.getValue(),unit.getValue()==1):0);changed();render();}).show();
     }
     String dateFormatLabel(){

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+  <!-- Translators: a comment above a string explains where it appears and what each %1$s / %1$d placeholder holds. Keep placeholders and the escapes \n, \t and \'. "ClockPrime" is a name: do not translate it. -->
   <string name="app_name" translatable="false">ClockPrime</string>
   <string name="alarms">Alarms</string>
   <string name="world">World</string>
@@ -15,7 +16,9 @@
   <string name="delete">Delete</string>
   <string name="cancel">Cancel</string>
   <string name="save">Save</string>
+  <!-- Banner above the ring screen; shown in capitals -->
   <string name="alarm_ringing">ALARM RINGING</string>
+  <!-- Banner above the ring screen; shown in capitals -->
   <string name="timer_finished">TIMER FINISHED</string>
   <string name="dismiss">Dismiss</string>
   <string name="ungrouped">Ungrouped</string>
@@ -36,6 +39,7 @@
   <string name="skip_occurrences">Skip next occurrences</string>
   <string name="delete_group">Delete group (keep alarms)</string>
   <string name="minutes">Minutes</string>
+  <!-- Hint in the alarm editor's name field -->
   <string name="alarm_name">Label</string>
   <string name="repeat_hint">Repeat</string>
   <string name="alarm_sound">Alarm sound</string>
@@ -44,6 +48,7 @@
   <string name="edit_alarm">Edit alarm</string>
   <string name="hours">Hours</string>
   <string name="seconds">Seconds</string>
+  <!-- Hint in the timer name field -->
   <string name="timer_name">Label</string>
   <string name="start_timer">Start timer</string>
   <string name="positive_duration">Choose a duration above zero</string>
@@ -73,6 +78,7 @@
   <string name="set_up">Set up</string>
   <string name="upcoming_channel">Upcoming alarm</string>
   <string name="upcoming_description">Shows the next alarm when it is within the notify-before-ringing period</string>
+  <!-- Notification button: skip the next ring of this alarm only -->
   <string name="skip_once">Skip</string>
   <string name="ringing_channel">Ringing alarms and timers</string>
   <string name="timers_channel">Running timers</string>
@@ -85,23 +91,34 @@
   <string name="select_all">Select all alarms in %1$s</string>
   <string name="delete_selection">Only selected alarms in %1$s will be deleted.</string>
   <string name="finish_selection">Finish selecting in %1$s first</string>
+  <!-- Under a group name. %1$s: alarm count from "alarm_count" (e.g. "3 alarms"); %2$d: how many of them are on -->
   <string name="group_count">%1$s · %2$d on</string>
   <string name="expand_group">Expand %1$s</string>
   <string name="collapse_group">Collapse %1$s</string>
   <string name="manage_group">Manage %1$s</string>
+  <!-- Under an alarm time. %1$s: alarm label; %2$s: repeat days (e.g. "Weekdays") -->
   <string name="alarm_subtitle">%1$s · %2$s</string>
+  <!-- %1$s: date and time of the next ring -->
   <string name="snoozed_time">Snoozed · %1$s</string>
+  <!-- %1$s: date and time of the next ring -->
   <string name="postponed_time">Postponed · %1$s</string>
+  <!-- %1$s: date and time of the next ring -->
   <string name="skipped_time">%1$s · skipped once</string>
+  <!-- Screen reader label for an alarm switch. %1$s: alarm label; %2$s: alarm time -->
   <string name="enable_alarm">Enable %1$s %2$s</string>
+  <!-- Screen reader label for a selection checkbox. %1$s: alarm label; %2$s: group name -->
   <string name="select_alarm">Select %1$s in %2$s</string>
   <string name="lap_number">Lap %1$d</string>
   <string name="fastest_lap">%1$s · fastest</string>
   <string name="slowest_lap">%1$s · slowest</string>
   <string name="remove_city">Remove %1$s</string>
+  <!-- World clock. %1$s: offset such as "+2:00" -->
   <string name="local_difference">%1$s vs local</string>
+  <!-- %1$s: app version -->
   <string name="build_info">ClockPrime %1$s · Offline by design</string>
+  <!-- First lines of copied stopwatch laps. Keep \n and \t: they are a line break and tab separators -->
   <string name="export_header">ClockPrime stopwatch\nLap\tSplit\tTotal\n</string>
+  <!-- Notification title when several ring at once. %1$s: "Alarm" or "Timer"; %2$d: how many more -->
   <string name="ringing_more">%1$s + %2$d</string>
   <plurals name="selected_count">
     <item quantity="one">%d selected</item>
@@ -127,6 +144,7 @@
   <string name="timer_auto_silence">Auto-silence timers</string>
   <string name="theme_label">Theme</string>
   <string name="date_format_label">Date format</string>
+  <!-- Date patterns shown as choices; the letters may be localized (D day, M month, Y year) -->
   <string name="date_format_dmy">DD/MM/YYYY</string>
   <string name="date_format_mdy">MM/DD/YYYY</string>
   <string name="date_format_ymd">YYYY/MM/DD</string>
@@ -167,6 +185,7 @@
   <string name="time_range">Enter a number from 0 to %1$d</string>
   <string name="no_upcoming">No upcoming alarm</string>
   <string name="deselect_all">Deselect all in %1$s</string>
+  <!-- %1$s: group name; %2$s: alarm count from "alarm_count" -->
   <string name="delete_group_members">Delete %1$s and its %2$s?</string>
   <string name="split_label">Split</string>
   <string name="total_label">Total</string>
@@ -198,6 +217,7 @@
   <string name="battery_optimized">Optimized</string>
   <string name="background_apps">Background activity</string>
   <string name="background_apps_detail">Your phone\'s autostart and background settings for ClockPrime.</string>
+  <!-- HyperOS (Xiaomi) status-bar island; keep "HyperOS" and "Super Island" untranslated -->
   <string name="island_label">Status island</string>
   <string name="island_supported">HyperOS island available — focus permission may still be required</string>
   <string name="island_xiaomi_needs_permission">Xiaomi extras attached; island needs HyperOS focus permission from Xiaomi</string>
@@ -208,6 +228,7 @@
   <string name="test_alarm_name">ClockPrime test alarm</string>
   <string name="open_app_settings">App settings</string>
   <string name="launch_label">Alarm screen over apps</string>
+  <!-- The quoted name is Xiaomi's own setting; use the wording Xiaomi phones show in your language -->
   <string name="launch_detail">Opens the full alarm screen while you use the phone. Xiaomi also needs “Display pop-up windows while running in the background”.</string>
   <string name="allow">Allow</string>
   <string name="export_logs">Export debug logs</string>
@@ -215,6 +236,7 @@
   <string name="resume">Resume</string>
   <string name="timer_paused">Paused</string>
   <string name="alarm_replaced_title">Alarm stopped</string>
+  <!-- %1$s: the alarm that was ringing; %2$s: the newer alarm -->
   <string name="alarm_replaced_text">%1$s stopped ringing when %2$s started.</string>
   <string name="skipped_channel">Overlapping alarms</string>
   <string name="health_title">Your alarms may not be heard</string>
@@ -240,6 +262,7 @@
   <string name="import_alarms_detail">Adds or replaces alarms from an exported file. Ringtone files from another phone must be chosen again.</string>
   <string name="export_done">Alarms exported</string>
   <string name="import_title">Import alarms</string>
+  <!-- %1$s: alarm count from "alarm_count" -->
   <string name="import_summary">The file contains %1$s. Add them to your alarms, or replace everything with the backup?</string>
   <string name="import_add">Add</string>
   <string name="import_replace">Replace all</string>
@@ -252,6 +275,7 @@
   <string name="troubleshooting">Troubleshooting</string>
   <string name="battery_detail">Android may delay ClockPrime in the background. Tap to allow unrestricted battery use.</string>
   <string name="upcoming_enabled">Show upcoming alarm notification</string>
+  <!-- Choice in a picker next to a number, lowercase -->
   <string name="unit_minutes">minutes</string>
   <string name="unit_hours">hours</string>
   <string name="sound_section">Sound</string>
@@ -268,7 +292,9 @@
   <string name="widget_no_alarms">No upcoming alarms</string>
   <string name="today">Today</string>
   <string name="tomorrow">Tomorrow</string>
+  <!-- Widget countdown to the next alarm; keep it short -->
   <string name="widget_in_minutes">in %1$d min</string>
+  <!-- Widget countdown to the next alarm; keep it short -->
   <string name="widget_in_hours">in %1$d h %2$d min</string>
   <plurals name="widget_in_days"><item quantity="one">in %d day</item><item quantity="other">in %d days</item></plurals>
   <string name="widget_analog_name">Analog clock</string>
@@ -282,10 +308,12 @@
   <string name="widget_groups_name">Alarm groups</string>
   <string name="widget_groups_desc">Turn whole groups of alarms on and off</string>
   <string name="widget_no_groups">No groups yet. Create one in Alarms.</string>
+  <!-- Quick-timer button on the widget, e.g. "5 min" -->
   <string name="widget_minutes_short">%1$d min</string>
   <string name="widget_quick_start">Quick start</string>
   <string name="widget_paused">Paused</string>
   <plurals name="widget_laps"><item quantity="one">%d lap</item><item quantity="other">%d laps</item></plurals>
+  <!-- Toast. %1$s: day and time (e.g. "Tomorrow 07:30"); %2$s: countdown (e.g. "in 8 h 12 min") -->
   <string name="alarm_set_for">Alarm set for %1$s · %2$s</string>
   <string name="about_section">About</string>
   <string name="about_license">Free software under the GNU GPL v3 or later, with no warranty. Tap to read the license.</string>
@@ -294,10 +322,13 @@
   <string name="support_kofi">Support ClockPrime on Ko-fi</string>
   <string name="setup_title">Get alarms ready</string>
   <string name="setup_intro">A few phone settings make sure alarms ring on time and on screen. Tap each one, then come back here.</string>
+  <!-- %1$d: finished steps; %2$d: all steps -->
   <string name="setup_progress">%1$d of %2$d done</string>
   <string name="setup_done">Done</string>
   <string name="setup_later">Later</string>
+  <!-- Button for a step the app cannot check (phone maker settings) -->
   <string name="setup_open">Open</string>
+  <!-- Shown after the user visited a step the app cannot check -->
   <string name="setup_checked">Checked</string>
   <string name="setup_step_done">Done</string>
   <string name="setup_row">Setup checklist</string>

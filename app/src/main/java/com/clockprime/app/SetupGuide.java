@@ -65,7 +65,7 @@ final class SetupGuide {
         progress=label("",13,accent);progress.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));progress.setPadding(0,dp(10),0,dp(6));body.addView(progress);
         rows=new LinearLayout(a);rows.setOrientation(LinearLayout.VERTICAL);body.addView(rows);
         ScrollView scroll=new ScrollView(a);scroll.addView(body);
-        dialog=new AlertDialog.Builder(a).setTitle(R.string.setup_title).setView(scroll).setNegativeButton(R.string.setup_later,null).setPositiveButton(R.string.setup_done,null).create();
+        dialog=new AlertDialog.Builder(a).setTitle(R.string.setup_title).setView(LocaleText.direction(scroll)).setNegativeButton(R.string.setup_later,null).setPositiveButton(R.string.setup_done,null).create();
         dialog.setOnDismissListener(d->{if(open.get()==this)open.clear();});
         open=new java.lang.ref.WeakReference<>(this);refresh();dialog.show();
     }
@@ -82,7 +82,7 @@ final class SetupGuide {
         TextView state=label(a.getString(ok?(s.done==null?R.string.setup_checked:R.string.setup_step_done):s.done==null?R.string.setup_open:R.string.allow),13,ok?accent:onAccent);
         state.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));state.setGravity(Gravity.CENTER);state.setPadding(dp(14),dp(8),dp(14),dp(8));state.setMinWidth(dp(76));
         GradientDrawable pill=new GradientDrawable();pill.setCornerRadius(dp(18));if(ok){pill.setColor(Color.TRANSPARENT);pill.setStroke(dp(1),line);}else pill.setColor(accent);state.setBackground(pill);
-        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.setMargins(dp(12),0,0,0);r.addView(state,lp);
+        LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-2,-2);lp.setMarginStart(dp(12));r.addView(state,lp);
         // A finished step can still be reopened (e.g. to undo it), but only a pending one looks like a call to action.
         r.setBackground(new RippleDrawable(ColorStateList.valueOf(soft),null,new ColorDrawable(Color.WHITE)));r.setOnClickListener(v->s.fix.run());
         r.setContentDescription(a.getString(s.title)+", "+state.getText());
