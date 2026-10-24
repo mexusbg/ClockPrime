@@ -14,8 +14,8 @@ import java.util.*;
 /** Device integration tests: real AlarmManager delivery, no mocked receivers. */
 public class SmokeTests extends Instrumentation {
     Context context;String backup;int leadBackup=-2;int alarmId,timerId;List<String> results=new ArrayList<>();Set<Integer> featureIds=new HashSet<>();boolean passed,designOnly;
-    String qaAlarmIn,qaTimerIn;
-    @Override public void onCreate(Bundle args){super.onCreate(args);designOnly="true".equals(args.getString("design_only"));qaAlarmIn=args.getString("qa_alarm_in");qaTimerIn=args.getString("qa_timer_in");start();}
+    String qaAlarmIn,qaTimerIn,demoData;
+    @Override public void onCreate(Bundle args){super.onCreate(args);designOnly="true".equals(args.getString("design_only"));qaAlarmIn=args.getString("qa_alarm_in");qaTimerIn=args.getString("qa_timer_in");demoData=args.getString("demo_data");start();}
     /** Manual reboot QA (-e qa_alarm_in <seconds>): schedules one real one-time alarm and exits without running checks. */
     void scheduleQaAlarm(){
         long when=System.currentTimeMillis()+Long.parseLong(qaAlarmIn)*1000L;LocalTime at=Instant.ofEpochMilli(when).atZone(ZoneId.systemDefault()).toLocalTime();
@@ -32,6 +32,7 @@ public class SmokeTests extends Instrumentation {
     void main(Runnable block){java.util.concurrent.atomic.AtomicReference<Throwable> error=new java.util.concurrent.atomic.AtomicReference<>();runOnMainSync(()->{try{block.run();}catch(Throwable e){error.set(e);}});if(error.get()!=null)throw new AssertionError(error.get());}
     @Override public void onStart(){
         if(qaAlarmIn!=null){scheduleQaAlarm();return;}
+        if("replace".equals(demoData)){DemoData.run(this);return;}
         MainActivity.launchPrompt=false;context=getTargetContext();main(()->{ClockStore s=new ClockStore(context);for(String k:List.of("alarms","timers"))for(JSONObject o:s.objects(k))if(o.optString("name").startsWith("ClockPrime QA "))s.remove(k,o);s.save();s.refreshSound();});backup=new ClockStore(context).data.toString();Bundle report=new Bundle();
         try{
             if(!designOnly){main(()->{

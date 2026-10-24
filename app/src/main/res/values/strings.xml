@@ -209,9 +209,6 @@
   <string name="open_app_settings">App settings</string>
   <string name="launch_label">Alarm screen over apps</string>
   <string name="launch_detail">Opens the full alarm screen while you use the phone. Xiaomi also needs “Display pop-up windows while running in the background”.</string>
-  <string name="launch_permission_title">Show alarms full screen?</string>
-  <string name="launch_permission_detail">While the phone is unlocked, Android only shows a small banner for a ringing alarm. Allow ClockPrime to display over other apps to open the full alarm screen instead.</string>
-  <string name="not_now">Not now</string>
   <string name="allow">Allow</string>
   <string name="export_logs">Export debug logs</string>
   <string name="export_logs_detail">Shares a text report with recent alarm events and phone settings. It includes your alarm names.</string>
@@ -290,4 +287,26 @@
   <string name="widget_paused">Paused</string>
   <plurals name="widget_laps"><item quantity="one">%d lap</item><item quantity="other">%d laps</item></plurals>
   <string name="alarm_set_for">Alarm set for %1$s · %2$s</string>
+  <string name="about_section">About</string>
+  <string name="about_license">Free software under the GNU GPL v3 or later, with no warranty. Tap to read the license.</string>
+  <string name="source_code">Source code</string>
+  <string name="about_title" translatable="false">ClockPrime by mexus</string>
+  <string name="support_kofi">Support ClockPrime on Ko-fi</string>
+  <string name="setup_title">Get alarms ready</string>
+  <string name="setup_intro">A few phone settings make sure alarms ring on time and on screen. Tap each one, then come back here.</string>
+  <string name="setup_progress">%1$d of %2$d done</string>
+  <string name="setup_done">Done</string>
+  <string name="setup_later">Later</string>
+  <string name="setup_open">Open</string>
+  <string name="setup_checked">Checked</string>
+  <string name="setup_step_done">Done</string>
+  <string name="setup_row">Setup checklist</string>
+  <string name="step_notifications">Notifications</string>
+  <string name="step_notifications_detail">Shows ringing alarms, timers and the next-alarm notice.</string>
+  <string name="step_fullscreen_detail">Turns the screen on with the alarm while the phone is locked.</string>
+  <string name="step_battery">Unrestricted battery</string>
+  <string name="step_battery_detail">Stops Android from delaying ClockPrime in the background.</string>
+  <string name="step_autostart">Autostart and background</string>
+  <string name="step_autostart_detail">Your phone maker\'s extra setting: let ClockPrime start and run in the background.</string>
+  <string name="step_exact_detail">Lets alarms ring at the exact minute.</string>
 </resources>

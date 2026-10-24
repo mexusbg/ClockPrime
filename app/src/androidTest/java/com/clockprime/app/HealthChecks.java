@@ -41,10 +41,13 @@ final class HealthChecks {
                 t.check(paused.optJSONObject("highlightInfo").optJSONObject("timerInfo").optInt("timerType")==2&&paused.optJSONArray("actions").toString().contains(FocusIsland.RESET),"Paused stopwatch island freezes with Resume and Reset");
                 try{n.actions[1].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
             t.waitFor(()->{JSONArray l=new ClockStore(t.context).data.optJSONArray("laps");return l!=null&&l.length()==1;});
+            // Android drops notification updates posted in quick succession; space the taps like a person would.
+            SystemClock.sleep(600);
             t.main(()->{t.check(new ClockStore(t.context).data.optJSONArray("laps").length()==1,"Lap from the notification is recorded");
                 Notification n=Arrays.stream(nm.getActiveNotifications()).filter(x->x.getId()==ClockStore.STOPWATCH_ID).map(x->x.getNotification()).findFirst().orElseThrow();
                 try{n.actions[0].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
             t.waitFor(()->!new ClockStore(t.context).data.optBoolean("swRunning")&&Arrays.stream(nm.getActiveNotifications()).anyMatch(x->x.getId()==ClockStore.STOPWATCH_ID&&t.context.getString(R.string.resume).contentEquals(x.getNotification().actions[0].title)));
+            SystemClock.sleep(600);
             t.main(()->{Notification n=Arrays.stream(nm.getActiveNotifications()).filter(x->x.getId()==ClockStore.STOPWATCH_ID).map(x->x.getNotification()).findFirst().orElse(null);
                 t.check(!new ClockStore(t.context).data.optBoolean("swRunning")&&n!=null&&t.context.getString(R.string.resume).contentEquals(n.actions[0].title),"Pause from the notification keeps a paused stopwatch notification");
                 try{n.actions[1].actionIntent.send();}catch(Exception e){throw new AssertionError(e);}});
@@ -59,6 +62,17 @@ final class HealthChecks {
             t.main(()->{t.check(screen.alarmSlider!=null&&screen.alarmSlider.getMax()==max-min,"Alarm slider spans Android's alarm volume steps");screen.setAlarmVolume(max);t.check(audio.getStreamVolume(AudioManager.STREAM_ALARM)==max,"Alarm slider sets Android's alarm volume");audio.setStreamVolume(AudioManager.STREAM_ALARM,min,0);});
             SystemClock.sleep(800);t.waitForIdleSync();
             t.main(()->t.check(screen.alarmSlider.getProgress()==0,"Alarm slider follows Android volume changes"));
+            t.main(()->{List<String> all=texts(screen.body);
+                t.check(all.contains(t.context.getString(R.string.about_title))&&all.contains(t.context.getString(R.string.about_license))&&all.contains("github.com/mexusbg/ClockPrime"),"About shows the attribution, GPL notice and source link");
+                // Setup checklist: one row per step, reachable from Settings, battery request permission declared.
+                t.check(all.contains(t.context.getString(R.string.setup_row)),"Settings offers the setup checklist");
+                SetupGuide g=new SetupGuide(screen);g.show();List<SetupGuide.Step> steps=SetupGuide.steps(screen);
+                t.check(g.rows.getChildCount()==steps.size()&&steps.stream().anyMatch(x->x.key.equals("overlay"))&&steps.stream().anyMatch(x->x.key.equals("battery"))&&steps.stream().anyMatch(x->x.key.equals("notifications")),"Setup checklist lists notifications, overlay and battery ("+steps.size()+" steps)");
+                t.check(g.progress.getText().toString().equals(t.context.getString(R.string.setup_progress,SetupGuide.doneCount(screen),steps.size())),"Setup checklist shows how many steps are done");
+                t.check(texts(g.rows.findViewWithTag("setup-notifications")).contains(t.context.getString(R.string.setup_step_done))==t.context.getSystemService(NotificationManager.class).areNotificationsEnabled(),"Notification step reflects the real permission");
+                g.dialog.dismiss();
+                try{t.check(java.util.Arrays.asList(t.context.getPackageManager().getPackageInfo(t.context.getPackageName(),android.content.pm.PackageManager.GET_PERMISSIONS).requestedPermissions).contains(android.Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS),"Battery request permission is declared, so the battery step can open its dialog");}catch(android.content.pm.PackageManager.NameNotFoundException e){throw new AssertionError(e);}
+                android.view.View kofi=screen.body.findViewWithTag("support");t.check(kofi!=null&&kofi.isClickable()&&t.context.getString(R.string.support_kofi).contentEquals(kofi.getContentDescription())&&SettingsActivity.KOFI_URL.equals("https://ko-fi.com/mexus"),"About has the Ko-fi support button");});
             t.main(()->{List<String> shown=texts(screen.body);
                 t.check(shown.contains(t.context.getString(R.string.troubleshooting))&&shown.contains(t.context.getString(R.string.edit_system_time)),"Settings groups tools under Troubleshooting and date & time under Appearance");
                 t.check(!shown.contains(t.context.getString(R.string.exact_alarms_label))||!t.context.getSystemService(AlarmManager.class).canScheduleExactAlarms(),"Exact alarm row only appears when blocked");

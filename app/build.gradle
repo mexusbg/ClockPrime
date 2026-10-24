@@ -1,8 +1,18 @@
 plugins { id 'com.android.application' }
+// Optional local release signing; keystore.properties (git-ignored) holds storeFile, storePassword, keyAlias, keyPassword.
+// Without it the release APK is unsigned, as F-Droid builds it.
+def keystore=rootProject.file('keystore.properties'),signing=new Properties()
+if(keystore.exists())keystore.withInputStream{signing.load(it)}
 android {
     namespace 'com.clockprime.app'
     compileSdk 35
-    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 29; versionName '0.11.4-test'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
+    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 32; versionName '0.12.2'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
-    buildTypes { debug { debuggable true } }
+    signingConfigs { if(keystore.exists())release { storeFile rootProject.file(signing.storeFile); storePassword signing.storePassword; keyAlias signing.keyAlias; keyPassword signing.keyPassword } }
+    buildTypes {
+        debug { debuggable true }
+        release { minifyEnabled false; if(keystore.exists())signingConfig signingConfigs.release }
+    }
+    // F-Droid rejects the encrypted dependency-metadata block AGP adds to APKs by default.
+    dependenciesInfo { includeInApk false; includeInBundle false }
 }

@@ -2,6 +2,16 @@
 
 A native Android clock app: alarms with named groups, world clocks, a stopwatch, multiple timers and home-screen widgets. Plain Java, no external libraries, no internet permission.
 
+[![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSE) [![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-support%20ClockPrime-FF5E5B?logo=ko-fi&logoColor=white)](https://ko-fi.com/mexus)
+
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="19%" alt="Alarms with a named group">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="19%" alt="World clocks">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="19%" alt="Timers with quick presets">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="19%" alt="Stopwatch">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width="19%" alt="Settings">
+</p>
+
 ## Features
 
 - **Alarms:** repeat days, per-alarm ringtone, vibration, snooze duration and limit, and auto-delete for one-time alarms. Gradual volume uses Android's alarm volume. A built-in fallback tone plays if the chosen sound is unavailable.
@@ -55,6 +65,25 @@ GitHub Actions (`.github/workflows/ci.yml`):
 - **build:** wrapper validation, localization check, debug and test APKs, and lint. The APKs and the lint report are uploaded as artifacts.
 - **device-tests:** runs the full `SmokeTests` suite on an Android emulator for pushes to `main` and manual runs.
 
+## F-Droid
+
+The repository carries what F-Droid needs:
+- Store listing: `fastlane/metadata/android/` (English and Bulgarian) with screenshots and the icon.
+- Build recipe: `fdroid/com.clockprime.app.yml`, for the fdroiddata repository.
+- Unsigned release build: `./gradlew assembleRelease`.
+
+Each release is a `vX.Y.Z` tag with a matching `versionName` and a new `versionCode`, plus a changelog in `fastlane/metadata/android/*/changelogs/<versionCode>.txt`.
+
+## Support
+
+If ClockPrime is useful to you, you can support it on Ko-fi:
+
+[![Support ClockPrime on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/mexus)
+
 ## License
 
-Copyright (C) 2026 mexus. Free software under the [GNU General Public License v3.0 or later](LICENSE), with additional terms in [NOTICE](NOTICE). Release notes are in [NOTES.md](NOTES.md).
+Copyright (C) 2026 mexus. ClockPrime is free software under the [GNU General Public License v3.0 or later](LICENSE), with two additional terms under section 7 (full wording in [NOTICE](NOTICE)):
+- **Attribution:** the "ClockPrime by mexus" credit and the license notice in Settings > About must be kept.
+- **Names and logos:** the name "ClockPrime" and its icon are not licensed. Modified versions must use their own name and icon.
+
+Release notes are in [NOTES.md](NOTES.md).

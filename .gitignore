@@ -7,3 +7,5 @@ local.properties
 *.keystore
 captures/
 smoke-tests.txt
+keystore.properties
+*.p12

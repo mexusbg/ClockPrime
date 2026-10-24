@@ -1,0 +1,39 @@
+ClockPrime is a clock app built for reliable mornings: alarms you can organize in groups, plus world clocks, a stopwatch, timers and home-screen widgets. No ads, no tracking and no internet permission.
+
+<b>Alarms</b>
+<ul>
+<li>Repeat days, labels, per-alarm ringtone, vibration and snooze settings.</li>
+<li>Named groups (Work, Weekend…) that fold away, show their next alarm and turn on or off together.</li>
+<li>Skip a single occurrence and restore it later.</li>
+<li>Gradual volume that follows Android's alarm volume, plus a built-in fallback tone if your sound is missing.</li>
+<li>Only one alarm rings at a time: a newer alarm takes over from one still ringing, so backup alarms always sound.</li>
+<li>Optional ringing during Do Not Disturb.</li>
+<li>Works right after a reboot, even before the first unlock.</li>
+<li>Warnings when something would keep an alarm silent: muted volume, Do Not Disturb, blocked notifications or exact alarms.</li>
+</ul>
+
+<b>Ring screen</b>
+<ul>
+<li>Full screen on the lock screen and, with permission, while the phone is unlocked.</li>
+<li>On Xiaomi HyperOS, alarms, timers and the stopwatch also appear in the Super Island.</li>
+</ul>
+
+<b>Widgets</b>
+<ul>
+<li>Clock & alarm, Clock, Analog, Stacked, Dual clock, Next alarm, Alarms, Alarm groups, World clock, Timer and Stopwatch.</li>
+</ul>
+
+<b>Also</b>
+<ul>
+<li>World clocks, a stopwatch with laps, and multiple named timers with live notifications.</li>
+<li>Light, dark or system theme; date and 12/24-hour formats.</li>
+<li>Backup export and import, and debug log export.</li>
+<li>English and Bulgarian.</li>
+</ul>
+
+<b>Permissions</b>
+<ul>
+<li>Exact alarms, notifications and full-screen notifications ring the alarm on time.</li>
+<li>Display over other apps (optional) opens the ring screen while the phone is in use.</li>
+<li>Boot lets alarms survive restarts.</li>
+</ul>

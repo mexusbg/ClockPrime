@@ -1,0 +1,8 @@
+First F-Droid release.
+* Licensed under GPL-3.0-or-later.
+* Settings > About: license, source code and a Ko-fi support link.
+* 11 home-screen widgets.
+* A newer alarm takes over from one still ringing, so backup alarms always sound.
+* Optional ringing during Do Not Disturb.
+* Timers: even spacing above the Start timer button.
+* First start: "Get alarms ready" checklist (notifications, full-screen alerts, alarm screen over apps, unrestricted battery, autostart).

@@ -1,0 +1,26 @@
+Categories:
+  - Time
+License: GPL-3.0-or-later
+AuthorName: mexus
+SourceCode: https://github.com/mexusbg/ClockPrime
+IssueTracker: https://github.com/mexusbg/ClockPrime/issues
+Changelog: https://github.com/mexusbg/ClockPrime/blob/HEAD/NOTES.md
+Donate: https://ko-fi.com/mexus
+
+AutoName: ClockPrime
+
+RepoType: git
+Repo: https://github.com/mexusbg/ClockPrime.git
+
+Builds:
+  - versionName: 0.12.2
+    versionCode: 32
+    commit: v0.12.2
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 0.12.2
+CurrentVersionCode: 32

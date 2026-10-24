@@ -208,9 +208,6 @@
   <string name="open_app_settings">Настройки на приложението</string>
   <string name="launch_label">Екран на алармата над приложения</string>
   <string name="launch_detail">Отваря целия екран на алармата, докато използвате телефона. Xiaomi изисква и „Показване на изскачащи прозорци при работа във фонов режим“.</string>
-  <string name="launch_permission_title">Аларми на цял екран?</string>
-  <string name="launch_permission_detail">Когато телефонът е отключен, Android показва само малък банер за звъняща аларма. Разрешете на ClockPrime да се показва върху други приложения, за да се отваря целият екран на алармата.</string>
-  <string name="not_now">Не сега</string>
   <string name="allow">Разреши</string>
   <string name="export_logs">Експортиране на диагностични журнали</string>
   <string name="export_logs_detail">Споделя текстов отчет с последните събития на алармите и настройките на телефона. Съдържа имената на алармите.</string>
@@ -289,4 +286,25 @@
   <string name="widget_paused">На пауза</string>
   <plurals name="widget_laps"><item quantity="one">%d обиколка</item><item quantity="other">%d обиколки</item></plurals>
   <string name="alarm_set_for">Алармата е за %1$s · %2$s</string>
+  <string name="about_section">Относно</string>
+  <string name="about_license">Свободен софтуер под GNU GPL v3 или по-нова версия, без гаранция. Докоснете, за да прочетете лиценза.</string>
+  <string name="source_code">Изходен код</string>
+  <string name="support_kofi">Подкрепете ClockPrime в Ko-fi</string>
+  <string name="setup_title">Подгответе алармите</string>
+  <string name="setup_intro">Няколко настройки на телефона гарантират, че алармите звънят навреме и на цял екран. Докоснете всяка, след това се върнете тук.</string>
+  <string name="setup_progress">%1$d от %2$d готови</string>
+  <string name="setup_done">Готово</string>
+  <string name="setup_later">По-късно</string>
+  <string name="setup_open">Отвори</string>
+  <string name="setup_checked">Проверено</string>
+  <string name="setup_step_done">Готово</string>
+  <string name="setup_row">Списък за настройка</string>
+  <string name="step_notifications">Известия</string>
+  <string name="step_notifications_detail">Показва звънящите аларми, таймерите и известието за следваща аларма.</string>
+  <string name="step_fullscreen_detail">Включва екрана с алармата, докато телефонът е заключен.</string>
+  <string name="step_battery">Неограничена батерия</string>
+  <string name="step_battery_detail">Android няма да забавя ClockPrime във фонов режим.</string>
+  <string name="step_autostart">Автостарт и фонов режим</string>
+  <string name="step_autostart_detail">Допълнителна настройка на производителя: разрешете на ClockPrime да се стартира и работи във фонов режим.</string>
+  <string name="step_exact_detail">Алармите звънят точно в минутата.</string>
 </resources>

@@ -29,7 +29,7 @@ public class SettingsActivity extends Activity {
     }
     @Override public void onCreate(Bundle b){dark=ThemeChoice.dark(this);setTheme(dark?R.style.AppTheme_Dark:R.style.AppTheme_Light);super.onCreate(b);prefs=new ClockSettings(this);if(b!=null){advanced=b.getBoolean("advanced");savedScroll=b.getInt("scroll");}setVolumeControlStream(AudioManager.STREAM_ALARM);getOnBackInvokedDispatcher().registerOnBackInvokedCallback(0,this::back);}
     Boolean islandAllowed;
-    @Override public void onResume(){super.onResume();render();registerReceiver(volumeChanged,new IntentFilter("android.media.VOLUME_CHANGED_ACTION"),Context.RECEIVER_EXPORTED);
+    @Override public void onResume(){super.onResume();render();SetupGuide.refreshOpen();registerReceiver(volumeChanged,new IntentFilter("android.media.VOLUME_CHANGED_ACTION"),Context.RECEIVER_EXPORTED);
         if(FocusIsland.shouldAttach(this))new Thread(()->{Boolean allowed=FocusIsland.canShowFocus(this);handler.post(()->{if(!isFinishing()&&!java.util.Objects.equals(allowed,islandAllowed)){islandAllowed=allowed;render();}});},"island-check").start();}
     @Override public void onPause(){stopPreview();unregisterReceiver(volumeChanged);super.onPause();}
     @Override public void onSaveInstanceState(Bundle b){b.putBoolean("advanced",advanced);b.putInt("scroll",scroll==null?0:scroll.getScrollY());super.onSaveInstanceState(b);}
@@ -51,6 +51,19 @@ public class SettingsActivity extends Activity {
     }
     LinearLayout section(int title){TextView heading=label(tr(title),12,muted);heading.setPadding(dp(8),dp(20),0,dp(10));body.addView(heading);LinearLayout c=column();GradientDrawable d=shape(card,22);d.setStroke(dp(1),line);c.setBackground(d);c.setPadding(dp(16),dp(4),dp(16),dp(4));body.addView(c,new LinearLayout.LayoutParams(-1,-2));return c;}
     void divider(LinearLayout c){if(c.getChildCount()>0){View v=new View(this);v.setBackgroundColor(line);c.addView(v,new LinearLayout.LayoutParams(-1,dp(1)));}}
+    static final String LICENSE_URL="https://www.gnu.org/licenses/gpl-3.0.html",SOURCE_URL="https://github.com/mexusbg/ClockPrime",KOFI_URL="https://ko-fi.com/mexus";
+    /** Warm gradient pill: coffee cup + "Support ClockPrime on Ko-fi". */
+    android.widget.LinearLayout supportButton(){
+        int ink=Color.parseColor("#2A1606");
+        LinearLayout b=row();b.setGravity(Gravity.CENTER);b.setPadding(dp(20),0,dp(20),0);
+        GradientDrawable fill=new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[]{Color.parseColor("#F5CE8D"),Color.parseColor("#F2A07B"),Color.parseColor("#E9837E")});fill.setCornerRadius(dp(29));
+        b.setBackground(new RippleDrawable(ColorStateList.valueOf(0x40FFFFFF),fill,null));b.setElevation(dp(2));
+        ImageView cup=new ImageView(this);cup.setImageDrawable(new ClockIcon("coffee",ink));cup.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);b.addView(cup,new LinearLayout.LayoutParams(dp(24),dp(24)));
+        TextView t=label(tr(R.string.support_kofi),16,ink);t.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));t.setPadding(dp(10),0,0,0);b.addView(t);
+        b.setContentDescription(tr(R.string.support_kofi));b.setFocusable(true);b.setClickable(true);b.setOnClickListener(v->openLink(KOFI_URL));b.setTag("support");
+        return b;
+    }
+    void openLink(String url){try{startActivity(new Intent(Intent.ACTION_VIEW,android.net.Uri.parse(url)));}catch(android.content.ActivityNotFoundException e){android.widget.Toast.makeText(this,url,android.widget.Toast.LENGTH_LONG).show();}}
     void item(LinearLayout c,int title,String value,String detail,Runnable action){
         divider(c);LinearLayout r=row();r.setPadding(0,dp(12),0,dp(12));r.setMinimumHeight(dp(56));LinearLayout words=column();words.addView(label(tr(title),16,text));if(value!=null){gap(words,5);words.addView(label(value,14,accent));}if(detail!=null){gap(words,5);words.addView(label(detail,12,muted));}r.addView(words,new LinearLayout.LayoutParams(0,-2,1));
         if(action!=null){ImageView arrow=new ImageView(this);arrow.setImageDrawable(new ClockIcon("right",muted));r.addView(arrow,new LinearLayout.LayoutParams(dp(22),dp(22)));r.setBackground(new RippleDrawable(ColorStateList.valueOf(0x209CBCFF),null,shape(Color.WHITE,12)));r.setFocusable(true);r.setOnClickListener(v->action.run());}c.addView(r);
@@ -120,6 +133,11 @@ public class SettingsActivity extends Activity {
         item(tools,R.string.test_alarm,null,null,this::scheduleTestAlarm);
         item(tools,R.string.export_logs,null,tr(R.string.export_logs_detail),()->DebugLog.share(this));
         String version;try{version=getPackageManager().getPackageInfo(getPackageName(),0).versionName;}catch(Exception e){version="";}
+        // GPL-3.0 "Appropriate Legal Notices": copyright/attribution, no warranty, and where to read the license (LICENSE, section 7(b)).
+        LinearLayout about=section(R.string.about_section);
+        item(about,R.string.about_title,version,tr(R.string.about_license),()->openLink(LICENSE_URL));
+        item(about,R.string.source_code,SOURCE_URL.replace("https://",""),null,()->openLink(SOURCE_URL));
+        gap(body,14);body.addView(supportButton(),new LinearLayout.LayoutParams(-1,dp(58)));
         gap(body,20);TextView foot=label(tr(R.string.build_info,version),12,muted);foot.setGravity(Gravity.CENTER);body.addView(foot);
     }
     AlertDialog upcomingDialog;NumberPicker upcomingAmount,upcomingUnit;Switch upcomingOn;
@@ -171,40 +189,17 @@ public class SettingsActivity extends Activity {
     }
     void reliability(NotificationManager nm){
         LinearLayout section=section(R.string.reliability);
+        List<SetupGuide.Step> steps=SetupGuide.steps(this);item(section,R.string.setup_row,tr(R.string.setup_progress,SetupGuide.doneCount(this),steps.size()),null,()->new SetupGuide(this).show());
         // ClockPrime holds USE_EXACT_ALARM, so this only appears if a phone ever revokes it.
         if(!getSystemService(AlarmManager.class).canScheduleExactAlarms())item(section,R.string.exact_alarms_label,tr(R.string.exact_alarms_blocked),null,()->startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,Uri.parse("package:"+getPackageName()))));
         item(section,R.string.notification_settings,tr(nm.areNotificationsEnabled()?R.string.allowed:R.string.blocked),null,()->startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE,getPackageName())));
         if(Build.VERSION.SDK_INT>=34)item(section,R.string.fullscreen_label,tr(nm.canUseFullScreenIntent()?R.string.allowed:R.string.set_up),null,()->startActivity(new Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT,Uri.parse("package:"+getPackageName()))));
         item(section,R.string.launch_label,tr(RingLaunch.canLaunch(this)?R.string.allowed:R.string.set_up),tr(R.string.launch_detail),()->RingLaunch.requestPermission(this));
         boolean unrestricted=getSystemService(PowerManager.class).isIgnoringBatteryOptimizations(getPackageName());
-        item(section,R.string.battery_restriction,tr(unrestricted?R.string.battery_unrestricted:R.string.battery_optimized),unrestricted?null:tr(R.string.battery_detail),this::openBatterySettings);
-        item(section,R.string.background_apps,null,tr(R.string.background_apps_detail),this::openBackgroundApps);
+        item(section,R.string.battery_restriction,tr(unrestricted?R.string.battery_unrestricted:R.string.battery_optimized),unrestricted?null:tr(R.string.battery_detail),()->SetupGuide.openBatterySettings(this));
+        item(section,R.string.background_apps,null,tr(R.string.background_apps_detail),()->SetupGuide.openBackgroundApps(this));
         if(FocusIsland.shouldAttach(this)){String island=islandAllowed==null?FocusIsland.supportLabel(this):tr(islandAllowed?R.string.island_allowed:R.string.island_denied);item(section,R.string.island_label,island,tr(R.string.island_detail),null);}
     }
-    void openBatterySettings(){
-        try{startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,Uri.parse("package:"+getPackageName())));}
-        catch(Exception e){openAppDetails();}
-    }
-    void openBackgroundApps(){
-        Intent[] candidates={
-            new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),
-            new Intent().setComponent(new ComponentName("com.samsung.android.lool","com.samsung.android.sm.battery.ui.BatteryActivity")),
-            new Intent().setComponent(new ComponentName("com.samsung.android.sm","com.samsung.android.sm.battery.ui.BatteryActivity")),
-            new Intent("com.samsung.android.sm.ACTION_BATTERY"),
-            new Intent().setComponent(new ComponentName("com.miui.powerkeeper","com.miui.powerkeeper.ui.HiddenAppsConfigActivity")).putExtra("package_name",getPackageName()).putExtra("package_label",getString(R.string.app_name)),
-            new Intent().setComponent(new ComponentName("com.miui.securitycenter","com.miui.permcenter.autostart.AutoStartManagementActivity")),
-            new Intent().setComponent(new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity")),
-            new Intent().setComponent(new ComponentName("com.huawei.systemmanager","com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity")),
-            new Intent().setComponent(new ComponentName("com.coloros.safecenter","com.coloros.safecenter.permission.startup.StartupAppListActivity")),
-            new Intent().setComponent(new ComponentName("com.oplus.safecenter","com.oplus.safecenter.permission.startup.StartupAppListActivity")),
-            new Intent().setComponent(new ComponentName("com.oneplus.security","com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity")),
-            new Intent().setAction("android.settings.APP_BATTERY_SETTINGS").setData(Uri.parse("package:"+getPackageName()))
-        };
-        for(Intent intent:candidates){try{startActivity(intent);return;}catch(Exception ignored){}}
-        Toast.makeText(this,R.string.open_app_settings,Toast.LENGTH_SHORT).show();
-        openAppDetails();
-    }
-    void openAppDetails(){startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,Uri.parse("package:"+getPackageName())));}
     void scheduleTestAlarm(){
         try{
             ClockStore s=new ClockStore(this);JSONObject a=new JSONObject();

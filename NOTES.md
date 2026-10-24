@@ -1,5 +1,13 @@
 # Release notes
 
+## 0.12.2
+- ClockPrime is now free software under GPL-3.0-or-later.
+- Settings > About: version, license, source code and a Ko-fi support button.
+- Release build for F-Droid.
+- First start: a "Get alarms ready" checklist for notifications, full-screen alerts, the alarm screen over apps, unrestricted battery and, on brands that have one, the maker's autostart setting. Statuses update as you come back. Also in Settings > Reliability.
+- The battery row now opens Android's exemption dialog; it used to do nothing.
+- Timers: the Start timer button sits as far below the presets as the presets sit below the Label field.
+
 ## 0.11.4
 - Selection bar: Skip day is greyed out unless a selected alarm repeats and is on. Skipping a one-time alarm is the same as turning it off.
 

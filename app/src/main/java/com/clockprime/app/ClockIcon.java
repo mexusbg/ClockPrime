@@ -27,6 +27,7 @@ final class ClockIcon extends Drawable {
             case "skip":path(c,4,5,14,12,4,19,4,5);line(c,18,5,18,19);break;
             case "delete":line(c,4,6,20,6);path(c,8,6,8,3,16,3,16,6);path(c,6,6,7,21,17,21,18,6);line(c,10,10,10,17);line(c,14,10,14,17);break;
             case "none":c.drawRoundRect(4,4,20,20,3,3,paint);break;
+            case "coffee":path(c,4,9,4,15,6.5f,19,13.5f,19,16,15,16,9,4,9);path(c,16,10.5f,18.5f,10.5f,18.5f,14,16,14);line(c,7.5f,3,7.5f,6);line(c,10.5f,2.5f,10.5f,6);line(c,13.5f,3,13.5f,6);line(c,3,21.5f,17,21.5f);break;
             case "all":c.drawRoundRect(4,4,20,20,3,3,paint);path(c,8,12,11,15,16,9);break;
             case "group":path(c,3,8,3,5,9,5,11,7,21,7,21,20,3,20,3,8);line(c,9,13,15,13);line(c,12,10,12,16);break;
         }raw.restoreToCount(save);
