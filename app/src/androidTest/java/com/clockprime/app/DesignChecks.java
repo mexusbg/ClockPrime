@@ -35,7 +35,7 @@ final class DesignChecks {
                 test.check(activity.editingGroup.selected.equals("ClockPrime QA saved group"),"Editing preselects the alarm's existing group");
                 boolean duplicate=false;try{activity.editingGroup.selectNew("clockprime qa SAVED group");}catch(IllegalArgumentException e){duplicate=true;}test.check(duplicate,"Inline group creation rejects case-insensitive duplicates");
                 TimeWheel hour=activity.editingTime.wheels[0];hour.beginEditing();hour.editor.setText("24");activity.alarmDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
-                test.check(activity.alarmDialog.isShowing()&&hour.editor.getError()!=null&&new ClockStore(activity).find("alarms",id).optInt("hour")==7,"Invalid typed hour keeps editor open without changing saved alarm");
+                test.check(activity.alarmDialog.isShowing()&&hour.editor.getError()==null&&hour.hint.getVisibility()==android.view.View.VISIBLE&&new ClockStore(activity).find("alarms",id).optInt("hour")==7,"Invalid typed hour keeps editor open without changing saved alarm");
                 hour.editor.setText("23");hour.editor.onEditorAction(EditorInfo.IME_ACTION_DONE);test.check(hour.getValue()==23&&!hour.editing,"Keyboard Done commits typed hour and restores wheel");activity.alarmDialog.getButton(AlertDialog.BUTTON_NEGATIVE).performClick();
                 ClockStore stored=new ClockStore(activity);stored.remove("alarms",stored.find("alarms",id));stored.save();activity.tab="Timers";activity.timerValue=new int[]{0,5,0};activity.render();
             });test.waitForIdleSync();SystemClock.sleep(500);

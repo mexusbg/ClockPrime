@@ -1,0 +1,2 @@
+* The built-in ClockPrime tone can be chosen as a ringtone, per alarm or as the default.
+* An out-of-range typed time now shows the valid range in the app's own style.

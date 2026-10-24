@@ -340,4 +340,8 @@
   <string name="step_autostart">Autostart and background</string>
   <string name="step_autostart_detail">Your phone maker\'s extra setting: let ClockPrime start and run in the background.</string>
   <string name="step_exact_detail">Lets alarms ring at the exact minute.</string>
+  <!-- Name of the app's own built-in alarm sound in ringtone lists -->
+  <string name="builtin_tone">ClockPrime tone</string>
+  <!-- Shown under a typed hour/minute/second that is out of range, e.g. "0–23"; keep it very short -->
+  <string name="time_range_short">0–%1$d</string>
 </resources>

@@ -18,17 +18,22 @@ import java.util.Locale;
 @android.annotation.SuppressLint("ViewConstructor") // Constructed in code with required state; never inflated from XML.
 final class TimeWheel extends FrameLayout {
     final int maximum;final String label;final Wheel surface;final EditText editor;
-    final int foreground,muted,highlight;final float textSize,rowHeight;
+    /** Thrown for a typed value outside 0..maximum; the wheel shows the range itself, callers need no toast. */
+    static final class OutOfRange extends IllegalArgumentException{OutOfRange(String message){super(message);}}
+    final int foreground,muted,highlight,warning;final TextView hint;final float textSize,rowHeight;
     float position;ValueAnimator animator;boolean editing;Integer pendingValue;
     Runnable nextEditor;boolean populating;java.util.function.BooleanSupplier beforeEdit=()->true;
-    TimeWheel(Context context,int maximum,int value,String label,boolean compact,int foreground,int muted,int highlight){
-        super(context);this.maximum=maximum;this.label=label;this.foreground=foreground;this.muted=muted;this.highlight=highlight;
+    TimeWheel(Context context,int maximum,int value,String label,boolean compact,int foreground,int muted,int highlight,int warning){
+        super(context);this.maximum=maximum;this.label=label;this.foreground=foreground;this.muted=muted;this.highlight=highlight;this.warning=warning;
         textSize=sp(compact?36:46);rowHeight=Math.max(dp(58),textSize+dp(12));position=value;
         surface=new Wheel(context);addView(surface,new LayoutParams(-1,-1));
         editor=new EditText(context){@Override public boolean onKeyPreIme(int key,KeyEvent event){if(key==KeyEvent.KEYCODE_BACK&&event.getAction()==KeyEvent.ACTION_UP){try{finishEditing();}catch(IllegalArgumentException ignored){}}return super.onKeyPreIme(key,event);}};editor.setSingleLine();editor.setGravity(Gravity.CENTER);editor.setPadding(0,0,0,0);editor.setBackgroundColor(Color.TRANSPARENT);editor.setTextColor(foreground);editor.setTextSize(compact?36:46);editor.setTypeface(Typeface.create("sans-serif-light",Typeface.NORMAL));editor.setFontFeatureSettings("tnum");editor.setInputType(InputType.TYPE_CLASS_NUMBER);editor.setFilters(new InputFilter[]{new InputFilter.LengthFilter(2)});editor.setSelectAllOnFocus(true);editor.setContentDescription(label);editor.setImeOptions(EditorInfo.IME_ACTION_DONE|EditorInfo.IME_FLAG_NO_EXTRACT_UI);editor.setVisibility(GONE);
         addView(editor,new LayoutParams(-1,(int)rowHeight,Gravity.CENTER));
+        hint=new TextView(context);hint.setTextSize(12);hint.setTextColor(warning);hint.setGravity(Gravity.CENTER);hint.setPadding(Math.round(dp(10)),Math.round(dp(3)),Math.round(dp(10)),Math.round(dp(3)));hint.setVisibility(GONE);hint.setText(context.getString(R.string.time_range_short,maximum));
+        android.graphics.drawable.GradientDrawable pill=new android.graphics.drawable.GradientDrawable();pill.setColor(highlight);pill.setCornerRadius(dp(12));hint.setBackground(pill);hint.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+        LayoutParams hintSpace=new LayoutParams(-2,-2,Gravity.CENTER);hintSpace.topMargin=Math.round(rowHeight);addView(hint,hintSpace);
         editor.setOnEditorActionListener((v,action,event)->{if(action==EditorInfo.IME_ACTION_DONE||action==EditorInfo.IME_ACTION_NEXT){try{finishEditing();if(nextEditor!=null)nextEditor.run();else hideKeyboard();}catch(IllegalArgumentException ignored){}return true;}return false;});
-        editor.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){}public void afterTextChanged(android.text.Editable text){if(!editing||populating||text.length()!=2||nextEditor==null)return;try{int n=Integer.parseInt(text.toString());if(n<=maximum)editor.post(()->{if(isAttachedToWindow()&&editing&&editor.getText().length()==2){try{finishEditing();nextEditor.run();}catch(IllegalArgumentException ignored){}}});}catch(NumberFormatException ignored){}}});
+        editor.addTextChangedListener(new android.text.TextWatcher(){public void beforeTextChanged(CharSequence s,int start,int count,int after){}public void onTextChanged(CharSequence s,int start,int before,int count){}public void afterTextChanged(android.text.Editable text){if(!populating&&hint.getVisibility()==VISIBLE)clearError();if(!editing||populating||text.length()!=2||nextEditor==null)return;try{int n=Integer.parseInt(text.toString());if(n<=maximum)editor.post(()->{if(isAttachedToWindow()&&editing&&editor.getText().length()==2){try{finishEditing();nextEditor.run();}catch(IllegalArgumentException ignored){}}});}catch(NumberFormatException ignored){}}});
         setMinimumWidth((int)dp(64));
     }
     float dp(float value){return value*getResources().getDisplayMetrics().density;}
@@ -46,20 +51,23 @@ final class TimeWheel extends FrameLayout {
     void settled(){pendingValue=null;position=wrap(Math.round(position));surface.invalidate();surface.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_SELECTED);}
     void setValue(int value,boolean animate){
         if(value<0||value>maximum)throw new IllegalArgumentException("Time component out of range");
-        editing=false;editor.clearFocus();editor.setVisibility(GONE);editor.setError(null);surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
+        editing=false;editor.clearFocus();editor.setVisibility(GONE);clearError();surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);
         float delta=value-selected();int count=maximum+1;if(delta>count/2f)delta-=count;if(delta<-count/2f)delta+=count;
         if(animate){animateTo(Math.round(position)+delta,280);pendingValue=value;}else{stopMotion();position=value;surface.invalidate();}
     }
     int getValue(){finishEditing();Integer target=pendingValue;stopMotion();position=target==null?Math.round(position):target;settled();return selected();}
     void beginEditing(){
-        if(!beforeEdit.getAsBoolean())return;stopMotion();position=Math.round(position);editing=true;editor.setError(null);populating=true;editor.setText(format(selected()));populating=false;editor.setVisibility(VISIBLE);surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);editor.requestFocus();editor.selectAll();surface.invalidate();
+        if(!beforeEdit.getAsBoolean())return;stopMotion();position=Math.round(position);editing=true;clearError();populating=true;editor.setText(format(selected()));populating=false;editor.setVisibility(VISIBLE);surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);editor.requestFocus();editor.selectAll();surface.invalidate();
         editor.post(()->getContext().getSystemService(InputMethodManager.class).showSoftInput(editor,InputMethodManager.SHOW_IMPLICIT));
     }
     void finishEditing(){
         if(!editing)return;String value=editor.getText().toString().trim();int parsed=-1;try{parsed=Integer.parseInt(value);}catch(NumberFormatException ignored){}
-        if(parsed<0||parsed>maximum){String message=getContext().getString(R.string.time_range,maximum);editor.setError(message);editor.requestFocus();throw new IllegalArgumentException(message);}
-        position=parsed;editing=false;editor.setError(null);editor.clearFocus();editor.setVisibility(GONE);surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);settled();
+        if(parsed<0||parsed>maximum){String message=getContext().getString(R.string.time_range,maximum);showError(message);editor.requestFocus();throw new OutOfRange(message);}
+        position=parsed;editing=false;clearError();editor.clearFocus();editor.setVisibility(GONE);surface.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_YES);settled();
     }
+    /** Gold digits, a short shake and the valid range in place of the next row, in the app's own style instead of the red system popup. */
+    void showError(String message){editor.setTextColor(warning);hint.setVisibility(VISIBLE);surface.invalidate();android.animation.ObjectAnimator.ofFloat(editor,"translationX",0,dp(8),-dp(8),dp(5),-dp(5),0).setDuration(320).start();announceForAccessibility(message);}
+    void clearError(){editor.setTextColor(foreground);hint.setVisibility(GONE);surface.invalidate();}
     void hideKeyboard(){getContext().getSystemService(InputMethodManager.class).hideSoftInputFromWindow(getWindowToken(),0);}
     @Override protected void onDetachedFromWindow(){stopMotion();super.onDetachedFromWindow();}
     final class Wheel extends View {
@@ -68,7 +76,7 @@ final class TimeWheel extends FrameLayout {
         @Override protected void onDraw(Canvas canvas){
             super.onDraw(canvas);float center=getHeight()/2f;paint.setColor(highlight);paint.setAlpha(255);canvas.drawRoundRect(dp(2),center-rowHeight/2,getWidth()-dp(2),center+rowHeight/2,dp(16),dp(16),paint);
             int nearest=Math.round(position);for(int i=nearest-2;i<=nearest+2;i++){
-                float distance=i-position,y=center+distance*rowHeight;if(editing&&i==nearest)continue;
+                float distance=i-position,y=center+distance*rowHeight;if(editing&&(i==nearest||hint.getVisibility()==VISIBLE))continue;
                 float emphasis=Math.max(0,1-Math.abs(distance));paint.setTextSize(textSize*(.64f+.36f*emphasis));String number=format(wrap(i));float width=paint.measureText(number);if(width>getWidth()-dp(8))paint.setTextSize(paint.getTextSize()*(getWidth()-dp(8))/width);
                 paint.setColor(emphasis>.5f?foreground:muted);paint.setAlpha(Math.round(255*Math.max(0,1-Math.abs(distance)*.43f)));Paint.FontMetrics metrics=paint.getFontMetrics();canvas.drawText(number,getWidth()/2f,y-(metrics.ascent+metrics.descent)/2,paint);
             }paint.setAlpha(255);

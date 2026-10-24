@@ -14,6 +14,7 @@ final class HealthChecks {
     static void run(SmokeTests t){
         t.main(()->{
             t.check(RingtoneManager.getRingtone(t.context,RingService.builtIn(t.context))!=null,"Built-in fallback alarm sound loads");
+            ClockSettings tones=new ClockSettings(t.context);org.json.JSONObject toneAlarm=new org.json.JSONObject();ClockStore.put(toneAlarm,"tone",ClockSettings.BUILTIN);t.check(RingService.builtIn(t.context).equals(tones.resolve(ClockSettings.BUILTIN))&&RingService.builtIn(t.context).equals(tones.tone("alarms",toneAlarm)),"ClockPrime tone can be chosen as an alarm sound");
             t.check(new ClockIcon("back",0).isAutoMirrored()&&new ClockIcon("right",0).isAutoMirrored()&&!new ClockIcon("plus",0).isAutoMirrored(),"Direction arrows mirror in right-to-left languages");
             android.view.View probe=LocaleText.direction(new android.view.View(t.context));t.check(probe.getTextDirection()==android.view.View.TEXT_DIRECTION_LOCALE,"Screens lay out text in the UI language's direction");
             try(android.content.res.AssetFileDescriptor fd=t.context.getResources().openRawResourceFd(R.raw.fallback_alarm)){t.check(fd.getLength()>10000,"Built-in fallback sound is bundled");}catch(java.io.IOException e){throw new AssertionError(e);}

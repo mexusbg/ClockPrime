@@ -307,4 +307,6 @@
   <string name="step_autostart">Автостарт и фонов режим</string>
   <string name="step_autostart_detail">Допълнителна настройка на производителя: разрешете на ClockPrime да се стартира и работи във фонов режим.</string>
   <string name="step_exact_detail">Алармите звънят точно в минутата.</string>
+  <string name="builtin_tone">Тон на ClockPrime</string>
+  <string name="time_range_short">0–%1$d</string>
 </resources>

@@ -9,9 +9,11 @@ import org.json.JSONObject;
 final class ClockSettings {
     static final String[] DATE_FORMATS={"system","dmy","mdy","ymd"};
     static final String[] HOUR_FORMATS={"system","24","12"};
-    final SharedPreferences prefs;
+    /** Tone value for ClockPrime's own sound; resolved at play time because raw resource ids change between builds. */
+    static final String BUILTIN="builtin";
+    final SharedPreferences prefs;final Context app;
     ClockSettings(Context c){
-        Context app=c.getApplicationContext();
+        app=c.getApplicationContext();
         boolean unlocked=app.getSystemService(android.os.UserManager.class).isUserUnlocked();
         prefs=(unlocked?app:app.createDeviceProtectedStorageContext()).getSharedPreferences("clock_settings",Context.MODE_PRIVATE);
     }
@@ -23,7 +25,8 @@ final class ClockSettings {
     void put(String key,int value){prefs.edit().putInt(key,value).commit();}
     void put(String key,boolean value){prefs.edit().putBoolean(key,value).commit();}
     void put(String key,String value){prefs.edit().putString(key,value).commit();}
-    Uri tone(String kind){String value=text(prefix(kind)+"_tone","default");return value.equals("silent")?null:value.equals("default")?RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM):Uri.parse(value);}
+    Uri tone(String kind){return resolve(text(prefix(kind)+"_tone","default"));}
+    Uri resolve(String value){return value.equals("silent")?null:value.equals("default")?RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM):value.equals(BUILTIN)?RingService.builtIn(app):Uri.parse(value);}
     /** Alarms play at Android's shared alarm volume; timers at a percentage of it. */
     int volume(String kind){return kind.equals("alarms")?100:Math.max(0,Math.min(100,number("timer_volume",100)));}
     boolean vibrate(String kind){return flag(prefix(kind)+"_vibrate",true);}
@@ -41,7 +44,7 @@ final class ClockSettings {
     boolean canSnooze(JSONObject a){int limit=a.optInt("snoozeLimit",number("snooze_limit",0));return limit==0||a.optInt("snoozeCount")<limit;}
     String snoozeLabel(Context c){return c.getString(R.string.snooze_for,c.getResources().getQuantityString(R.plurals.minutes_value,snoozeMinutes(),snoozeMinutes()));}
     String snoozeLabel(Context c,JSONObject a){int n=snoozeMinutes(a);return c.getString(R.string.snooze_for,c.getResources().getQuantityString(R.plurals.minutes_value,n,n));}
-    Uri tone(String kind,JSONObject a){String value=kind.equals("alarms")?a.optString("tone","inherit"):"inherit";return value.equals("inherit")?tone(kind):value.equals("silent")?null:value.equals("default")?RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM):Uri.parse(value);}
+    Uri tone(String kind,JSONObject a){String value=kind.equals("alarms")?a.optString("tone","inherit"):"inherit";return value.equals("inherit")?tone(kind):resolve(value);}
     int rampSeconds(String kind){int n=number(prefix(kind)+"_ramp",30);return n==10||n==30||n==60||n==120?n:30;}
     float gain(String kind,long elapsed){float target=volume(kind)/100f;if(!flag(prefix(kind)+"_ascending",false))return target;return target*Math.min(1f,.1f+.9f*Math.max(0,elapsed)/(rampSeconds(kind)*1000f));}
     /** Minutes before an alarm to show the upcoming notification; 0 disables. Default 12 hours. */

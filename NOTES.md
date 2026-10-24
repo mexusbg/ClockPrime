@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.12.4
+- The built-in ClockPrime tone can be chosen as a ringtone, per alarm and as the default for alarms or timers.
+- Typed hours, minutes and seconds out of range: the digits turn gold, shake, and the valid range appears below, instead of Android's red error popup.
+
 ## 0.12.3
 - Ready for translation: translator notes on the English strings, a checker for every language (`tools/verify-localization.py`), and partial translations fall back to English.
 - Right-to-left languages: paddings and arrows follow the reading direction.
