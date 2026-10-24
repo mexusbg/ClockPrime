@@ -1,5 +1,15 @@
 # Release notes
 
+## 0.13.0
+- More schedules: one-time alarms on a chosen date, every few days, every few weeks on chosen weekdays, monthly (a day or the last day), with optional start and end dates.
+- Holidays: a shared list of dates in Settings; alarms with "Skip holidays" don't ring on them.
+- Pause an alarm, or a whole group, until a date or for the next few rings; it resumes by itself.
+- Wake-up puzzles (math, retype a code, shake the phone) that must be solved to dismiss an alarm; snooze still works.
+- Create several alarms at once, spread evenly up to a last time (for example 5 alarms from 7:00 to 8:00).
+- New alarms start from the last alarm's settings.
+- Timers: +1 min and −1 min while running, +1 min on the ring screen and in the notification.
+- Optional automation events and control for apps like Tasker (Settings > Automation).
+
 ## 0.12.4
 - The built-in ClockPrime tone can be chosen as a ringtone, per alarm and as the default for alarms or timers.
 - Typed hours, minutes and seconds out of range: the digits turn gold, shake, and the valid range appears below, instead of Android's red error popup.

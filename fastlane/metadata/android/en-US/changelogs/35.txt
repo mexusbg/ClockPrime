@@ -1,0 +1,5 @@
+* New schedules: on a date, every few days or weeks, monthly, with start and end dates.
+* Holidays list and "Skip holidays"; pause alarms or groups until a date.
+* Wake-up puzzles: math, retype a code, shake.
+* Create several alarms at once; new alarms copy the last one's settings.
+* Timers: +1 / −1 min. Tasker support.

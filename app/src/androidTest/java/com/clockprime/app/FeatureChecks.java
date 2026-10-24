@@ -5,7 +5,7 @@ import org.json.*;
 import java.time.*;
 import java.util.*;
 
-/** 0.13: flexible schedules, holidays, pause, wake-up puzzles, Android clock requests, automation, timer minutes, alarm series. */
+/** 0.13: flexible schedules, holidays, pause, wake-up puzzles, timer minutes, alarm template and series, automation. */
 final class FeatureChecks {
     static long at(int y,int m,int d,int h,int min){return LocalDate.of(y,m,d).atTime(h,min).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();}
     static JSONObject rule(String repeat,int every,int days,String start){JSONObject a=new JSONObject();ClockStore.put(a,"hour",7);ClockStore.put(a,"minute",0);ClockStore.put(a,"days",days);if(repeat!=null)ClockStore.put(a,"repeat",repeat);if(every>0)ClockStore.put(a,"every",every);if(start!=null)ClockStore.put(a,"start",start);return a;}

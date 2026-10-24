@@ -89,7 +89,7 @@ final class AlarmOptions {
     void fillEvery(int mode,int value){
         int from=mode==EVERY_WEEKS?1:2,to=mode==EVERY_WEEKS?12:30;String[] labels=new String[to-from+1];
         for(int n=from;n<=to;n++)labels[n-from]=a.getResources().getQuantityString(mode==EVERY_WEEKS?R.plurals.weeks_value:R.plurals.days_value,n,n);
-        ArrayAdapter<String> adapter=new ArrayAdapter<>(a,android.R.layout.simple_spinner_item,labels);adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);every.setAdapter(adapter);every.setSelection(Math.max(0,Math.min(to,value)-from));
+        every.setAdapter(adapter(every,labels));every.setSelection(Math.max(0,Math.min(to,value)-from));
     }
     int everyValue(){return every.getSelectedItemPosition()+(repeat.getSelectedItemPosition()==EVERY_WEEKS?1:2);}
     /** Small caption plus a rounded card, matching the Settings page. */
@@ -116,7 +116,25 @@ final class AlarmOptions {
         StateListDrawable s=new StateListDrawable();GradientDrawable on=a.bg(a.MINT,20),off=a.bg(Color.TRANSPARENT,20);off.setStroke(a.dp(1),(a.MUTED&0x00FFFFFF)|0x80000000);
         s.addState(new int[]{android.R.attr.state_checked},on);s.addState(new int[]{},off);return s;
     }
-    Spinner spinner(String[] values){Spinner s=new Spinner(a);ArrayAdapter<String> adapter=new ArrayAdapter<>(a,android.R.layout.simple_spinner_item,values);adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);s.setAdapter(adapter);s.setMinimumHeight(a.dp(48));return s;}
+    /** Dropdown in the app's style: an outlined pill with a chevron, opening a rounded card whose current choice is highlighted.
+     *  The pill is as wide as the longest choice; the current one sits at its end, by the chevron. */
+    Spinner spinner(String[] values){
+        Spinner s=new Spinner(a,Spinner.MODE_DROPDOWN);s.setAdapter(adapter(s,values));s.setGravity(Gravity.END|Gravity.CENTER_VERTICAL);s.setMinimumHeight(a.dp(44));
+        GradientDrawable pill=a.bg(a.CARD,14);pill.setStroke(a.dp(1),a.LINE);s.setBackground(new android.graphics.drawable.RippleDrawable(ColorStateList.valueOf((a.MINT&0x00FFFFFF)|0x30000000),pill,null));
+        GradientDrawable popup=a.bg(a.CARD,18);popup.setStroke(a.dp(1),a.LINE);s.setPopupBackgroundDrawable(popup);s.setDropDownVerticalOffset(a.dp(6));s.setElevation(0);
+        return s;
+    }
+    ArrayAdapter<String> adapter(Spinner s,String[] values){
+        return new ArrayAdapter<>(a,0,values){
+            @Override public View getView(int p,View reuse,android.view.ViewGroup parent){
+                LinearLayout r=new LinearLayout(a);r.setGravity(Gravity.CENTER_VERTICAL);r.setPaddingRelative(a.dp(14),0,a.dp(10),0);r.setMinimumHeight(a.dp(44));
+                TextView t=a.text(getItem(p),14,a.TEXT);t.setMaxLines(1);t.setEllipsize(android.text.TextUtils.TruncateAt.END);t.setTypeface(android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL));r.addView(t,new LinearLayout.LayoutParams(-2,-2));
+                ImageView chevron=a.icon("down",a.MUTED,18);LinearLayout.LayoutParams gap=(LinearLayout.LayoutParams)chevron.getLayoutParams();gap.setMarginStart(a.dp(6));r.addView(chevron,gap);return r;}
+            @Override public View getDropDownView(int p,View reuse,android.view.ViewGroup parent){
+                boolean chosen=p==s.getSelectedItemPosition();TextView t=a.text(getItem(p),15,chosen?a.MINT:a.TEXT);t.setPaddingRelative(a.dp(18),a.dp(13),a.dp(28),a.dp(13));t.setMinHeight(a.dp(48));t.setGravity(Gravity.CENTER_VERTICAL);
+                if(chosen){t.setTypeface(android.graphics.Typeface.create("sans-serif-medium",android.graphics.Typeface.NORMAL));t.setBackground(a.bg(a.SOFT,12));}return t;}
+        };
+    }
     void visibility(){
         int mode=repeat.getSelectedItemPosition();boolean once=mode==ONCE;
         dayRow.setVisibility(mode==CUSTOM||mode==EVERY_WEEKS?View.VISIBLE:View.GONE);everyRow.setVisibility(mode==EVERY_DAYS||mode==EVERY_WEEKS?View.VISIBLE:View.GONE);monthRow.setVisibility(mode==MONTHLY?View.VISIBLE:View.GONE);
