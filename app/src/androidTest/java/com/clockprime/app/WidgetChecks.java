@@ -74,7 +74,9 @@ final class WidgetChecks {
                 new ClockReceiver().onReceive(t.context,new Intent(Widgets.GROUP).putExtra("group","QA widget").putExtra(RemoteViews.EXTRA_CHECKED,true));
                 t.check(new ClockStore(t.context).objects("alarms").stream().filter(a->a.optString("group").equals("QA widget")).allMatch(a->a.optBoolean("enabled")),"Group widget switch turns the whole group on");
                 ClockStore grouped=new ClockStore(t.context);ListView groupList=render(t.context,Widgets.groups(t.context,grouped,now),300,200).findViewById(R.id.list_items);
-                t.check(groupList.getAdapter()!=null&&groupList.getAdapter().getCount()==grouped.list("groups").length(),"Alarm groups widget lists every group");
+                t.check(groupList.getAdapter()!=null&&groupList.getAdapter().getCount()==grouped.groups().size(),"Alarm groups widget lists every group including General");
+                View generalRow=groupList.getAdapter().getView(0,null,groupList);TextView groupTitle=generalRow.findViewById(R.id.row_time);
+                t.check(grouped.groupLabel(t.context,"").contentEquals(groupTitle.getText()),"General is first in the Alarm groups widget");
                 // Timer: presets when idle, a live countdown after a quick start, and the same timer reused next time.
                 ClockStore idle=new ClockStore(t.context);ClockStore.put(idle.data,"timers",new JSONArray());
                 View idleTimer=render(t.context,Widgets.timer(t.context,idle),220,170);t.check(idleTimer.findViewById(R.id.counter_presets).getVisibility()==View.VISIBLE&&text(idleTimer,R.id.preset_2).equals(t.context.getString(R.string.widget_minutes_short,5)),"Idle timer widget offers 1, 5 and 10 minute quick starts");

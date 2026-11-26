@@ -35,6 +35,8 @@ public final class ClockStore {
     }
     SharedPreferences dePrefs() { return context.createDeviceProtectedStorageContext().getSharedPreferences(DE_PREFS,Context.MODE_PRIVATE); }
     void migrate() {
+        // Discard the optional name/deletion marker written by the previous preview.
+        data.remove("generalGroupName");
         int version=data.optInt("schema",0);
         if(version>=SCHEMA)return;
         put(data,"schema",SCHEMA);
@@ -219,9 +221,42 @@ public final class ClockStore {
             advance(a,System.currentTimeMillis());
         schedule("alarms",a);
     }
-    boolean collapsed(String group) { JSONObject folded=data.optJSONObject("collapsedGroups");return !group.isEmpty()&&folded!=null&&folded.optBoolean(group); }
-    void collapse(String group,boolean value) { if(group.isEmpty())return;JSONObject folded=data.optJSONObject("collapsedGroups");if(folded==null){folded=new JSONObject();put(data,"collapsedGroups",folded);}put(folded,group,value); }
-    /** Validate the whole selection before mutating anything. An empty group is its own scope. */
+    /** General keeps its legacy key, independent of the display language. */
+    List<String> groups() {
+        List<String> groups=new ArrayList<>();groups.add("");
+        JSONArray named=list("groups");
+        if(named!=null)for(int i=0;i<named.length();i++)if(!named.optString(i).isEmpty())groups.add(named.optString(i));
+        return groups;
+    }
+    String groupLabel(Context c,String group) {
+        if(!group.isEmpty())return group;
+        String label=c.getString(R.string.general_group);
+        return groups().stream().anyMatch(g->g.equalsIgnoreCase(label))?c.getString(R.string.general_group_conflict,label):label;
+    }
+    boolean groupNameTaken(Context c,String name,String except) {
+        return groups().stream().anyMatch(g->!g.equals(except)&&groupLabel(c,g).equalsIgnoreCase(name));
+    }
+    void renameGroup(String group,String name) {
+        if(group.isEmpty())return;
+        JSONArray groups=list("groups");
+        for(int i=0;i<groups.length();i++)if(groups.optString(i).equals(group)){
+            try{groups.put(i,name);}catch(JSONException e){throw new IllegalStateException(e);}
+            break;
+        }
+        for(JSONObject alarm:objects("alarms"))if(alarm.optString("group").equals(group))put(alarm,"group",name);
+        collapse(name,collapsed(group));
+        data.optJSONObject("collapsedGroups").remove(group);
+    }
+    void removeGroup(String group) {
+        if(group.isEmpty())return;
+        for(JSONObject alarm:objects("alarms"))if(alarm.optString("group").equals(group))remove("alarms",alarm);
+        JSONObject folded=data.optJSONObject("collapsedGroups");if(folded!=null)folded.remove(group);
+        JSONArray groups=list("groups");
+        for(int i=0;i<groups.length();i++)if(groups.optString(i).equals(group)){groups.remove(i);break;}
+    }
+    boolean collapsed(String group) { JSONObject folded=data.optJSONObject("collapsedGroups");return folded!=null&&folded.optBoolean(group); }
+    void collapse(String group,boolean value) { JSONObject folded=data.optJSONObject("collapsedGroups");if(folded==null){folded=new JSONObject();put(data,"collapsedGroups",folded);}put(folded,group,value); }
+    /** Validate the whole selection before mutating anything. General is its own scope. */
     void bulk(String group,Set<Integer> ids,String action) {
         if(!Set.of("ON","OFF","SKIP","DELETE").contains(action))throw new IllegalArgumentException("Unknown selection action");
         List<JSONObject> targets=new ArrayList<>();

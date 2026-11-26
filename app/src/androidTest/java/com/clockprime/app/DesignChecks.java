@@ -6,6 +6,7 @@ import android.view.*;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** Integration checks for editing and real touch gestures, including nested-scroll conflicts. */
@@ -17,10 +18,30 @@ final class DesignChecks {
         try{
             test.main(()->{
                 activity.tab="Alarms";activity.render();
-                test.check(activity.body.findViewWithTag("group-")==null,"Ungrouped alarms have no group header or fold control");
-                for(JSONObject alarm:activity.store.objects("alarms"))if(alarm.optString("group").isEmpty())test.check(activity.alarmViews.get(alarm.optInt("id")).card.getVisibility()==View.VISIBLE,"Ungrouped row stays visible despite legacy folded preference");
+                ClockStore store=activity.store;boolean wasFolded=store.collapsed("");
+                JSONObject general=test.testAlarm(store,"","legacy group");general.remove("group");int generalId=general.optInt("id");
+                store.collapse("",false);store.save(false);activity.render();
+                LinearLayout header=activity.body.findViewWithTag("group-");
+                test.check(header!=null&&activity.store.groups().get(0).isEmpty(),"General is the first alarm group");
+                View heading=((LinearLayout)header.getChildAt(0)).getChildAt(0);
+                View legacyCard=activity.alarmViews.get(generalId).card;
+                test.check(legacyCard.getVisibility()==View.VISIBLE,"An alarm with no stored group appears in General");
+                heading.performClick();activity.render();
+                test.check(activity.alarmViews.get(generalId).card.getVisibility()==View.GONE,"General stays collapsed after a refresh");
+                activity.groupActions("");View menu=activity.groupMenu.getWindow().getDecorView();
+                test.check(menu.findViewWithTag("group-menu-add_alarm")!=null&&menu.findViewWithTag("group-menu-enable_all")!=null&&menu.findViewWithTag("group-menu-rename_group")==null&&menu.findViewWithTag("group-menu-delete_group")==null,"General offers alarm actions without rename or delete");
+                activity.groupMenu.dismiss();
+                ClockStore edited=new ClockStore(activity);
+                ClockStore.put(edited.data,"alarms",new JSONArray().put(edited.find("alarms",generalId)));
+                String generalLabel=edited.groupLabel(activity,"");
+                edited.renameGroup("","ClockPrime QA renamed group");
+                test.check(edited.groupLabel(activity,"").equals(generalLabel),"General keeps its name if a rename is attempted");
+                edited.removeGroup("");
+                test.check(edited.groups().get(0).isEmpty()&&edited.find("alarms",generalId)!=null&&edited.collapsed(""),"A group delete cannot remove General or its alarms");
+                store=activity.store;store.remove("alarms",store.find("alarms",generalId));store.collapse("",wasFolded);store.save(false);activity.render();
                 activity.alarmEditor(null,null);activity.editingName.setText("ClockPrime QA draft");activity.editingTime.wheels[0].setValue(7,false);activity.editingTime.wheels[1].setValue(23,false);
-                activity.editingGroup.performClick();test.check(activity.editingGroup.choices.getListView().getAdapter().getCount()>=2,"Alarm group picker offers no group and create group");activity.editingGroup.choices.dismiss();activity.editingGroup.promptNew();activity.editingGroup.newName.setText("ClockPrime QA draft group");
+                activity.editingGroup.performClick();ListView choices=activity.editingGroup.choices.getListView();
+                test.check(choices.getAdapter().getCount()>=2&&activity.groupLabel("").equals(choices.getItemAtPosition(0))&&choices.getCheckedItemPosition()==0,"New alarms default to General, the first choice in the picker");activity.editingGroup.choices.dismiss();activity.editingGroup.promptNew();activity.editingGroup.newName.setText("ClockPrime QA draft group");
             });test.waitForIdleSync();SystemClock.sleep(150);test.main(()->{
                 activity.editingGroup.nameDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
                 test.check(activity.editingGroup.selected.equals("ClockPrime QA draft group")&&activity.editingTime.values()[1]==23&&activity.editingName.getText().toString().equals("ClockPrime QA draft"),"Creating a draft group preserves alarm name and time");

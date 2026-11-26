@@ -98,12 +98,12 @@ final class HealthChecks {
 
         MainActivity main=t.openActivity();t.waitForIdleSync();
         try{t.main(()->{
-            boolean ungrouped=main.store.objects("alarms").stream().anyMatch(x->x.optString("group").isEmpty());
-            t.check((main.body.findViewWithTag("next-summary")!=null)==ungrouped,"Overall next-alarm line shows only when some alarms are ungrouped");
-            ClockStore s=new ClockStore(t.context);JSONObject loose=t.testAlarm(s,"","summary ungrouped");s.save();main.render();
-            t.check(main.body.findViewWithTag("next-summary")!=null,"Overall next-alarm line appears with an ungrouped alarm");
-            s=new ClockStore(t.context);s.remove("alarms",s.find("alarms",loose.optInt("id")));s.save();main.render();
-            t.check((main.body.findViewWithTag("next-summary")!=null)==ungrouped,"Overall next-alarm line follows ungrouped alarms after removal");
+            ClockStore s=new ClockStore(t.context);JSONObject general=t.testAlarm(s,"","next in General");
+            java.time.LocalTime due=java.time.LocalTime.now().plusHours(2);
+            ClockStore.put(general,"hour",due.getHour());ClockStore.put(general,"minute",due.getMinute());s.enable(general,true);s.save();main.render();
+            long now=System.currentTimeMillis();long next=main.store.objects("alarms").stream().filter(a->a.optString("group").isEmpty()&&a.optBoolean("enabled")).mapToLong(a->a.optLong("next")).filter(time->time>now).min().orElseThrow();
+            t.check(texts(main.body.findViewWithTag("group-")).contains(main.tr(R.string.next_alarm,main.date(next))),"General shows its own next alarm in the group header");
+            s=new ClockStore(t.context);s.remove("alarms",s.find("alarms",general.optInt("id")));s.save();main.render();
             main.alarmEditor(null,null);AlarmOptions o=main.editingOptions;
             t.check(t.context.getString(R.string.alarm_name).contentEquals(main.editingName.getHint()),"Alarm editor shows the Label field");
             o.sound.setChecked(false);t.check(!o.toneRow.isEnabled()&&o.toneRow.getAlpha()<1f,"Ringtone row dims while sound is off");o.sound.setChecked(true);t.check(o.toneRow.isEnabled(),"Ringtone row returns with sound on");

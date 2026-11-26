@@ -6,12 +6,22 @@ if(keystore.exists())keystore.withInputStream{signing.load(it)}
 android {
     namespace 'com.clockprime.app'
     compileSdk 35
-    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 39; versionName '0.13.4'; testInstrumentationRunner 'com.clockprime.app.SmokeTests' }
+    defaultConfig { applicationId 'com.clockprime.app'; minSdk 33; targetSdk 35; versionCode 40; versionName '0.13.5'; testInstrumentationRunner 'com.clockprime.app.SmokeTests'; manifestPlaceholders.applicationLabel = '@string/app_name' }
+    buildFeatures { buildConfig true }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     signingConfigs { if(keystore.exists())release { storeFile rootProject.file(signing.storeFile); storePassword signing.storePassword; keyAlias signing.keyAlias; keyPassword signing.keyPassword } }
     buildTypes {
         // Pseudo-locales en-XA (long text) and ar-XB (right-to-left) for checking layouts before real translations.
-        debug { debuggable true; pseudoLocalesEnabled true }
+        debug {
+            debuggable true
+            pseudoLocalesEnabled true
+            // Opt-in APK for side-by-side testing with the installed release.
+            if (providers.gradleProperty('clockPrimePreview').isPresent()) {
+                applicationIdSuffix '.preview'
+                versionNameSuffix '-preview.3'
+                manifestPlaceholders.applicationLabel = 'ClockPrime Preview'
+            }
+        }
         release { minifyEnabled false; if(keystore.exists())signingConfig signingConfigs.release }
     }
     // F-Droid rejects the encrypted dependency-metadata block AGP adds to APKs by default.

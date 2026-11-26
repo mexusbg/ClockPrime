@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.13.5
+- Alarms without a group now live in a built-in "General" group: always first, foldable, with its own next-alarm line and menu; it cannot be renamed or deleted. New alarms start in General, and the Alarm groups widget lists it first.
+- The group menu's delete item now says it also deletes the group's alarms.
+
 ## 0.13.4
 - Alarm editor dropdowns all have the same width and line up.
 

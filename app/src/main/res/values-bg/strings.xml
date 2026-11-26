@@ -17,7 +17,8 @@
   <string name="alarm_ringing">АЛАРМАТА ЗВЪНИ</string>
   <string name="timer_finished">ТАЙМЕРЪТ ПРИКЛЮЧИ</string>
   <string name="dismiss">Спри</string>
-  <string name="ungrouped">Без група</string>
+  <string name="general_group">Общи</string>
+  <string name="general_group_conflict">%1$s (по подразбиране)</string>
   <string name="schedule_summary">Всички аларми са изключени</string>
   <string name="empty_title">Започнете деня навреме</string>
   <string name="empty_description">Добавете първата си аларма с +.</string>
@@ -33,7 +34,7 @@
   <string name="enable_all">Включи всички</string>
   <string name="disable_all">Изключи всички</string>
   <string name="skip_occurrences">Пропусни следващите аларми</string>
-  <string name="delete_group">Изтрий групата (запази алармите)</string>
+  <string name="delete_group">Изтрий групата и алармите ѝ</string>
   <string name="minutes">Минути</string>
   <string name="alarm_name">Етикет</string>
   <string name="repeat_hint">Повторение</string>
@@ -157,7 +158,6 @@
     <item quantity="other">%d пъти</item>
   </plurals>
   <string name="group_label">Група</string>
-  <string name="no_group">Без група</string>
   <string name="group_choice">Група: %1$s</string>
   <string name="create_group">Създай нова група…</string>
   <string name="create">Създай</string>
@@ -278,7 +278,6 @@
   <string name="widget_stopwatch_desc">Старт, обиколка и нулиране от началния екран</string>
   <string name="widget_groups_name">Групи аларми</string>
   <string name="widget_groups_desc">Включвайте и изключвайте цели групи аларми</string>
-  <string name="widget_no_groups">Още няма групи. Създайте в „Аларми“.</string>
   <string name="widget_minutes_short">%1$d мин</string>
   <string name="widget_quick_start">Бърз старт</string>
   <string name="widget_paused">На пауза</string>

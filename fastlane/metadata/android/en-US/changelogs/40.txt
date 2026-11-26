@@ -1,0 +1,2 @@
+* Alarms without a group now live in a built-in "General" group, always shown first.
+* Deleting a group clearly says it also deletes its alarms.

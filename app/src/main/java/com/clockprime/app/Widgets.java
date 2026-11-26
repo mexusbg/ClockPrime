@@ -273,16 +273,17 @@ final class Widgets {
     }
     /** One row per group: how many alarms are on, its next alarm, and a switch for the whole group. */
     static RemoteViews groups(Context c,ClockStore store,long now){
-        RemoteViews v=list(c,R.drawable.ic_widget_group,c.getString(R.string.widget_groups_name),"",open(c,"Alarms",null),open(c,"Alarms",null),c.getString(R.string.alarms),c.getString(R.string.widget_no_groups));
+        RemoteViews v=list(c,R.drawable.ic_widget_group,c.getString(R.string.widget_groups_name),"",open(c,"Alarms",null),open(c,"Alarms",null),c.getString(R.string.alarms),"");
         v.setViewVisibility(R.id.list_summary,View.GONE);v.setViewVisibility(R.id.list_add,View.GONE);
-        JSONArray groups=store.list("groups");RemoteViews.RemoteCollectionItems.Builder items=new RemoteViews.RemoteCollectionItems.Builder().setViewTypeCount(1);
-        for(int i=0;i<groups.length();i++){
-            String group=groups.optString(i);List<JSONObject> members=store.objects("alarms").stream().filter(a->a.optString("group").equals(group)).collect(java.util.stream.Collectors.toList());
+        List<String> groups=store.groups();RemoteViews.RemoteCollectionItems.Builder items=new RemoteViews.RemoteCollectionItems.Builder().setViewTypeCount(1);
+        for(int i=0;i<groups.size();i++){
+            String group=groups.get(i),label=store.groupLabel(c,group);List<JSONObject> members=store.objects("alarms").stream().filter(a->a.optString("group").equals(group)).collect(java.util.stream.Collectors.toList());
             int on=(int)members.stream().filter(a->a.optBoolean("enabled")).count();JSONObject next=members.stream().filter(a->a.optBoolean("enabled")&&a.optLong("next")>now).min(Comparator.comparingLong(a->a.optLong("next"))).orElse(null);
             RemoteViews row=new RemoteViews(c.getPackageName(),R.layout.widget_group_row);
-            row.setTextViewText(R.id.row_time,group);
+            row.setTextViewText(R.id.row_time,label);
             row.setTextViewText(R.id.row_detail,c.getString(R.string.group_count,c.getResources().getQuantityString(R.plurals.alarm_count,members.size(),members.size()),on)+(next==null?"":" · "+day(c,next.optLong("next"),now)+" "+time(c,next.optLong("next"))));
-            row.setCompoundButtonChecked(R.id.row_switch,on>0);row.setContentDescription(R.id.row_switch,group);
+            row.setViewVisibility(R.id.row_switch,members.isEmpty()?View.INVISIBLE:View.VISIBLE);
+            row.setCompoundButtonChecked(R.id.row_switch,on>0);row.setContentDescription(R.id.row_switch,label);
             row.setOnCheckedChangeResponse(R.id.row_switch,RemoteViews.RemoteResponse.fromFillInIntent(new Intent().putExtra("group",group)));
             items.addItem(i,row);
         }

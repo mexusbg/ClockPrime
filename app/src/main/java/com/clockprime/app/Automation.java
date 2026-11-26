@@ -9,7 +9,7 @@ import org.json.JSONObject;
  * alarms or whole groups on or off, or skips their next ring, by label or group name.
  */
 final class Automation {
-    static final String PREFIX="com.clockprime.app.action.",RINGING=PREFIX+"ALARM_RINGING",SNOOZED=PREFIX+"ALARM_SNOOZED",DISMISSED=PREFIX+"ALARM_DISMISSED",
+    static final String PREFIX=BuildConfig.APPLICATION_ID+".action.",RINGING=PREFIX+"ALARM_RINGING",SNOOZED=PREFIX+"ALARM_SNOOZED",DISMISSED=PREFIX+"ALARM_DISMISSED",
         TIMER_FINISHED=PREFIX+"TIMER_FINISHED",TIMER_DISMISSED=PREFIX+"TIMER_DISMISSED",
         ENABLE=PREFIX+"ENABLE",DISABLE=PREFIX+"DISABLE",SKIP=PREFIX+"SKIP_NEXT",EVENTS_KEY="automation_events",CONTROL_KEY="automation_control";
 

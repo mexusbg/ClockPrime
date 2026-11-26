@@ -12,7 +12,7 @@ import java.io.FileNotFoundException;
 
 /** Read-only access to exported debug reports, granted per share intent. */
 public class LogProvider extends ContentProvider {
-    static final String AUTHORITY="com.clockprime.app.logs";
+    static final String AUTHORITY=BuildConfig.APPLICATION_ID+".logs";
     @Override public boolean onCreate(){return true;}
     File file(Uri uri) throws FileNotFoundException {
         String name=uri.getLastPathSegment();

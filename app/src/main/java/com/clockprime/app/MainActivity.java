@@ -159,7 +159,7 @@ public class MainActivity extends Activity {
         updateSelectionUi();root.requestApplyInsets();contentScroll.post(()->contentScroll.scrollTo(0,offset));
     }
     void activeAlerts(){for(String kind:List.of("alarms","timers"))for(JSONObject a:store.objects(kind))if(a.optBoolean("ringing")){LinearLayout c=card();c.addView(text(kind.equals("alarms")?tr(R.string.alarm_ringing):tr(R.string.timer_finished),12,GOLD));c.addView(text(a.optString("name","ClockPrime"),24,TEXT));LinearLayout r=row();weighted(r,button(tr(R.string.dismiss),()->{if(kind.equals("alarms")&&Challenge.required(a)){startActivity(new Intent(this,RingActivity.class));return;}store.dismiss(kind,a);commit();}));if(kind.equals("alarms")&&new ClockSettings(this).canSnooze(a))weighted(r,button(new ClockSettings(this).snoozeLabel(this,a),()->{store.snooze(a,new ClockSettings(this).snoozeMinutes(a));commit();}));c.addView(r);}}
-    String groupLabel(String group){return group.isEmpty()?tr(R.string.ungrouped):group;}
+    String groupLabel(String group){return store.groupLabel(this,group);}
     void selectAlarm(String group,int id){
         if(!selection.toggle(group,id))return;
         updateSelectionUi();
@@ -171,22 +171,18 @@ public class MainActivity extends Activity {
     }
     void alarms(){
         selection.ids.removeIf(id->{JSONObject a=store.find("alarms",id);return a==null||!a.optString("group").equals(selection.group);});
-        // Group headers show their own next alarm; the overall line only helps when some alarms are ungrouped.
-        if(store.objects("alarms").stream().anyMatch(x->x.optString("group").isEmpty())){JSONObject upcoming=UpcomingAlarm.earliest(store,System.currentTimeMillis());TextView summary=text(upcoming==null?tr(R.string.schedule_summary):tr(R.string.next_alarm,date(upcoming.optLong("next"))),13,MUTED);summary.setTag("next-summary");summary.setPaddingRelative(dp(4),0,0,dp(12));body.addView(summary);}
         healthCard();
         if(store.objects("alarms").isEmpty()&&store.list("groups").length()==0){LinearLayout c=card();c.addView(text(tr(R.string.empty_title),22,TEXT));c.addView(text(tr(R.string.empty_description),14,MUTED));}
-        List<String> groups=new ArrayList<>();groups.add("");JSONArray array=store.list("groups");for(int i=0;i<array.length();i++)groups.add(array.optString(i));
-        for(String group:groups){
-            List<JSONObject> members=new ArrayList<>();for(JSONObject a:store.objects("alarms"))if(a.optString("group").equals(group))members.add(a);if(group.isEmpty()&&members.isEmpty())continue;
-            members.sort(Comparator.comparingInt(a->a.optInt("hour")*60+a.optInt("minute")));boolean folded=!group.isEmpty()&&store.collapsed(group);long enabled=members.stream().filter(a->a.optBoolean("enabled")).count();
+        for(String group:store.groups()){
+            List<JSONObject> members=new ArrayList<>();for(JSONObject a:store.objects("alarms"))if(a.optString("group").equals(group))members.add(a);
+            members.sort(Comparator.comparingInt(a->a.optInt("hour")*60+a.optInt("minute")));boolean folded=store.collapsed(group);long enabled=members.stream().filter(a->a.optBoolean("enabled")).count();
+            String label=groupLabel(group);
             List<View> memberViews=new ArrayList<>();
-            if(!group.isEmpty()){
-                LinearLayout groupHeader=column();groupHeader.setTag("group-"+group);groupHeader.setPadding(dp(4),dp(16),dp(4),dp(4));LinearLayout h=row(),heading=row();
-                ImageView chevron=icon("right",MUTED,20);chevron.setRotation(folded?0:rtl()?-90:90);heading.addView(chevron);LinearLayout name=column();name.setPaddingRelative(dp(8),0,0,0);TextView title=text(group,18,TEXT);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));title.setMaxLines(2);title.setEllipsize(TextUtils.TruncateAt.END);name.addView(title);name.addView(text(tr(R.string.group_count,quantity(R.plurals.alarm_count,members.size()),enabled),11,MUTED));JSONObject next=members.stream().filter(a->a.optBoolean("enabled")&&a.optLong("next")>System.currentTimeMillis()).min(Comparator.comparingLong(a->a.optLong("next"))).orElse(null);name.addView(text(next==null?tr(R.string.no_upcoming):tr(R.string.next_alarm,date(next.optLong("next"))),11,MUTED));heading.addView(name,new LinearLayout.LayoutParams(0,-2,1));heading.setBackground(ripple(Color.TRANSPARENT,12));heading.setContentDescription(tr(folded?R.string.expand_group:R.string.collapse_group,group));heading.setFocusable(true);
-                heading.setOnClickListener(v->{boolean collapse=!store.collapsed(group);android.transition.TransitionManager.beginDelayedTransition(body,new android.transition.AutoTransition().setDuration(180));for(View member:memberViews)member.setVisibility(collapse?View.GONE:View.VISIBLE);chevron.animate().rotation(collapse?0:90).setDuration(180).start();heading.setContentDescription(tr(collapse?R.string.expand_group:R.string.collapse_group,group));store.collapse(group,collapse);store.save(false);snapshot=store.data.toString();});h.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
-                View gear=iconButton("more",tr(R.string.manage_group,group),false,()->groupActions(group));h.addView(gear);groupControls.add(gear);groupHeader.addView(h);
-                body.addView(groupHeader);
-            }
+            LinearLayout groupHeader=column();groupHeader.setTag("group-"+group);groupHeader.setPadding(dp(4),dp(16),dp(4),dp(4));LinearLayout h=row(),heading=row();
+            ImageView chevron=icon("right",MUTED,20);chevron.setRotation(folded?0:rtl()?-90:90);heading.addView(chevron);LinearLayout name=column();name.setPaddingRelative(dp(8),0,0,0);TextView title=text(label,18,TEXT);title.setTypeface(Typeface.create("sans-serif-medium",Typeface.NORMAL));title.setMaxLines(2);title.setEllipsize(TextUtils.TruncateAt.END);name.addView(title);name.addView(text(tr(R.string.group_count,quantity(R.plurals.alarm_count,members.size()),enabled),11,MUTED));JSONObject next=members.stream().filter(a->a.optBoolean("enabled")&&a.optLong("next")>System.currentTimeMillis()).min(Comparator.comparingLong(a->a.optLong("next"))).orElse(null);name.addView(text(next==null?tr(R.string.no_upcoming):tr(R.string.next_alarm,date(next.optLong("next"))),11,MUTED));heading.addView(name,new LinearLayout.LayoutParams(0,-2,1));heading.setBackground(ripple(Color.TRANSPARENT,12));heading.setContentDescription(tr(folded?R.string.expand_group:R.string.collapse_group,label));heading.setFocusable(true);
+            heading.setOnClickListener(v->{boolean collapse=!store.collapsed(group);android.transition.TransitionManager.beginDelayedTransition(body,new android.transition.AutoTransition().setDuration(180));for(View member:memberViews)member.setVisibility(collapse?View.GONE:View.VISIBLE);chevron.animate().rotation(collapse?0:rtl()?-90:90).setDuration(180).start();heading.setContentDescription(tr(collapse?R.string.expand_group:R.string.collapse_group,label));store.collapse(group,collapse);store.save(false);snapshot=store.data.toString();});h.addView(heading,new LinearLayout.LayoutParams(0,-2,1));
+            View gear=iconButton("more",tr(R.string.manage_group,label),false,()->groupActions(group));h.addView(gear);groupControls.add(gear);groupHeader.addView(h);
+            body.addView(groupHeader);
             for(JSONObject a:members){
                 int id=a.optInt("id");LinearLayout c=card();c.setPadding(dp(14),dp(8),dp(14),dp(8));LinearLayout.LayoutParams compact=(LinearLayout.LayoutParams)c.getLayoutParams();compact.setMargins(0,dp(4),0,dp(4));memberViews.add(c);c.setVisibility(folded?View.GONE:View.VISIBLE);c.setTag("alarm-"+id);LinearLayout r=row();LinearLayout words=column();TextView time=mono(LocaleText.alarmTime(this,a.optInt("hour"),a.optInt("minute")),28);time.setPadding(0,0,0,dp(2));words.addView(time);words.addView(text(tr(R.string.alarm_subtitle,a.optString("name",tr(R.string.alarm)),Schedule.describe(this,a)),12,MUTED));
                 if(a.optBoolean("enabled")){String note=date(a.optLong("next"));if(a.optBoolean("snoozed"))note=tr(R.string.snoozed_time,note);else if(a.optBoolean("postponed"))note=tr(R.string.postponed_time,note);if(a.optString("skipDate").compareTo(LocalDate.now().toString())>=0)note=a.optBoolean("paused")?tr(R.string.paused_card,note):tr(R.string.skipped_time,note);words.addView(text(note,11,MINT));}
@@ -194,7 +190,7 @@ public class MainActivity extends Activity {
                 FrameLayout controls=new FrameLayout(this);r.addView(controls,new LinearLayout.LayoutParams(dp(48),dp(48)));Switch toggle=new Switch(this);toggle.setChecked(a.optBoolean("enabled"));toggle.setContentDescription(tr(R.string.enable_alarm,a.optString("name"),time.getText()));toggle.setOnCheckedChangeListener((b,on)->{store.enable(a,on);commit();if(on)toast(alarmSet(a));});palette.tint(toggle);controls.addView(toggle,new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER));
                 // The whole 48dp frame flips the switch (or selects), so a near miss never opens the editor.
                 controls.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);controls.setOnClickListener(v->{if(selection.group!=null){if(selection.accepts(group))selectAlarm(group,id);}else toggle.toggle();});
-                CheckBox check=new CheckBox(this);check.setMinHeight(dp(48));check.setMinimumHeight(dp(48));check.setButtonTintList(ColorStateList.valueOf(MINT));check.setContentDescription(tr(R.string.select_alarm,a.optString("name"),groupLabel(group)));controls.addView(check,new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER));c.addView(r);
+                CheckBox check=new CheckBox(this);check.setMinHeight(dp(48));check.setMinimumHeight(dp(48));check.setButtonTintList(ColorStateList.valueOf(MINT));check.setContentDescription(tr(R.string.select_alarm,a.optString("name"),label));controls.addView(check,new FrameLayout.LayoutParams(-2,-2,Gravity.CENTER));c.addView(r);
                 AlarmRowViews views=new AlarmRowViews();views.card=c;views.check=check;views.toggle=toggle;views.group=group;alarmViews.put(id,views);
                 c.setOnClickListener(v->{if(selection.group!=null)selectAlarm(group,id);else alarmEditor(a,group);});c.setOnLongClickListener(v->{selectAlarm(group,id);return true;});
             }
@@ -213,7 +209,23 @@ public class MainActivity extends Activity {
     }
     String days(int mask){return LocaleText.days(this,mask);}
     String date(long millis){return LocaleText.relative(this,millis);}
-    void groupName(String old){EditText e=field(tr(R.string.group_name),old==null?"":old);AlertDialog d=new AlertDialog.Builder(this).setTitle(old==null?tr(R.string.new_group):tr(R.string.rename_group)).setView(LocaleText.direction(e)).setNegativeButton(tr(R.string.cancel),null).setPositiveButton(tr(R.string.save),null).create();d.setOnShowListener(v->d.getButton(-1).setOnClickListener(w->{String n=e.getText().toString().trim();if(n.isEmpty()){e.setError(tr(R.string.enter_name));return;}JSONArray g=store.list("groups");for(int i=0;i<g.length();i++)if(g.optString(i).equalsIgnoreCase(n)&&!g.optString(i).equals(old)){e.setError(tr(R.string.group_exists));return;}if(old!=null){for(int i=0;i<g.length();i++)if(g.optString(i).equals(old))g.remove(i);for(JSONObject a:store.objects("alarms"))if(a.optString("group").equals(old))ClockStore.put(a,"group",n);}if(old!=null){store.collapse(n,store.collapsed(old));JSONObject folded=store.data.optJSONObject("collapsedGroups");if(folded!=null)folded.remove(old);}g.put(n);d.dismiss();commit();}));d.show();}
+    void groupName(String group){
+        if("".equals(group))return;
+        boolean creating=group==null;
+        String currentName=creating?"":groupLabel(group);
+        EditText field=field(tr(R.string.group_name),currentName);
+        AlertDialog dialog=new AlertDialog.Builder(this).setTitle(creating?tr(R.string.new_group):tr(R.string.rename_group))
+            .setView(LocaleText.direction(field)).setNegativeButton(tr(R.string.cancel),null).setPositiveButton(tr(R.string.save),null).create();
+        dialog.setOnShowListener(v->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(w->{
+            String name=field.getText().toString().trim();
+            if(name.isEmpty()){field.setError(tr(R.string.enter_name));return;}
+            if(name.equals(currentName)){dialog.dismiss();return;}
+            if(store.groupNameTaken(this,name,group)){field.setError(tr(R.string.group_exists));return;}
+            if(creating)store.list("groups").put(name);else store.renameGroup(group,name);
+            dialog.dismiss();commit();
+        }));
+        dialog.show();
+    }
     /** Group menu in blocks: add · on/off (only what applies) · skip, pause, restore · rename · delete, set apart in the warning colour. */
     AlertDialog groupMenu;
     void groupActions(String group){
@@ -224,12 +236,14 @@ public class MainActivity extends Activity {
         blocks.add(Collections.<Object[]>singletonList(new Object[]{R.string.add_alarm,(Runnable)()->alarmEditor(null,group)}));
         List<Object[]> power=new ArrayList<>();if(anyOff)power.add(new Object[]{R.string.enable_all,(Runnable)()->groupMutate(group,1,0)});if(anyOn)power.add(new Object[]{R.string.disable_all,(Runnable)()->groupMutate(group,2,0)});blocks.add(power);
         List<Object[]> skips=new ArrayList<>();if(anyOn){skips.add(new Object[]{R.string.skip_occurrences,(Runnable)()->groupMutate(group,4,0)});skips.add(new Object[]{R.string.pause_group,(Runnable)()->pauseGroup(group)});}if(anySkipped)skips.add(new Object[]{R.string.restore_skips,(Runnable)()->groupMutate(group,9,0)});blocks.add(skips);
-        blocks.add(Collections.<Object[]>singletonList(new Object[]{R.string.rename_group,(Runnable)()->groupName(group)}));
-        blocks.add(Collections.<Object[]>singletonList(new Object[]{R.string.delete_group,(Runnable)()->new AlertDialog.Builder(this).setTitle(tr(R.string.delete_group)).setMessage(tr(R.string.delete_group_members,group,quantity(R.plurals.alarm_count,members.size()))).setNegativeButton(tr(R.string.cancel),null).setPositiveButton(tr(R.string.delete),(x,y)->groupMutate(group,8,0)).show()}));
+        if(!group.isEmpty()){
+            blocks.add(Collections.<Object[]>singletonList(new Object[]{R.string.rename_group,(Runnable)()->groupName(group)}));
+            blocks.add(Collections.<Object[]>singletonList(new Object[]{R.string.delete_group,(Runnable)()->new AlertDialog.Builder(this).setTitle(tr(R.string.delete_group)).setMessage(tr(R.string.delete_group_members,groupLabel(group),quantity(R.plurals.alarm_count,members.size()))).setNegativeButton(tr(R.string.cancel),null).setPositiveButton(tr(R.string.delete),(x,y)->groupMutate(group,8,0)).show()}));
+        }
         for(List<Object[]> block:blocks){if(block.isEmpty())continue;if(list.getChildCount()>0){View line=new View(this);line.setBackgroundColor(LINE);LinearLayout.LayoutParams lp=new LinearLayout.LayoutParams(-1,dp(1));lp.setMargins(dp(20),dp(4),dp(20),dp(4));list.addView(line,lp);}
             for(Object[] item:block){int label=(Integer)item[0];boolean destructive=label==R.string.delete_group;TextView t=text(tr(label),16,destructive?GOLD:TEXT);t.setGravity(Gravity.CENTER_VERTICAL|Gravity.START);t.setMinHeight(dp(48));t.setPaddingRelative(dp(24),0,dp(24),0);t.setBackground(ripple(Color.TRANSPARENT,0));t.setTag("group-menu-"+getResources().getResourceEntryName(label));
                 t.setOnClickListener(v->{if(groupMenu!=null)groupMenu.dismiss();((Runnable)item[1]).run();});list.addView(t,new LinearLayout.LayoutParams(-1,-2));}}
-        ScrollView scroll=new ScrollView(this);scroll.addView(list);groupMenu=new AlertDialog.Builder(this).setTitle(group).setView(LocaleText.direction(scroll)).show();
+        ScrollView scroll=new ScrollView(this);scroll.addView(list);groupMenu=new AlertDialog.Builder(this).setTitle(groupLabel(group)).setView(LocaleText.direction(scroll)).show();
     }
     /** Pauses every repeating, enabled alarm of a group through a date or for its next N rings. */
     void pauseGroup(String group){
@@ -241,8 +255,8 @@ public class MainActivity extends Activity {
         }).show();
     }
     void groupMutate(String group,int action,int minutes){
-        for(JSONObject a:store.objects("alarms"))if(a.optString("group").equals(group)){if(action==1&&!a.optBoolean("enabled"))store.enable(a,true);if(action==2)store.enable(a,false);if(action==4)store.skipOnce(a);if(action==9)store.restoreSkips(a);if(action==8)store.remove("alarms",a);}
-        if(action==8){JSONObject folded=store.data.optJSONObject("collapsedGroups");if(folded!=null)folded.remove(group);JSONArray groups=store.list("groups");for(int i=0;i<groups.length();i++)if(groups.optString(i).equals(group)){groups.remove(i);break;}}
+        if(action==8)store.removeGroup(group);
+        else for(JSONObject a:store.objects("alarms"))if(a.optString("group").equals(group)){if(action==1&&!a.optBoolean("enabled"))store.enable(a,true);if(action==2)store.enable(a,false);if(action==4)store.skipOnce(a);if(action==9)store.restoreSkips(a);}
         commit();
     }
     static final int SERIES_MAX=10;

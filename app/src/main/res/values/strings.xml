@@ -21,7 +21,9 @@
   <!-- Banner above the ring screen; shown in capitals -->
   <string name="timer_finished">TIMER FINISHED</string>
   <string name="dismiss">Dismiss</string>
-  <string name="ungrouped">Ungrouped</string>
+  <string name="general_group">General</string>
+  <!-- %1$s is the built-in General group label, qualified when a user-created group has the same name. -->
+  <string name="general_group_conflict">%1$s (default)</string>
   <string name="schedule_summary">All alarms off</string>
   <string name="empty_title">Make room for your morning</string>
   <string name="empty_description">Add your first alarm with +.</string>
@@ -37,7 +39,7 @@
   <string name="enable_all">Turn all on</string>
   <string name="disable_all">Turn all off</string>
   <string name="skip_occurrences">Skip next occurrences</string>
-  <string name="delete_group">Delete group (keep alarms)</string>
+  <string name="delete_group">Delete group and its alarms</string>
   <string name="minutes">Minutes</string>
   <!-- Hint in the alarm editor's name field -->
   <string name="alarm_name">Label</string>
@@ -176,7 +178,6 @@
     <item quantity="other">%d times</item>
   </plurals>
   <string name="group_label">Group</string>
-  <string name="no_group">No group</string>
   <string name="group_choice">Group: %1$s</string>
   <string name="create_group">Create new group…</string>
   <string name="create">Create</string>
@@ -304,7 +305,6 @@
   <string name="widget_stopwatch_desc">Start, lap and reset from the home screen</string>
   <string name="widget_groups_name">Alarm groups</string>
   <string name="widget_groups_desc">Turn whole groups of alarms on and off</string>
-  <string name="widget_no_groups">No groups yet. Create one in Alarms.</string>
   <!-- Quick-timer button on the widget, e.g. "5 min" -->
   <string name="widget_minutes_short">%1$d min</string>
   <string name="widget_quick_start">Quick start</string>

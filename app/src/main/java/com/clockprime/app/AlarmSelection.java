@@ -3,7 +3,7 @@ package com.clockprime.app;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-/** Empty string means Ungrouped; null means no selection session. */
+/** Empty string means General; null means no selection session. */
 final class AlarmSelection {
     String group;
     final Set<Integer> ids=new LinkedHashSet<>();
