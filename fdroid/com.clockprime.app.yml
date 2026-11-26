@@ -16,8 +16,8 @@ RepoType: git
 Repo: https://github.com/mexusbg/ClockPrime.git
 
 Builds:
-  - versionName: 0.13.4
-    versionCode: 39
+  - versionName: 0.13.5
+    versionCode: 40
     commit: 3907691295cefe2ceb0d14aedd71880f902b4baf
     subdir: app
     gradle:
@@ -25,5 +25,5 @@ Builds:
 
 AutoUpdateMode: Version
 UpdateCheckMode: Tags
-CurrentVersion: 0.13.4
-CurrentVersionCode: 39
+CurrentVersion: 0.13.5
+CurrentVersionCode: 40
